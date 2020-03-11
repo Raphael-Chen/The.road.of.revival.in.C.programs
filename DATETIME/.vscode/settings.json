@@ -1,0 +1,27 @@
+{
+    "files.associations": {
+        "BIOSTIME.C": "cpp",
+        "CLOCK.C": "cpp",
+        "CTIME.C": "cpp",
+        "DELAY_5.C": "cpp",
+        "DIFFTIME.C": "cpp",
+        "DOSDATE.C": "cpp",
+        "DOSTIME.C": "cpp",
+        "DOSUNIX.C": "cpp",
+        "FTIME.C": "cpp",
+        "JULIAN.C": "cpp",
+        "LOCALTIM.C": "cpp",
+        "MKTIME.C": "cpp",
+        "SET_TZ.C": "cpp",
+        "SETDATE.C": "cpp",
+        "SETTIME.C": "cpp",
+        "STIME.C": "cpp",
+        "STRDATE.C": "cpp",
+        "STRTIME.C": "cpp",
+        "STRFTIME.C": "cpp",
+        "TIMEZONE.C": "cpp",
+        "TZNAME.C": "cpp",
+        "USEDELAY.C": "cpp",
+        "GMTIME.C": "cpp"
+    }
+}
