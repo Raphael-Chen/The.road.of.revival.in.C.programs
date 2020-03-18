@@ -2,6 +2,6 @@
 
 int main( void )
 {
-    printf("1001 C & C++ Tips!");
+    printf("Hello, future!");
     return 0;
 }
