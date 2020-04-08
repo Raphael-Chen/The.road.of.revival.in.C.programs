@@ -1,7 +1,7 @@
 
 # 6.4.1 Keywords
 
-这是绝对不能出现拼写错误的关键字，编译器就是靠着这些关键字来做语法分析，编码时请务必不要发生拼写错误。
+这些是C语言中绝对不能出现拼写错误的关键字，编译器就是靠着这些关键字来做语法分析，编码时请务必不要发生拼写错误。
 
 
 Syntax:
@@ -59,4 +59,22 @@ The above tokens (case sensitive) are reserved (in translation phases 7 and 8) f
 
 
 
+分类
+
+| 数据类型 | 修饰符   |      |      |      |      |
+| -------- | -------- | ---- | ---- | ---- | ---- |
+| _Bool    | unsigned |      |      |      |      |
+| char     | signed   |      |      |      |      |
+|     | auto     |      |      |      |      |
+| int      | static   |      |      |      |      |
+| float    | extern   |      |      |      |      |
+| double   | const |      |      |      |      |
+| enum    | long |      |      |      |      |
+| union    | short |      |      |      |      |
+| struct   |          |      |      |      |      |
+| _Complex |          |      |      |      |      |
+
+
+
+> 如遇到没有见过的数据类型，基本都是由typedef定义的别名
 
