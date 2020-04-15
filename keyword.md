@@ -61,20 +61,23 @@ The above tokens (case sensitive) are reserved (in translation phases 7 and 8) f
 
 分类
 
-| 数据类型 | 修饰符   |      |      |      |      |
-| -------- | -------- | ---- | ---- | ---- | ---- |
-| _Bool    | unsigned |      |      |      |      |
-| char     | signed   |      |      |      |      |
-|     | auto     |      |      |      |      |
-| int      | static   |      |      |      |      |
-| float    | extern   |      |      |      |      |
-| double   | const |      |      |      |      |
-| enum    | long |      |      |      |      |
-| union    | short |      |      |      |      |
-| struct   |          |      |      |      |      |
-| _Complex |          |      |      |      |      |
-
-
+| TYPE SPECIFIERS       | TYPE QUALIFIERS | STORAGE-CLASS SPECIFIERS | Function specifiers |  |
+| ------------------------- | ------------------- | ---------------------------- | ---------------------------- | ---------------------------- |
+| void                      | const               | typedef                      | inline                |                       |
+| char                      | restrict            | extern                       | _Noreturn              |                        |
+| short                     | volatile            | static                       |                        |                        |
+| int                       | _Atomic             | _Thread_local                |                 |                 |
+| long                      |                     | auto                         |                          |                          |
+| float                     |                     | register                     |                      |                      |
+| double                    |                     |                              |                              |                              |
+| signed                    |                     |                              |                              |                              |
+| unsigned                  |                     |                              |                              |                              |
+| _Bool                     |                     |                              |                              |                              |
+| _Complex                  |                     |                              |                              |                              |
+| atomic-type-specifier     |                     |                              |                              |                              |
+| struct-or-union-specifier |                     |                              |                              |                              |
+| enum-specifier            |                     |                              |                              |                              |
+| typedef-name              |                     |                              |                              |                              |
 
 > 如遇到没有见过的数据类型，基本都是由typedef定义的别名
 
