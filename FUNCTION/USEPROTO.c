@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-//提前声明函数原型合法 
+// 在同一个源文件中，提前声明函数原型合法 
 int i_cube(int);
 float f_cube(float);
 
