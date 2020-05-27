@@ -38,3 +38,14 @@ long long convertDecimalToBinary(int n)
     return binaryNumber;
 }
 
+
+void caesar_encrpty( char* str, size_t len, int* mod )
+{
+    int i;
+    for ( i = 0; i < len; i++ )
+    {
+        /* code */
+        str[i] = (str[i] + key) % *mod;
+    }
+   
+}
