@@ -1,11 +1,15 @@
-//
+#include <stdio.h>
 
+
+// 获取骰子的点数
 unsigned char get_dice_number(void)
 {
     srand(time(0));
     int dice = rand() % 6 + 1;
     return (unsigned char)dice;
 }
+
+
 
 int encrypt(int plainText, int key)
 {
@@ -17,7 +21,7 @@ int decrypt(int cipherText, int key)
     return cipherText ^ key;
 }
 
-
+// 十进制转换为二进制，有bug么?
 long long convertDecimalToBinary(int n)
 {
     long long binaryNumber = 0;
@@ -39,13 +43,38 @@ long long convertDecimalToBinary(int n)
 }
 
 
-void caesar_encrpty( char* str, size_t len, int* mod )
+
+// 凯撒加密算法
+struct POINT
 {
-    int i;
+    /* data */
+    int key;
+    int mod;
+};
+
+void caesar_encrpty( char* output, char* str, size_t len, struct POINT* point )
+{
+    size_t i;
+    
+    for ( i = 0; i < len; i++)
+    {
+        output[i] = ( str[i] + ( point->key ) ) % ( point->mod );
+    }
+}
+
+char* caesar_decrpty( char* str, size_t len, struct POINT* point )
+{
+    char temp;
+    char decoede[20];
+    size_t i;
+
     for ( i = 0; i < len; i++ )
     {
-        /* code */
-        str[i] = (str[i] + key) % *mod;
+        temp = ( str[i] - ( point->key ) ) % ( point->mod );
+        decoede[i] = temp > 0 ? temp : temp + ( point->mod );
     }
-   
+    printf("plain = %s\n", decoede );
+
+    return decoede;
 }
+
