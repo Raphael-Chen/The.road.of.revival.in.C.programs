@@ -62,19 +62,17 @@ void caesar_encrpty( char* output, char* str, size_t len, struct POINT* point )
     }
 }
 
-char* caesar_decrpty( char* str, size_t len, struct POINT* point )
+char* caesar_decrpty( char* decode, char* str, size_t len, struct POINT* point )
 {
     char temp;
-    char decoede[20];
     size_t i;
 
     for ( i = 0; i < len; i++ )
     {
         temp = ( str[i] - ( point->key ) ) % ( point->mod );
-        decoede[i] = temp > 0 ? temp : temp + ( point->mod );
+        decode[i] = temp > 0 ? temp : temp + ( point->mod );
     }
-    printf("plain = %s\n", decoede );
+    // printf("plain = %s\n", decode );
 
-    return decoede;
+    return decode;
 }
-
