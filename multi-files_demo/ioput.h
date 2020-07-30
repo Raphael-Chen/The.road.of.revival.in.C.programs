@@ -1,6 +1,9 @@
+#ifndef __IOPUT_H__
+#define __IOPUT_H__
+
+
 /* ioput.h */
 #include <stdio.h>
-
 
 //读取用户输入的年份
 int input_year(void);
@@ -10,3 +13,5 @@ int input_month(void);
 
 //显示日历
 void output_days(int year, int month, int week, int is_leap_year);
+
+#endif
