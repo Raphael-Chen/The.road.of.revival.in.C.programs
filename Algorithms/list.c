@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// 单相链表数据结构的基本实现
+// 单向链表数据结构的基本实现
 typedef struct Link
 {
     int elem;
+    // ... more elements
+    
     struct Link *next;
 } link;
 
