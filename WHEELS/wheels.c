@@ -1,7 +1,7 @@
 #include <stdio.h>
+#include <stdbool.h>
 
-
-// 获取骰子的点数
+// 随机获取骰子的点数
 unsigned char get_dice_number(void)
 {
     srand(time(0));
@@ -75,4 +75,15 @@ char* caesar_decrpty( char* decode, char* str, size_t len, struct POINT* point )
     // printf("plain = %s\n", decode );
 
     return decode;
+}
+
+
+// 计算闰年
+bool calc_leap_year(int year)
+{
+    if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0))
+    {
+        return true;
+    }
+    return false;
 }
