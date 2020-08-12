@@ -1,17 +1,16 @@
 #include "double_linklist.h"
-#include <stdlib.h>
+// #include <stdlib.h>
 
 // 检查指针是否为空
-int checkNull(void* p)
+bool checkNull(void *p)
 {
     if (NULL == p)
     {
-        printf("\nlog: null pointer\n");
-        return 1;
+        printf("\nlog: NULL pointer\n");
+        return true;
     }
-    return 0;
+    return false;
 }
-
 
 // 快速创建一个双链表
 DLlist *_createList()
@@ -25,13 +24,13 @@ DLlist *_createList()
 // 插入双链表的头部,返回1则表示插入成功
 int addToHead(DLlist *pList, _TYPE value)
 {
-    if (checkNull(pList))
+    if ( true == checkNull(pList))
     {
         return 0;
     }
 
     DLNode *newNode = (DLNode *)malloc(sizeof(DLNode));
-    if (checkNull(newNode))
+    if ( true == checkNull(newNode))
     {
         return 0; // 创建新节点失败,则返回
     }
@@ -54,7 +53,72 @@ int addToHead(DLlist *pList, _TYPE value)
     return 1;
 }
 
-int main( void )
+// 插入到双链表的尾部,返回1插入成功
+int addToTail(DLlist *pList, _TYPE value)
+{
+    if ( true == checkNull(pList) )
+    {
+        return 0;
+    }
+    DLNode *newNode = (DLNode *)malloc(sizeof(DLNode));
+    if ( true == checkNull(newNode) )
+    {
+        return 0; // 创建新节点失败,则返回
+    }
+    newNode->pNext = newNode->pPre = NULL;
+    newNode->value = value;
+
+    if (NULL == pList->head) // 若头节点为空，则新节点置为头节点
+    {
+        pList->head = newNode;
+        pList->back = newNode;
+        pList->head->pNext = pList->back->pNext = NULL;
+        pList->size++;
+    }
+    else if (pList->size == 1) // 只有一个元素，头尾都指向它，链接好头部与下一个节点
+    {
+        newNode->pPre = pList->head;
+        pList->head->pNext = newNode;
+        pList->back = newNode;
+        pList->size++;
+    }
+    else // 添加到尾部
+    {
+        newNode->pPre = pList->back;
+        pList->back->pNext = newNode;
+        pList->back = newNode;
+        pList->size++;
+    }
+
+    return 1;
+}
+
+// 正向输出所有节点值
+void showAll(DLlist *pList)
+{
+    if ( true == checkNull(pList) )
+    {
+        return;
+    }
+    else
+    {
+        if (isEmpty(pList))
+        {
+            printf("\nlog:showAll 空链表\n");
+            return;
+        }
+        printf("\n[  ");
+        DLNode *p = pList->head;
+        while (p != NULL)
+        {
+            printf("%d  ", p->value);
+            p = p->pNext; // 往后遍历
+        }
+        printf("]\n");
+    }
+}
+
+int main(void)
 {
     DLlist *pList = _createList(); // 创建一个双链表
     addToHead(pList, 1);           // 插入数据到头
@@ -63,11 +127,11 @@ int main( void )
     addToHead(pList, 4);
     addToHead(pList, 5);
 
-    addToBack(pList, 11); // 插入数据到尾
-    addToBack(pList, 22);
-    addToBack(pList, 33);
-    addToBack(pList, 44);
-    addToBack(pList, 55);
+    addToTail(pList, 11); // 插入数据到尾
+    addToTail(pList, 22);
+    addToTail(pList, 33);
+    addToTail(pList, 44);
+    addToTail(pList, 55);
 
     showAll(pList);        // 正向显示所有
     showAllReverse(pList); // 反向显示所有
@@ -77,7 +141,7 @@ int main( void )
     printf("size = %ld\n", pList->size);
 
     deleteNode(pList, 33);
-    showAll(pList);                   // 正向显示所有
+    showAll(pList);                      // 正向显示所有
     printf("size = %ld\n", pList->size); // 双链表的大小
 
     // system("pause");
@@ -94,11 +158,11 @@ int main( void )
 //     pList->addToHead(pList, 4);
 //     pList->addToHead(pList, 5);
 
-//     pList->addToBack(pList, 11); // 插入数据到尾
-//     pList->addToBack(pList, 22);
-//     pList->addToBack(pList, 33);
-//     pList->addToBack(pList, 44);
-//     pList->addToBack(pList, 55);
+//     pList->addToTail(pList, 11); // 插入数据到尾
+//     pList->addToTail(pList, 22);
+//     pList->addToTail(pList, 33);
+//     pList->addToTail(pList, 44);
+//     pList->addToTail(pList, 55);
 
 //     pList->showAll(pList);        // 正向显示所有
 //     pList->showAllReverse(pList); // 反向显示所有
