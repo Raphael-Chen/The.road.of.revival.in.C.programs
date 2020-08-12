@@ -5,6 +5,7 @@
 typedef int _TYPE; // 数据类型
 
 #include <stdio.h>
+#include <stdbool.h>
 
 typedef struct DoubleLinkListNode
 {
@@ -36,13 +37,13 @@ DLlist *_createListWithArrayValues(_TYPE array[], int length);
 int addToHead(DLlist *pList, _TYPE value);
 
 // 插入到尾部,返回1插入成功
-int addToBack(DLlist *pList, _TYPE value);
+int addToTail(DLlist *pList, _TYPE value);
 
 // 将一维数组的值添加到链表头部,返回1插入成功
 int addToHeadWithArrayValues(DLlist *pList, _TYPE array[], int length);
 
 // 将一维数组的值添加到链表尾部,返回1插入成功
-int addToBackWithArrayValues(DLlist *pList, _TYPE array[], int length);
+int addToTailWithArrayValues(DLlist *pList, _TYPE array[], int length);
 
 // 插入到指定元素的后面,返回1插入成功
 int insertAfter(DLlist *pList, _TYPE curValue, _TYPE newValue);
@@ -84,7 +85,7 @@ int deleteNode2(DLlist *pList, _TYPE value);
 int deleteRange(DLlist *pList, _TYPE fromValue, int count);
 
 // 检查是否为空
-int checkNull(void *p);
+bool checkNull(void *p);
 
 // 修改指定的值,返回1修改成功
 int modify(DLlist *pList, _TYPE oldValue, _TYPE newValue);
