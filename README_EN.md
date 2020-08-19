@@ -15,3 +15,28 @@ As long as the operating system is still developed in C for a day, it will not d
 Use code to solve practical problems instead of talking about theories.
 
 **Just do it!**
+
+
+
+.
+├── ABC                           #Basic knowledge
+├── ARRAYS
+├── ADVANCED
+├── CMD_LINE
+├── DATETIME              #Get date and time from system
+├── FILES                       #How to read and wirte file in harddisk
+├── FUNCTION
+├── MACROS
+├── MATH
+├── MEMORY
+├── STRINGS
+├── WHEELS
+├── Misc
+├── multi-files_demo
+├── Algorithms
+├── atomic&thread
+├── Platform_dependence
+│   ├── Like_Unix
+│   ├── Macintosh
+│   └── Windows
+└── 
