@@ -1,11 +1,13 @@
 #pragma once
 
+// Doubly linked list
 #define _ASC 1     // 升序排序
 #define _DESC 0    // 降序排序
 typedef int _TYPE; // 数据类型
 
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 typedef struct DoubleLinkListNode
 {
