@@ -1,5 +1,4 @@
 #include "double_linklist.h"
-// #include <stdlib.h>
 
 // 检查指针是否为空
 bool checkNull(void *p)
@@ -10,6 +9,43 @@ bool checkNull(void *p)
         return true;
     }
     return false;
+}
+
+// 判断链表是否为空，返回1则为空
+int isEmpty(DLlist *pList)
+{
+    if (checkNull(pList))
+    {
+        return 1;
+    }
+    return pList->size == 0;
+}
+
+// 修改指定的值的节点,返回1表示修改成功
+int modify(DLlist *pList, _TYPE oldValue, _TYPE newValue)
+{
+    if (checkNull(pList))
+    {
+        return 0;
+    }
+
+    if (isEmpty(pList))
+    {
+        printf("\nlog:空链表\n");
+        return 0;
+    }
+    DLNode *curNode = pList->head;
+    while (curNode)
+    {
+        if (curNode->value == oldValue)
+        {
+            curNode->value = newValue;
+            return 1;
+        }
+        curNode = curNode->pNext;
+    }
+
+    return 0;
 }
 
 // 快速创建一个双链表
@@ -24,13 +60,13 @@ DLlist *_createList()
 // 插入双链表的头部,返回1则表示插入成功
 int addToHead(DLlist *pList, _TYPE value)
 {
-    if ( true == checkNull(pList))
+    if (true == checkNull(pList))
     {
         return 0;
     }
 
     DLNode *newNode = (DLNode *)malloc(sizeof(DLNode));
-    if ( true == checkNull(newNode))
+    if (true == checkNull(newNode))
     {
         return 0; // 创建新节点失败,则返回
     }
@@ -56,12 +92,12 @@ int addToHead(DLlist *pList, _TYPE value)
 // 插入到双链表的尾部,返回1插入成功
 int addToTail(DLlist *pList, _TYPE value)
 {
-    if ( true == checkNull(pList) )
+    if (true == checkNull(pList))
     {
         return 0;
     }
     DLNode *newNode = (DLNode *)malloc(sizeof(DLNode));
-    if ( true == checkNull(newNode) )
+    if (true == checkNull(newNode))
     {
         return 0; // 创建新节点失败,则返回
     }
@@ -96,7 +132,7 @@ int addToTail(DLlist *pList, _TYPE value)
 // 正向输出所有节点值
 void showAll(DLlist *pList)
 {
-    if ( true == checkNull(pList) )
+    if (true == checkNull(pList))
     {
         return;
     }
