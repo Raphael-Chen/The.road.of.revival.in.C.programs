@@ -62,6 +62,31 @@
 但由于某些编译器和标准库相对于标准的滞后，所以现阶段，我们所整理的代码全部都基于C11（[ISO/IEC 9899:2011](https://www.iso.org/standard/57853.html)）标准编译通过，虽然这不是已知最新的标准，但未来我们一定会用更新的标准来编译我们的代码。
 
 
+### 目录结构
+.
+├── ABC                           #Basic knowledge
+├── ARRAYS
+├── ADVANCED
+├── CMD_LINE
+├── DATETIME              #Get date and time from system
+├── FILES                       #How to read and wirte file in harddisk
+├── FUNCTION
+├── MACROS
+├── MATH
+├── MEMORY
+├── STRINGS
+├── WHEELS
+├── Misc
+├── multi-files_demo
+├── Algorithms
+├── atomic&thread
+├── Platform_dependence
+│   ├── Like_Unix
+│   ├── Macintosh
+│   └── Windows
+└── 
+
+
 
 
 
