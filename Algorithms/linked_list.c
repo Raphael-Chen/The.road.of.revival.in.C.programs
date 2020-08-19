@@ -1,6 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/***
+    A linked list is a data structure in which the objects are arranged in a linear order.
+    Unlike an array, however, in which the linear order is determined by the array
+    indices, the order in a linked list is determined by a pointer in each object.
+ **/
+
 // 单向链表数据结构的基本实现
 typedef struct Link
 {
@@ -38,7 +44,7 @@ int main( void )
     p = insertElem(p, 5, 4);
     display(p);
 
-    printf("删除元素3:\n");
+    printf("删除元素3.\n");
     p = delElem(p, 3);
     display(p);
 
@@ -52,7 +58,7 @@ int main( void )
     {
         printf("元素2的位置为：%d\n", address);
     }
-    printf("更改第3的位置的数据为7:\n");
+    printf("更改第3的位置的数据为7.\n");
     p = amendElem(p, 3, 7);
     display(p);
 
@@ -96,6 +102,16 @@ link *insertElem(link *p, int elem, int add)
     temp->next = c;
     return p;
 }
+
+
+/** fake code
+     LIST-DELETE( L, x )
+    1 if x.pre != NIL
+    2   x.pre.next != x.next
+    3 else L.head = x.next
+    4 if x.next != NIL
+    5   x.next.pre = x.pre
+**/
 
 link *delElem(link *p, int add)
 {
@@ -152,4 +168,4 @@ void display(link *p)
     printf("\n");
 }
 
-// http://data.biancheng.net/view/5.html
+// http.//data.biancheng.net/view/5.html
