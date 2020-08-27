@@ -63,27 +63,27 @@
 
 
 ### 目录结构
-.
-├── ABC                           #Basic knowledge
-├── ARRAYS
-├── ADVANCED
-├── CMD_LINE
-├── DATETIME              #Get date and time from system
-├── FILES                       #How to read and wirte file in harddisk
-├── FUNCTION
-├── MACROS
-├── MATH
-├── MEMORY
-├── STRINGS
-├── WHEELS
-├── Misc
-├── multi-files_demo
-├── Algorithms
-├── atomic&thread
-├── Platform_dependence
-│   ├── Like_Unix
-│   ├── Macintosh
-│   └── Windows
+.  
+├── ABC                           #Basic knowledge  
+├── ARRAYS  
+├── ADVANCED  
+├── CMD_LINE  
+├── DATETIME              #Get date and time from system  
+├── FILES                       #How to read and wirte file in harddisk  
+├── FUNCTION  
+├── MACROS  
+├── MATH  
+├── MEMORY  
+├── STRINGS  
+├── WHEELS  
+├── Misc  
+├── multi-files_demo  
+├── Algorithms  
+├── atomic&thread  
+├── Platform_dependence  
+│   ├── Like_Unix  
+│   ├── Macintosh  
+│   └── Windows  
 └── 
 
 
@@ -106,5 +106,5 @@
 [^2]:当前的智能手机电池容量是以前功能手机的数倍，但续航时间却是以前的几分之一。便携和嵌入式设备本来就应该是低功耗的，但智能手机一定是个反例，如果能从软件层面提升效能减少功耗，一定是件功德无量的事情。
 [^3]:我个人认为，学习一门编程语言的最好方式，就是直接大量阅读高质量的源代码，直击该语言的本质。毕竟互联网基建时代早已经结束了，没必要反复造轮子。
 [^4]:在没有图形界面的时代，所有的计算机程序都是命令行的，只能靠键盘输入命令来运行程序。其实从本质上来说，目前所有计算机程序无需图形界面也照样能够计算出结果。图形化的诞生只是降低了计算机的使用门槛，得以推广至大多数普通家庭，从而走进大众生活。
-[^5]:有一些目前流行的跨平台编辑器从功能上来说更加强大，例如VScode加cpptools插件，还有Codelite这种小众编辑器用来阅读和修改代码都是不错的选择。
+[^5]:当然，有一些目前流行的跨平台编辑器从功能上来说更加强大，例如VScode加cpptools插件，还有Codelite这种小众编辑器用来阅读和修改代码都是不错的选择。
 [^6]:[谭浩强在程序员圈子里的口碑如何？为什么？](https://www.zhihu.com/question/22793863)
