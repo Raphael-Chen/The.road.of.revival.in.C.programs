@@ -21,6 +21,31 @@ int isEmpty(DLlist *pList)
     return pList->size == 0;
 }
 
+// 通过值找到指定匹配的第一个节点
+DLNode *findByValue(DLlist *pList, _TYPE value)
+{
+    if (checkNull(pList))
+    {
+        return 0;
+    }
+    if (isEmpty(pList))
+    {
+        printf("\nlog:空链表\n");
+        return 0;
+    }
+
+    DLNode *curNode = pList->head;
+    while (curNode)
+    {
+        if (curNode->value == value)
+        {
+            return curNode;
+        }
+        curNode = curNode->pNext;
+    }
+    return NULL; // 没有找到还回空
+}
+
 // 修改指定的值的节点,返回1表示修改成功
 int modify(DLlist *pList, _TYPE oldValue, _TYPE newValue)
 {
@@ -154,6 +179,95 @@ void showAll(DLlist *pList)
     }
 }
 
+// 反向显示所有节点的值
+void showAllReverse(DLlist *pList)
+{
+    if (checkNull(pList))
+    {
+        return;
+    }
+    if (isEmpty(pList))
+    {
+        printf("\nlog:空链表\n");
+        return ;
+    }
+
+    printf("\n[  ");
+    DLNode *p = pList->back;
+    while (p != NULL)
+    {
+        printf("%d  ", p->value);
+        p = p->pPre; // 往前遍历
+    }
+    printf("]\n");
+}
+
+// 删除第一个指定元素的节点，返回1则删除成功
+int deleteNode(DLlist *pList, _TYPE value)
+{
+    if (checkNull(pList))
+    {
+        printf("\nlog:删除节点失败\n");
+        return 0;
+    }
+    if (isEmpty(pList))
+    {
+        printf("\nlog:删除节点失败,空链表\n");
+        return 0;
+    }
+    DLNode *findNode = findByValue(pList, value);
+    if (checkNull(findNode))
+    {
+        printf("\nlog:要删除的节点不存在,value=%d\n", value);
+        return 0;
+    }
+    if (value == pList->head->value) // 头节点满足
+    {
+        if (pList->head->pNext == NULL) // 只有head时
+        {
+            DLNode *curNode = pList->head;
+            pList->head = pList->back = NULL; // 删除所有节点后将head与back都赋值NULL
+            free(curNode);
+        }
+        else
+        {
+            DLNode *curNode = pList->head;
+            pList->head = curNode->pNext; // 头节点后移
+            free(curNode);
+        }
+        pList->size--;
+        return 1;
+    }
+    else if (value == pList->back->value) // 尾节点满足
+    {
+        DLNode *curNode = pList->back;
+        pList->back = curNode->pPre;
+        pList->back->pNext = NULL;
+        free(curNode);
+        pList->size--;
+        return 1;
+    }
+    else
+    {
+        DLNode *curNode = pList->head->pNext;
+        while (curNode != NULL) // 下面可以调用findByValue来查找指定节点
+        {
+            if (curNode->value == value) // 删除满足条件的节点
+            {
+                DLNode *preNode = curNode->pPre;
+                DLNode *nextNode = curNode->pNext;
+                preNode->pNext = nextNode;
+                nextNode->pPre = preNode;
+                free(curNode); // 释放内存
+                pList->size--;
+                return 1;
+            }
+            curNode = curNode->pNext;
+        }
+    }
+    return 0;
+}
+
 int main(void)
 {
     DLlist *pList = _createList(); // 创建一个双链表
@@ -184,33 +298,3 @@ int main(void)
     return 0;
 }
 
-// int main(void)
-// {
-
-//     DLlist *pList = _createList();
-//     pList->addToHead(pList, 1); // 插入数据到头
-//     pList->addToHead(pList, 2);
-//     pList->addToHead(pList, 3);
-//     pList->addToHead(pList, 4);
-//     pList->addToHead(pList, 5);
-
-//     pList->addToTail(pList, 11); // 插入数据到尾
-//     pList->addToTail(pList, 22);
-//     pList->addToTail(pList, 33);
-//     pList->addToTail(pList, 44);
-//     pList->addToTail(pList, 55);
-
-//     pList->showAll(pList);        // 正向显示所有
-//     pList->showAllReverse(pList); // 反向显示所有
-
-//     pList->modify(pList, 11, 66); // 将11修改为66
-//     pList->showAll(pList);        // 正向显示所有
-//     printf("size=%d\n", pList->size);
-
-//     pList->deleteNode(pList, 33);
-//     pList->showAll(pList);            // 正向显示所有
-//     printf("size=%d\n", pList->size); // 双链表的大小
-
-//     // system("pause");
-//     return 0;
-// }
