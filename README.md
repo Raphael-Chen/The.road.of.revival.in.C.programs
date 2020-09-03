@@ -43,7 +43,7 @@
 
 至于调试器，得了吧那是用来擦屁股的。活不干净，代码漏洞百出就只能用用调试器来擦屁股，虽然这话不中听，但却是事实。修炼多年的老手只对自己的代码负责，不用等到出了事情再来找问题在哪里，调试器就成了摆设。所以关于如何调试，我们最后再来关注也不迟。
 
-每当我想到这个再简单不过的事实，就只能哭笑，有多少老师教不是一上来就让你用VC的？有多少高校的计算机系的教程不是用的谭浩强[^6]教授的《C语言程序设计》，这本教材让计算机专业的学生觉得好像C语言只能用来解数学题目。经历过这些的人无不是一入门就被当头打了一棒子，从此误入歧途。
+每当我想到这个再简单不过的事实，就只能哭笑，有多少老师教不是一上来就让你用VC的？有多少高校的计算机系的教程不是用的谭浩强[^6]教授的《C语言程序设计》，这本教材让计算机专业的学生觉得好像C语言只能用来解数学题。经历过这些的人无不是一入门就被当头打了一棒子，从此误入歧途。
 
 抄来的一个段子：
 
@@ -64,12 +64,12 @@
 
 ### 目录结构
 .  
-├── ABC                           #Basic knowledge  
+├── ABC                              #Basic knowledge  
 ├── ARRAYS  
 ├── ADVANCED  
 ├── CMD_LINE  
-├── DATETIME              #Get date and time from system  
-├── FILES                       #How to read and wirte file in harddisk  
+├── DATETIME                 #Get date and time from system  
+├── FILES                          #How to read and wirte file in harddisk  
 ├── FUNCTION  
 ├── MACROS  
 ├── MATH  
