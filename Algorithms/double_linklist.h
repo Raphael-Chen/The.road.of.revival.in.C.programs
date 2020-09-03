@@ -20,7 +20,7 @@ typedef struct DoubleLinkList
 {
     DLNode *head; // 链表头
     DLNode *back; // 链表尾
-    size_t size;  //链表包含的元素的个数 typedef unsigned int   size_t;
+    size_t size;  // 链表包含的元素的个数 typedef unsigned int   size_t;
 } DLlist;         // 双链表
 
 // 对一个新链表进行初始化
