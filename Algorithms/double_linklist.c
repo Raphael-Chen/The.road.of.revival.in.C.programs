@@ -189,7 +189,7 @@ void showAllReverse(DLlist *pList)
     if (isEmpty(pList))
     {
         printf("\nlog:空链表\n");
-        return ;
+        return;
     }
 
     printf("\n[  ");
@@ -268,6 +268,34 @@ int deleteNode(DLlist *pList, _TYPE value)
     return 0;
 }
 
+// 获取指定值的节点在链表中的深度
+int getDepth(DLlist *pList, _TYPE value)
+{
+    DLNode *curNode = pList->head;
+    int depth = 0;
+
+    if (checkNull(pList))
+    {
+        return -1;
+    }
+    if (isEmpty(pList))
+    {
+        return 0;
+    }
+
+    while ( NULL != curNode )
+    {
+        depth++;
+        if (curNode->value == value)
+        {
+            return depth;
+        }
+        curNode = curNode->pNext;
+    }
+
+    return -1;
+}
+
 int main(void)
 {
     DLlist *pList = _createList(); // 创建一个双链表
@@ -297,4 +325,3 @@ int main(void)
     // system("pause");
     return 0;
 }
-
