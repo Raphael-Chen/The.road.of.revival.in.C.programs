@@ -1,44 +1,48 @@
 //https://www.cnblogs.com/rookiefly/p/3451310.html
 // 单向循环列表的实现
 
+#include <stdio.h>
+#include <stdlib.h>
+
+
 struct LNode
 {
     int data;
     struct LNode *next;
 };
-typedef struct LNode *linklist;
+typedef struct LNode* Linklist;
 
-void InitList(linklist *L) //改变尾指针
+void InitList(Linklist L) //改变尾指针
 {
-    *L = (linklist)malloc(sizeof(struct LNode)); //分配头结点
-    if (*L == NULL)                              //分配失败
+    L = (Linklist)malloc(sizeof(struct LNode)); //分配头结点
+    if (L == NULL)                              //分配失败
         exit(0);
-    (*L)->next = *L; //指针域指向它本身
+    (L)->next = L; //指针域指向它本身
 }
 
-void ClearList(linklist *L) //改变尾指针
+void ClearList(Linklist L) //改变尾指针
 {
-    linklist p, q;
-    *L = (*L)->next; //先令尾指针指向头结点，不然释放最后一个结点时尾指针，无法指向头结点
-    p = (*L)->next;  //p指向第一个结点
+    Linklist p, q;
+    L = (L)->next; //先令尾指针指向头结点，不然释放最后一个结点时尾指针，无法指向头结点
+    p = (L)->next;  //p指向第一个结点
 
-    while (p != *L) //p未到表头时
+    while (p != L) //p未到表头时
     {
         q = p->next;
         free(p);
         p = q;
     }
-    *L->next = *L; //头结点指针域指向其本身
+    L->next = L; //头结点指针域指向其本身
 }
 
-void DestroyList(linklist *L)
+void DestroyList(Linklist L)
 {
-    ClearList(&L);
-    free(*L); //释放头结点
-    *L = NULL;
+    ClearList(L);
+    free(L); //释放头结点
+    L = NULL;
 }
 
-int ListEmpty(linklist L)
+int ListEmpty(Linklist L)
 {
     if (L->next == L) //指针域指向它本身，肯定就是空了，该结点即为头结点
         return 0;
@@ -46,9 +50,9 @@ int ListEmpty(linklist L)
         return 1; //非空为1
 }
 
-int ListLength(linklist L)
+int ListLength(Linklist L)
 {
-    linklist p = L->next->next; //p指向第一个结点
+    Linklist p = L->next->next; //p指向第一个结点
     int j = 0;
 
     while (p != L->next) //p未到表头时
@@ -59,9 +63,9 @@ int ListLength(linklist L)
     return j;
 }
 
-void GetElem(linklist L, int i, int *e)
+void GetElem(Linklist L, int i, int *e)
 {
-    linklist p = L->next; //p指向头结点
+    Linklist p = L->next; //p指向头结点
     int j = 0;
     if (i < 1 || i > ListLength(L)) //位置不合理
         exit(0);
@@ -74,9 +78,9 @@ void GetElem(linklist L, int i, int *e)
     *e = p->data;
 }
 
-int LocateElem(linklist L, int e)
+int LocateElem(Linklist L, int e)
 {
-    linklist p = L->next->next; //p指向链表第一个元素
+    Linklist p = L->next->next; //p指向链表第一个元素
     int j = 0;
 
     while (p != L->next) //p未到表头时
@@ -89,10 +93,10 @@ int LocateElem(linklist L, int e)
     return -1; //未找到，返回-1
 }
 
-int PriorElem(linklist L, int cur_e, int *pri_e)
+int PriorElem(Linklist L, int cur_e, int *pri_e)
 {
-    linklist p = L->next->next; //p指向链表第一个元素
-    linklist q;
+    Linklist p = L->next->next; //p指向链表第一个元素
+    Linklist q;
 
     while (p != L->next)
     {
@@ -107,10 +111,10 @@ int PriorElem(linklist L, int cur_e, int *pri_e)
     return 0;
 }
 
-int NextElem(linklist L, int cur_e, int *Nex_e) //最后一个元素无后继
+int NextElem(Linklist L, int cur_e, int *Nex_e) //最后一个元素无后继
 {
-    linklist p = L->next->next; //p指向第一个结点
-    linklist q;
+    Linklist p = L->next->next; //p指向第一个结点
+    Linklist q;
 
     while (p != L->next)
     {
@@ -125,10 +129,10 @@ int NextElem(linklist L, int cur_e, int *Nex_e) //最后一个元素无后继
     return 0;
 }
 
-int ListInsert(Linklist *L, int i, int e) //在表尾插入改变尾指针
+int ListInsert(Linklist L, int i, int e) //在表尾插入改变尾指针
 {
-    linklist p = (*L)->next; //p指向表头
-    linklist q, s;
+    Linklist p = (L)->next; //p指向表头
+    Linklist q, s;
     int j = 0;
 
     if (i < 1 || i > ListLength(L) + 1) //插入位置不合理
@@ -140,12 +144,22 @@ int ListInsert(Linklist *L, int i, int e) //在表尾插入改变尾指针
         p = p->next;
     }
     q = p->next; //q指向第i个结点
-    s = (linklist)malloc(sizeof(struct LNode));
+    s = (Linklist)malloc(sizeof(struct LNode));
     s->data = e;
     s->next = q;
     q->next = s;
-    if (p == *L)
-        *L = s;
+    if (p == L)
+        L = s;
+
+    return 0;    
+}
+
+
+
+int main( void )
+{
+
+    return 0;
 }
 
 // http://data.biancheng.net/view/7.html 约瑟夫环
