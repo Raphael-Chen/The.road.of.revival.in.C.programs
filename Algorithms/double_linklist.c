@@ -21,6 +21,13 @@ int isEmpty(DLlist *pList)
     return pList->size == 0;
 }
 
+// 用于给通过DoubleLinkList创建的新链表进行初始化
+void init(DLlist *pList)
+{
+    pList->head = pList->back = NULL;
+    pList->size = 0;
+}
+
 // 通过值找到指定匹配的第一个节点
 DLNode *findByValue(DLlist *pList, _TYPE value)
 {
@@ -218,7 +225,7 @@ int deleteNode(DLlist *pList, _TYPE value)
     DLNode *findNode = findByValue(pList, value);
     if (checkNull(findNode))
     {
-        printf("\nlog:要删除的节点不存在,value=%d\n", value);
+        printf("\nlog:要删除的节点不存在,value = %d\n", value);
         return 0;
     }
     if (value == pList->head->value) // 头节点满足
@@ -283,7 +290,7 @@ int getDepth(DLlist *pList, _TYPE value)
         return 0;
     }
 
-    while ( NULL != curNode )
+    while (NULL != curNode)
     {
         depth++;
         if (curNode->value == value)
@@ -296,6 +303,51 @@ int getDepth(DLlist *pList, _TYPE value)
     return -1;
 }
 
+// 从第一个匹配值的节点开始释放,截断并丢弃从指定值节点开始到结尾的链。返回1删除成功
+int freeFrom(DLlist *pList, _TYPE value)
+{
+    if (checkNull(pList))
+    {
+        return 0;
+    }
+    if (isEmpty(pList))
+    {
+        printf("\nlog:空链表\n");
+        return 0;
+    }
+
+    DLNode *curNode = findByValue(pList, value);
+    if (curNode == NULL)
+    {
+        printf("\nlog: 要删除value = %d的起始节点不存在\n", value);
+        return 0;
+    }
+    if (curNode == pList->head)
+    {
+        return freeAll(pList);
+    }
+    else
+    {
+        DLNode *preNode = curNode->pPre;
+        int depth = getDepth(pList, preNode->value);
+        DLlist *dyingList = (DLlist *)malloc(sizeof(DLlist)); // 将要被删除的链表
+        if (checkNull(dyingList))
+        {
+            return 0;
+        }
+        dyingList->head = curNode;
+        freeAll(dyingList); // 调用freeAll来删除
+        free(dyingList);
+        preNode->pNext = NULL; // 将curNode的上一个节点的pNext置NULL
+        pList->back = preNode; // 重新设置尾节点
+        pList->size = depth;
+    }
+
+    return 1;
+}
+
+// 测试1：创建、添加到头尾、修改、删除节点、显示所有
+/********
 int main(void)
 {
     DLlist *pList = _createList(); // 创建一个双链表
@@ -305,22 +357,58 @@ int main(void)
     addToHead(pList, 4);
     addToHead(pList, 5);
 
-    addToTail(pList, 11); // 插入数据到尾
-    addToTail(pList, 22);
-    addToTail(pList, 33);
-    addToTail(pList, 44);
-    addToTail(pList, 55);
+    addToTail(pList, 11);           // 插入数据到尾
+    addToTail(pList, 22);           
+    addToTail(pList, 33);           
+    addToTail(pList, 44);           
+    addToTail(pList, 55);           
 
-    showAll(pList);        // 正向显示所有
-    showAllReverse(pList); // 反向显示所有
+    showAll(pList);                  // 正向显示所有
+    showAllReverse(pList)            // 反向显示所有
 
-    modify(pList, 11, 66); // 将11修改为66
-    showAll(pList);        // 正向显示所有
+    modify(pList, 11, 66)            // 将11修改为66
+    showAll(pList);                  // 正向显示所有
     printf("size = %ld\n", pList->size);
 
     deleteNode(pList, 33);
     showAll(pList);                      // 正向显示所有
     printf("size = %ld\n", pList->size); // 双链表的大小
+
+    // system("pause");
+    return 0;
+}********/
+
+// 测试2：删除一个范围、清空所有、截取前部分
+int main(void)
+{
+    DLlist *pList = (DLlist *)malloc(sizeof(DLlist));
+    init(pList);
+
+    addToHead(pList, 1);
+    addToHead(pList, 2);
+    addToHead(pList, 3);
+    addToHead(pList, 4);
+    addToHead(pList, 5);
+    addToHead(pList, 6);
+    addToHead(pList, 7);
+    addToHead(pList, 8);
+    addToHead(pList, 9);
+    addToHead(pList, 10);
+
+    showAll(pList);
+    printf("size = %lu\n", pList->size); // 大小
+
+    freeFrom(pList, 3);                  // 从3开始，删除后面所有
+    showAll(pList);
+    printf("size = %lu\n", pList->size);
+
+    deleteRange(pList, 9, 3);            // 从9开始删除3个元素
+    showAll(pList);
+    printf("size = %lu\n", pList->size);
+
+    freeAll(pList);                      // 清空链表
+    showAll(pList);
+    printf("size = %lu\n", pList->size);
 
     // system("pause");
     return 0;
