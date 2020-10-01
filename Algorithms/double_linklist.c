@@ -18,7 +18,8 @@ int isEmpty(DLlist *pList)
     {
         return 1;
     }
-    return pList->size == 0;
+    // return pList->size == 0;
+    return 0;
 }
 
 // 用于给通过DoubleLinkList创建的新链表进行初始化
@@ -303,6 +304,33 @@ int getDepth(DLlist *pList, _TYPE value)
     return -1;
 }
 
+// 释放所有节点占用的内存空间，清空链表，返回1则成功
+int freeAll(DLlist *pList)
+{
+    if (checkNull(pList))
+    {
+        return 0;
+    }
+    if ( 0 == isEmpty(pList) )
+    {
+        printf("\nlog:空链表\n");
+        return 0;
+    }
+    DLNode *curNode = pList->head->pNext;
+    while ( NULL != curNode ) // 循环删除头节点的下一个节点
+    {
+        pList->head->pNext = curNode->pNext;
+        free(curNode);
+        curNode = pList->head->pNext;
+    }
+
+    free(pList->head); // 删除头节点
+    pList->head = pList->back = NULL;
+    pList->size = 0;
+
+    return 1;
+}
+
 // 从第一个匹配值的节点开始释放,截断并丢弃从指定值节点开始到结尾的链。返回1删除成功
 int freeFrom(DLlist *pList, _TYPE value)
 {
@@ -398,15 +426,15 @@ int main(void)
     showAll(pList);
     printf("size = %lu\n", pList->size); // 大小
 
-    freeFrom(pList, 3);                  // 从3开始，删除后面所有
+    freeFrom(pList, 3); // 从3开始，删除后面所有
     showAll(pList);
     printf("size = %lu\n", pList->size);
 
-    deleteRange(pList, 9, 3);            // 从9开始删除3个元素
+    deleteRange(pList, 9, 3); // 从9开始删除3个元素
     showAll(pList);
     printf("size = %lu\n", pList->size);
 
-    freeAll(pList);                      // 清空链表
+    freeAll(pList); // 清空链表
     showAll(pList);
     printf("size = %lu\n", pList->size);
 
