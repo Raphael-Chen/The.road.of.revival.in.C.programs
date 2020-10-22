@@ -4,14 +4,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
 struct LNode
 {
     int data;
     struct LNode *next;
 };
-typedef struct LNode* Linklist;
+typedef struct LNode * Linklist;
 
+// 初始化链表
 void InitList(Linklist L) //改变尾指针
 {
     L = (Linklist)malloc(sizeof(struct LNode)); //分配头结点
@@ -20,11 +20,12 @@ void InitList(Linklist L) //改变尾指针
     (L)->next = L; //指针域指向它本身
 }
 
+// 保留头节点，释放其他节点空间，清除数据
 void ClearList(Linklist L) //改变尾指针
 {
     Linklist p, q;
     L = (L)->next; //先令尾指针指向头结点，不然释放最后一个结点时尾指针，无法指向头结点
-    p = (L)->next;  //p指向第一个结点
+    p = (L)->next; //p指向第一个结点
 
     while (p != L) //p未到表头时
     {
@@ -35,9 +36,11 @@ void ClearList(Linklist L) //改变尾指针
     L->next = L; //头结点指针域指向其本身
 }
 
+// 销毁整个列表，包括头节点
 void DestroyList(Linklist L)
 {
     ClearList(L);
+
     free(L); //释放头结点
     L = NULL;
 }
@@ -151,12 +154,48 @@ int ListInsert(Linklist L, int i, int e) //在表尾插入改变尾指针
     if (p == L)
         L = s;
 
-    return 0;    
+    return 0;
 }
 
+// 删除第i个节点？
+int ListDeletei(Linklist *L, int i, int *e)
+{
+    Linklist p = (*L)->next;
+    Linklist q;
+    int j = 0;
+    if (i < 1 || i > ListLength(*L))
+        exit(0);
 
+    while (j < i - 1)     //找到第i-1个结点
+    {
+        ++j;
+        p = p->next;
+    }
+    q = p->next;          //q指向第i个结点
+    *e = q->data;
+    p->next = q->next;
+    if (q == *L)          //删除的是表尾元素，表尾指针发生改变
+        *L = p;
+    free(q);
 
-int main( void )
+    return 0;
+}
+
+// 遍历整个列表
+void TravelList(Linklist L)
+{
+    Linklist p = L->next->next; //p指向第一个结点
+    int j = 0;
+
+    while (p != L->next) //p未到表头
+    {
+        ++j;
+        printf("第%d个元素为：%d\n", j, p->data);
+        p = p->next;
+    }
+}
+
+int main(void)
 {
 
     return 0;
