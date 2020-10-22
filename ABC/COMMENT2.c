@@ -8,5 +8,7 @@
 
 int main(void)
 {
-    printf("1001 C & C++ Tips!"); /* Display a message */
+    printf("1001 C & C++ Tips!"); // Display a message 
+
+    return 0;
 }
