@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+// The difference bettwen x++ and ++x
+
 int main(void)
 {
     int value = 1;
@@ -11,4 +13,6 @@ int main(void)
 
     printf("Using prefix %d\n", ++value);
     printf("Value after increment %d\n", value);
+
+    return 0;
 }
