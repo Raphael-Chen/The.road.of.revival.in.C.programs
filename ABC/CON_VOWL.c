@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+// 26个英文字母中，元音字母和非元音字母的统计
 int main(void)
 {
     char letter;
@@ -22,5 +23,7 @@ int main(void)
         };
 
     printf("The number of vowels is %d\n", vowel_count);
-    printf("The number of vowels is %d\n", consonant_count);
+    printf("The number of not vowels is %d\n", consonant_count);
+
+    return 0;
 }
