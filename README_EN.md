@@ -1,7 +1,7 @@
 # The road of revival in C programs
 
 
->"Don't walk behind me; I may not lead. Don't walk in front of me; I may not follow. Just walk beside me and be my friend."
+>"Don't walk behind me; I may not to lead. Don't walk in front of me; I may not  to follow. Just walk beside me and be my friend."
 
 ## Intro
 It has been 30 years since the first version of C language standard (ANSI C) was released in 1989. In thirty years, I believe that all companies and research institutions in the world have used it to achieve all functions, but as intellectual property and technical barriers, those excellent frameworks and modules refined in the production process may only be stored in In their own machines, they serve their different business purposes, like some lonely islands. Because of this, other languages such as Java, Python, etc. are given opportunities to grow wildly. This should be said to be the sadness of the C language.
@@ -17,6 +17,19 @@ Use code to solve practical problems instead of talking about theories.
 **Just do it!**
 
 
+
+Which groups is this project suitable for?
+
+## Who is the project suitable for?
+
+- Developers and students of related majors who are interested in C language and have a paranoid love.
+- I hope to write some code for myself (not for the enterprise) and do some projects to facilitate the daily life practitioners.
+- ~~Temporarily lay down the burden of work and spare the employees at home.~~
+- and others
+
+
+
+## Directory Structure
 
 .  
 ├── ABC                           #Basic knowledge  
