@@ -11,15 +11,15 @@ bool checkNull(void *p)
     return false;
 }
 
-// 判断链表是否为空，返回1则为空
-int isEmpty(DLlist *pList)
+// 判断链表是否为空，返回true则为空
+bool isEmpty(DLlist *pList)
 {
     if (checkNull(pList))
     {
-        return 1;
+        return true;
     }
     // return pList->size == 0;
-    return 0;
+    return false;
 }
 
 // 用于给通过DoubleLinkList创建的新链表进行初始化
@@ -34,12 +34,12 @@ DLNode *findByValue(DLlist *pList, _TYPE value)
 {
     if (checkNull(pList))
     {
-        return 0;
+        return NULL;
     }
     if (isEmpty(pList))
     {
         printf("\nlog:空链表\n");
-        return 0;
+        return NULL;
     }
 
     DLNode *curNode = pList->head;
@@ -311,13 +311,13 @@ int freeAll(DLlist *pList)
     {
         return 0;
     }
-    if ( 0 == isEmpty(pList) )
+    if (0 == isEmpty(pList))
     {
         printf("\nlog:空链表\n");
         return 0;
     }
     DLNode *curNode = pList->head->pNext;
-    while ( NULL != curNode ) // 循环删除头节点的下一个节点
+    while (NULL != curNode) // 循环删除头节点的下一个节点
     {
         pList->head->pNext = curNode->pNext;
         free(curNode);
@@ -372,6 +372,63 @@ int freeFrom(DLlist *pList, _TYPE value)
     }
 
     return 1;
+}
+
+// 删除一个范围的元素节点, 从fromValue值的节点开始删除，删除count个。返回1表示删除成功
+int deleteRange(DLlist *pList, _TYPE fromValue, int count)
+{
+    int num = 0;
+    if (checkNull(pList))
+    {
+        return 0;
+    }
+    if (isEmpty(pList))
+    {
+        printf("\nlog:空链表\n");
+        return 0;
+    }
+
+    DLNode *curNode = findByValue(pList, fromValue);
+    if (checkNull(curNode))
+    {
+        return 0;
+    }
+
+
+    if (curNode == pList->head) // 如果是头节点
+    {
+        while (num < count && deleteNode(pList, pList->head->value)) // 从头部开始删除count个
+        {
+            ++num;
+        }
+        return 1;
+    }
+    else                         // 非头节点
+    {
+        DLNode *preNode = curNode->pPre;
+        while (curNode)
+        {
+            if (num < count)
+            {
+                preNode->pNext = curNode->pNext;
+                curNode->pPre = preNode;
+                free(curNode);
+                ++num;
+            }
+            else
+            {
+                break;
+            }
+            curNode = preNode->pNext;
+        }
+    }
+
+    if (num == count || NULL == curNode) // 如果删除了指定数量或已经是尾节点下一个了
+    {
+        pList->size -= (num == count) ? count : num;
+        return 1;
+    }
+    return 0;
 }
 
 // 测试1：创建、添加到头尾、修改、删除节点、显示所有
@@ -441,3 +498,4 @@ int main(void)
     // system("pause");
     return 0;
 }
+
