@@ -107,8 +107,11 @@ int addListToBack(DLlist *pList, DLlist *addingList);
 // 获取指定值的节点在链表中的深度
 int getDepth(DLlist *pList, _TYPE value);
 
-// 是否为空，返回1则为空
-int isEmpty(DLlist *pList);
+// 检查链表是否为空，返回1则为空
+// int isEmpty(DLlist *pList);
+
+// 判断链表是否为空，返回true则为空
+bool isEmpty(DLlist *pList);
 
 // 对链表值进行排序,asc为0则降序序排，否则升序。可以使用_ASC(升序) ， _DESC(降序)
 void sort(DLlist *pList, int asc);
