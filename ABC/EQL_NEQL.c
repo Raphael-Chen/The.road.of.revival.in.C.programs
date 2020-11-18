@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+// 比较运算符——等号与不等号的展示
 int main(void)
 {
     int age = 21;
@@ -16,4 +17,6 @@ int main(void)
 
     if (height != 73)
         printf("User's height is not 73\n");
+
+    return 0;
 }
