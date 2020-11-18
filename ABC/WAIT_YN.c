@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <ctype.h>
-// #include <conio.h>
 
 int main(void)
 {
@@ -8,8 +7,8 @@ int main(void)
 
     printf("Do you want to continue? (Y/N): ");
 
-    letter = getchar();         // Get the letter
-    letter = toupper(letter);   // Convert letter to uppercase
+    letter = getchar();             // Get the letter
+    letter = toupper(letter);       // Convert letter to uppercase
 
     while ((letter != 'Y') && (letter != 'N'))
     {
@@ -19,4 +18,6 @@ int main(void)
     }
 
     printf("\nYour response was %c\n", letter);
+
+    return 0;
 }
