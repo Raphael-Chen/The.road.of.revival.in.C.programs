@@ -1,5 +1,4 @@
 #include <stdio.h>
-// #include <conio.h>
 #include <ctype.h>
 #include <stdlib.h>
 
@@ -10,7 +9,7 @@ int main(void)
     do
     {
         printf("A Display directory listing\n");
-        printf("B Display disk information\n");
+        // printf("B Display disk information\n");
         printf("C Change system date\n");
         printf("Q Quit\n");
         printf("Choice: ");
@@ -21,14 +20,16 @@ int main(void)
         switch (letter)
         {
         case 'A':
-            system("DIR");
+            system("dir");
             break;
-        case 'B':
-            system("CHKDSK");
-            break;
+        // case 'B':
+        //     system("CHKDSK");
+        //     break;
         case 'C':
-            system("DATE");
+            system("date");
             break;
         };
     } while (letter != 'Q');
+
+    return 0;
 }
