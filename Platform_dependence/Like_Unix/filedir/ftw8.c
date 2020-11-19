@@ -4,6 +4,16 @@
 
 // Figure 4.22. Recursively descend a directory hierarchy, counting file types
 
+// The dirent structure defined in the file<dirent.h> is implementation dependent. 
+// Implementations define the structure to contain at least the following two members : 
+//     
+// struct dirent
+// {
+//     ino_t d_ino;               /* i-node number */
+//     char d_name[NAME_MAX + 1]; /* null-terminated filename */
+// }
+
+
 /* function type that is called for each filename */
 typedef int Myfunc(const char *, const struct stat *, int);
 
@@ -23,6 +33,7 @@ int main(int argc, char *argv[])
     ret = myftw(argv[1], myfunc); /* does it all */
 
     ntot = nreg + ndir + nblk + nchr + nfifo + nslink + nsock;
+
     if (ntot == 0)
         ntot = 1; /* avoid divide by 0; print 0 for all counts */
     printf("regular files  = %7ld, %5.2f %%\n", nreg,
@@ -55,8 +66,8 @@ int main(int argc, char *argv[])
 static char *fullpath; /* contains full pathname for every file */
 static size_t pathlen;
 
-static int /* we return whatever func() returns */
-myftw(char *pathname, Myfunc *func)
+ /* we return whatever func() returns */
+static int myftw(char *pathname, Myfunc *func)
 {
     fullpath = path_alloc(&pathlen); /* malloc PATH_MAX+1 bytes */
                                      /* ({Prog pathalloc}) */
@@ -84,9 +95,9 @@ static int dopath(Myfunc *func) /* we return whatever func() returns */
     DIR *dp;
     int ret, n;
 
-    if (lstat(fullpath, &statbuf) < 0) /* stat error */
+    if (lstat(fullpath, &statbuf) < 0)            /* stat error */
         return (func(fullpath, &statbuf, FTW_NS));
-    if (S_ISDIR(statbuf.st_mode) == 0) /* not a directory */
+    if (S_ISDIR(statbuf.st_mode) == 0)            /* not a directory */
         return (func(fullpath, &statbuf, FTW_F));
 
     /*
@@ -130,43 +141,45 @@ static int myfunc(const char *pathname, const struct stat *statptr, int type)
 {
     switch (type)
     {
-    case FTW_F:
-        switch (statptr->st_mode & S_IFMT)
-        {
-        case S_IFREG:
-            nreg++;
+        case FTW_F:
+            switch (statptr->st_mode & S_IFMT)
+            {
+                case S_IFREG:
+                    nreg++;
+                    break;
+                case S_IFBLK:
+                    nblk++;
+                    break;
+                case S_IFCHR:
+                    nchr++;
+                    break;
+                case S_IFIFO:
+                    nfifo++;
+                    break;
+                case S_IFLNK:
+                    nslink++;
+                    break;
+                case S_IFSOCK:
+                    nsock++;
+                    break;
+                case S_IFDIR: /* directories should have type = FTW_D */
+                    err_dump("for S_IFDIR for %s", pathname);
+            }
             break;
-        case S_IFBLK:
-            nblk++;
+        case FTW_D:
+            ndir++;
             break;
-        case S_IFCHR:
-            nchr++;
+        case FTW_DNR:
+            err_ret("can't read directory %s", pathname);
             break;
-        case S_IFIFO:
-            nfifo++;
+        case FTW_NS:
+            err_ret("stat error for %s", pathname);
             break;
-        case S_IFLNK:
-            nslink++;
-            break;
-        case S_IFSOCK:
-            nsock++;
-            break;
-        case S_IFDIR: /* directories should have type = FTW_D */
-            err_dump("for S_IFDIR for %s", pathname);
-        }
-        break;
-    case FTW_D:
-        ndir++;
-        break;
-    case FTW_DNR:
-        err_ret("can't read directory %s", pathname);
-        break;
-    case FTW_NS:
-        err_ret("stat error for %s", pathname);
-        break;
-    default:
-        err_dump("unknown type %d for pathname %s", type, pathname);
+        default:
+            err_dump("unknown type %d for pathname %s", type, pathname);
     }
 
     return (0);
 }
+
+
