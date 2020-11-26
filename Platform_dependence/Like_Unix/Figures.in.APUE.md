@@ -4,7 +4,7 @@
 
 
 
-Figure 4.2. IPC type macros in <sys/stat.h>
+## Figure 4.2. IPC type macros in <sys/stat.h>
 Macro Type of object
 S_TYPEISMQ() message queue
 S_TYPEISSEM() semaphore
@@ -12,8 +12,7 @@ S_TYPEISSHM() shared memory object
 
 
 
-Figure 4.6. The nine file access
-permission bits, from <sys/stat.h>
+## Figure 4.6. The nine file access permission bits, from <sys/stat.h>
 
 | st_mode mask | Meaning       |
 | ------------ | ------------- |
@@ -29,8 +28,7 @@ permission bits, from <sys/stat.h>
 
 
 
-Figure 4.10. The umask
-file access permission bits
+## Figure 4.10. The umask file access permission bits
 
 | Mask bit | Meaning       |
 | -------- | ------------- |
@@ -66,3 +64,28 @@ file access permission bits
 | S_IXOTH | execute by other (world)                  |
 
 
+
+
+
+## Figure 4.17. Treatment of symbolic links by various functions
+
+| Function | Does not follow symbolic link | Follows symbolic link |
+| -------- | ----------------------------- | --------------------- |
+| access   |                               | •                     |
+| chdir    |                               | •                     |
+| chmod    |                               | •                     |
+| chown    | •                             | •                     |
+| creat    |                               | •                     |
+| exec     |                               | •                     |
+| lchown   | •                             |                       |
+| link     |                               | •                     |
+| lstat    | •                             |                       |
+| open     |                               | •                     |
+| opendir  |                               | •                     |
+| pathconf |                               | •                     |
+| readlink | •                             |                       |
+| remove   | •                             |                       |
+| rename   | •                             |                       |
+| stat     |                               | •                     |
+| truncate |                               | •                     |
+| unlink   | •                             |                       |
