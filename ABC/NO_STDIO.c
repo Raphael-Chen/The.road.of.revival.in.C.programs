@@ -5,4 +5,4 @@ int main(void)
     return 0;
 }
 
-//Attention, there is no head file from the beginning.
+// Attention, there is no head file include from the beginning.
