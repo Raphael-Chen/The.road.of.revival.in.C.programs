@@ -394,7 +394,6 @@ int deleteRange(DLlist *pList, _TYPE fromValue, int count)
         return 0;
     }
 
-
     if (curNode == pList->head) // 如果是头节点
     {
         while (num < count && deleteNode(pList, pList->head->value)) // 从头部开始删除count个
@@ -403,7 +402,7 @@ int deleteRange(DLlist *pList, _TYPE fromValue, int count)
         }
         return 1;
     }
-    else                         // 非头节点
+    else // 非头节点
     {
         DLNode *preNode = curNode->pPre;
         while (curNode)
@@ -429,6 +428,55 @@ int deleteRange(DLlist *pList, _TYPE fromValue, int count)
         return 1;
     }
     return 0;
+}
+
+// 插入到指定值curValue的节点元素的前面,返回1则插入成功，insertBefore改进版
+int insertBefore2(DLlist *pList, _TYPE curValue, _TYPE newValue)
+{
+    if (checkNull(pList))
+    {
+        return 0;
+    }
+    if (isEmpty(pList))
+    {
+        printf("\nlog:插入指定节点后面失败,空链表\n");
+        return 0;
+    }
+
+    DLNode *curNode = findByValue(pList, curValue); // 查找指定节点
+    if (checkNull(pList))
+    {
+        // printf("\n插入失败，目标节点value=%d不存在\n", curNode);
+        printf("\n插入失败，目标节点value = %p不存在\n", curNode);
+        return 0;
+    }
+
+    DLNode *newNode = (DLNode *)malloc(sizeof(DLNode));
+    if (checkNull(newNode))
+    {
+        return 0;
+    }
+    newNode->pNext = newNode->pPre = NULL;
+    newNode->value = newValue;
+
+    if (curNode == pList->head)
+    {
+        newNode->pNext = pList->head;
+        pList->head->pPre = newNode;
+        pList->head = newNode;
+        pList->size++;
+    }
+    else
+    {
+
+        DLNode *preNode = curNode->pPre;
+        newNode->pNext = curNode;
+        newNode->pPre = preNode;
+        curNode->pPre = newNode;
+        preNode->pNext = newNode;
+        pList->size++;
+    }
+    return 1;
 }
 
 // 测试1：创建、添加到头尾、修改、删除节点、显示所有
@@ -464,6 +512,7 @@ int main(void)
 }********/
 
 // 测试2：删除一个范围、清空所有、截取前部分
+/*********
 int main(void)
 {
     DLlist *pList = (DLlist *)malloc(sizeof(DLlist));
@@ -497,5 +546,63 @@ int main(void)
 
     // system("pause");
     return 0;
-}
+}*********/
 
+// 测试3：删除头尾、查找、插入
+int main(void)
+{
+    DLlist *pList = (DLlist *)malloc(sizeof(DLlist));
+    init(pList);
+
+    addToHead(pList, 1);
+    addToHead(pList, 2);
+    addToHead(pList, 3);
+    addToHead(pList, 4);
+    addToHead(pList, 5);
+    addToHead(pList, 6);
+    showAll(pList);
+    printf("size=%ld\n", pList->size);
+
+    //int ib = insertBefore(pList, 5, 66);
+    int ib = insertBefore2(pList, 5, 66); // 在5前面插入66
+    if (ib)
+    {
+        printf("\n前插成功\n");
+        showAll(pList);
+        printf("size=%ld\n", pList->size);
+    }
+
+    int ia = insertAfter(pList, 3, 26); // 在3后面插入26
+    if (ia)
+    {
+        printf("\n后插成功\n");
+        showAll(pList);
+        printf("size=%ld\n", pList->size);
+    }
+
+    DLNode *find = findByValue(pList, 6); // 查找6
+    if (find)
+    {
+        printf("\nfind ,value=%d,depth=%d\n", find->value, getDepth(pList, find->value));
+    }
+
+    DLNode *first = removeFirst(pList); // 删除第一个节点并返回它
+    if (first)
+    {
+        printf("\nfirst value=%d\n", first->value);
+        showAll(pList);
+        printf("size=%ld\n", pList->size);
+    }
+
+    DLNode *last = removeLast(pList); // 删除最后一个节点并返回它
+    if (last)
+    {
+        printf("\nlast value=%d\n", last->value);
+        showAll(pList);
+        printf("size=%ld\n", pList->size);
+    }
+
+    // system("pause");
+
+    return 0;
+}
