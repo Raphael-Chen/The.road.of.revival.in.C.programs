@@ -548,6 +548,68 @@ int main(void)
     return 0;
 }*********/
 
+// 插入到指定值curValue的节点元素的后面,返回1则插入成功
+int insertAfter(DLlist *pList, _TYPE curValue, _TYPE newValue)
+{
+    if (checkNull(pList))
+    {
+        return 0;
+    }
+    if (isEmpty(pList))
+    {
+        printf("\nlog:插入指定节点后面失败,空链表\n");
+        return 0;
+    }
+
+    // 创建新节点并赋值参数newValue
+    DLNode *newNode = (DLNode *)malloc(sizeof(DLNode));
+    if (checkNull(newNode))
+    {
+        return 0; // 创建新节点失败,则返回
+    }
+    newNode->pNext = newNode->pPre = NULL;
+    newNode->value = newValue;
+
+    if (pList->head->value == curValue) // 头节点满足
+    {
+        DLNode *next = pList->head->pNext;
+        next->pPre   = newNode;
+        newNode->pNext = next;
+        newNode->pPre  = pList->head;
+        pList->head->pNext = newNode;
+        pList->size++;
+        return 1;
+    }
+    else if (pList->back->value == curValue) // 尾节点满足，防止要遍历一遍，浪费时间
+    {
+        pList->back->pNext = newNode;
+        newNode->pPre = pList->back->pNext;
+        // pList->back;
+        pList->size++;
+        return 1;
+    }
+    else // 其他
+    {
+        DLNode *p = pList->head->pNext;
+        while ( NULL == p )
+        {
+            if (p->value == curValue)
+            {
+                DLNode *next = p->pNext;
+                next->pPre = newNode;
+                newNode->pNext = next;
+                newNode->pPre = p;
+                p->pNext = newNode;
+                pList->size++;
+                return 1;
+            }
+            p = p->pNext;
+        }
+    }
+
+    return 0;
+}
+
 // 测试3：删除头尾、查找、插入
 int main(void)
 {
