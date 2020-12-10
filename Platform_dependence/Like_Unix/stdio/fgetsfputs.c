@@ -15,3 +15,12 @@ int main(void)
 
     exit(0);
 }
+
+
+
+// | Function                  | User CPU (seconds) | System CPU (seconds) | Clock time (seconds) | Bytes of program Text |
+// | ------------------------- | ------------------ | -------------------- | -------------------- | --------------------- |
+// | best time from Figure 3.5 | 0.01               | 0.18                 | 6.67                 |                       |
+// | fgets , fputs             | 2.59               | 0.19                 | 7.15                 | 139                   |
+// | getc , putc               | 10.84              | 0.27                 | 12.07                | 120                   |
+// | fgetc , fputc             | 10.44              | 0.27                 | 11.42                | 120                   |
