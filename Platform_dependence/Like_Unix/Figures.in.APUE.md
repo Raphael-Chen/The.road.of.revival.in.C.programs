@@ -89,3 +89,36 @@ S_TYPEISSHM() shared memory object
 | stat     |                               | •                     |
 | truncate |                               | •                     |
 | unlink   | •                             |                       |
+
+
+
+Figure 6.1. Fields in /etc/passwd file
+
+Figure 6.3. Fields in /etc/shadow file
+Figure 6.4. Fields in /etc/group file
+
+Figure 6.5. Account implementation differences
+
+Figure 6.7. System identification name limits
+
+
+Figure 6.9. Conversion specifiers for strftime
+
+
+
+## Figure 6.6. Similar routines for accessing system data files
+
+| Description | Data file      | Header     | Structure | Additional keyed lookup functions |
+| ----------- | -------------- | ---------- | --------- | --------------------------------- |
+| passwords   | /etc/passwd    | <pwd.h>    | passwd    | getpwnam , getpwuid               |
+| groups      | /etc/group     | <grp.h>    | group     | getgrnam , getgrgid               |
+| shadow      | /etc/shadow    | <shadow.h> | spwd      | getspnam                          |
+| hosts       | /etc/hosts     | <netdb.h>  | hostent   | gethostbyname , gethostbyaddr     |
+| networks    | /etc/networks  | <netdb.h>  | netent    | getnetbyname , getnetbyaddr       |
+| protocols   | /etc/protocols | <netdb.h>  | protoent  | getprotobyname , getprotobynumber |
+| services    | /etc/services  | <netdb.h>  | servent   | getservbyname , getservbyport     |
+
+
+
+
+
