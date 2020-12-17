@@ -101,11 +101,6 @@ Figure 6.5. Account implementation differences
 
 Figure 6.7. System identification name limits
 
-
-Figure 6.9. Conversion specifiers for strftime
-
-
-
 ## Figure 6.6. Similar routines for accessing system data files
 
 | Description | Data file      | Header     | Structure | Additional keyed lookup functions |
@@ -118,6 +113,15 @@ Figure 6.9. Conversion specifiers for strftime
 | protocols   | /etc/protocols | <netdb.h>  | protoent  | getprotobyname , getprotobynumber |
 | services    | /etc/services  | <netdb.h>  | servent   | getservbyname , getservbyport     |
 
+
+
+## Figure 6.8 Relationship of the various time functions
+
+![6.8](../../images/figure_6.8.png)
+
+
+
+Figure 6.9. Conversion specifiers for strftime
 
 
 
