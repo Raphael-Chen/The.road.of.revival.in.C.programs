@@ -5,6 +5,22 @@
  *   struct timespec
  *   which holds an interval specified in seconds and nanoseconds (which may represent a
  *   calendar time based on a particular epoch)
+ * 
+ *  7.27.2.5 The timespec_get function
+ *  Synopsis
+ *  #include <time.h>
+ *  int timespec_get(struct timespec *ts, int base);
+ *
+ *  Description
+ *   The timespec_get function sets the interval pointed to by ts to hold the current
+ *   calendar time based on the specified time base.
+ *
+ *   If base is TIME_UTC, the tv_sec member is set to the number of seconds since an
+ *   implementation defined epoch, truncated to a whole value and the tv_nsec member is
+ *   set to the integral number of nanoseconds, rounded to the resolution of the system
+ *   clock. 321)
+ 
+ * 
  ***********************/
 int main(void)
 {
