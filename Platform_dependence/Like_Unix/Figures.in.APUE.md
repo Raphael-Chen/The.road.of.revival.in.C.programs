@@ -166,18 +166,14 @@ Historically, a C program has been composed of the following pieces:
 int maxcount = 99;
 appearing outside any function causes this variable to be stored in the initialized data segment with its initial value.
 
-- Uninitialized data segment, often called the "bss" segment, named after an ancient assembler operator that stood for "block started by symbol." Data in this segment is initialized by the kernel to arithmetic 0 or null pointers before the program starts executing. The C declaration
+- **Uninitialized data segment**, often called the "bss" segment, named after an ancient assembler operator that stood for "block started by symbol." Data in this segment is initialized by the kernel to arithmetic 0 or null pointers before the program starts executing. The C declaration
 long sum[1000];
 appearing outside any function causes this variable to be stored in the uninitialized data segment.
 
 
-- **Stack**, where automatic variables are stored, along with information that is saved each time a function is called. Each time a
-function is called, the address of where to return to and certain information about the caller's environment, such as some of
-the machine registers, are saved on the stack. The newly called function then allocates room on the stack for its automatic
-and temporary variables. This is how recursive functions in C can work. Each time a recursive function calls itself, a new
-stack frame is used, so one set of variables doesn't interfere with the variables from another instance of the function.
+- **Stack**, where automatic variables are stored, along with information that is saved each time a function is called. Each time a function is called, the address of where to return to and certain information about the caller's environment, such as some of the machine registers, are saved on the stack. The newly called function then allocates room on the stack for its automatic and temporary variables. This is how recursive functions in C can work. Each time a recursive function calls itself, a new stack frame is used, so one set of variables doesn't interfere with the variables from another instance of the function.
 
-- Heap, where dynamic memory allocation usually takes place. Historically, the heap has been located between the uninitialized data and the stack.
+- **Heap**, where dynamic memory allocation usually takes place. Historically, the heap has been located between the uninitialized data and the stack.
 
 Figure 7.6. Typical memory arrangement
 
@@ -236,3 +232,34 @@ $ size a.out
 | TERM        | •       | •             | •            | •             | •         | terminal type                                       |
 | TMPDIR      | •       | •             | •            | •             | •         | pathname of directory for creating temporary files  |
 | TZ          | •       | •             | •            | •             | •         | time zone information                               |
+
+
+
+
+
+### Figure 7.8. Support for various environment list functions
+
+
+
+### Figure 7.10. Stack frames after cmd_add has been called
+
+
+
+## 7.11. getrlimit and setrlimit Functions
+
+
+
+### Figure 7.15. Support for resource limits
+
+Every process has a set of resource limits, some of which can be queried and changed by the *getrlimit* and *setrlimit* functions.
+
+
+
+
+Three rules govern the changing of the resource limits.
+1. A process can change its soft limit to a value less than or equal to its hard limit.
+2. A process can lower its hard limit to a value greater than or equal to its soft limit. This lowering of the hard limit is irreversible for normal users.
+3. Only a superuser process can raise a hard limit.
+
+
+
