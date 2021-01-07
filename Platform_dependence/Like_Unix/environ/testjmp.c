@@ -65,3 +65,20 @@ static void f2(void)
 {
     longjmp(jmpbuffer, 1);
 }
+
+
+// $ cc testjmp.c
+//
+// $ ./a.out
+// in f1():
+// globval = 95, autoval = 96, regival = 97, volaval = 98, statval = 99
+// after longjmp:
+// globval = 95, autoval = 96, regival = 97, volaval = 98, statval = 99
+//
+// $ cc -O testjmp.c
+// $ ./a.out
+// in f1():
+// globval = 95, autoval = 96, regival = 97, volaval = 98, statval = 99
+// after longjmp:
+// globval = 95, autoval = 2, regival = 3, volaval = 98, statval = 99
+
