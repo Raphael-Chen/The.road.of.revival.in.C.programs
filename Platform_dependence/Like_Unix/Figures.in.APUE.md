@@ -263,3 +263,14 @@ Three rules govern the changing of the resource limits.
 
 
 
+## 8.1. Introduction
+We now turn to the process control provided by the UNIX System. This includes the creation of new processes, program execution, and process termination. We also look at the various IDs that are the property of the processreal, effective, and saved; user and group IDs and how they're affected by the process control primitives. Interpreter files and the system function are also covered. We conclude the chapter by looking at the process accounting provided by most UNIX systems. This lets us look at the process control functions from a different perspective.
+
+In general, we never know whether the child starts executing before the parent or vice versa. This depends on the scheduling algorithm used by the kernel.
+
+### Figure 8.2. Sharing of open files between parent and child after fork
+
+
+
+
+
