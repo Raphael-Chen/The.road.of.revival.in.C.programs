@@ -26,7 +26,7 @@ int main(void)
 }
 
 // ...
-char *tok_ptr; /* global pointer for get_token() */
+char *tok_ptr;          /* global pointer for get_token() */
 
 void do_line(char *ptr) /* process one line of input */
 {
@@ -35,8 +35,8 @@ void do_line(char *ptr) /* process one line of input */
     tok_ptr = ptr;
     while ((cmd = get_token()) > 0)
     {
-        switch (cmd)
-        { /* one case for each command */
+        switch (cmd) /* one case for each command */
+        { 
         case TOK_ADD:
             cmd_add();
             break;

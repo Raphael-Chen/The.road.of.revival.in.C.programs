@@ -1,5 +1,7 @@
 #include "apue.h"
 
+// Figure 7.9. Typical program skeleton for command processing
+
 #define TOK_ADD 5
 
 void do_line(char *);
@@ -12,7 +14,7 @@ int main(void)
 
     while (fgets(line, MAXLINE, stdin) != NULL)
         do_line(line);
-        
+
     exit(0);
 }
 
