@@ -476,6 +476,7 @@ int insertBefore2(DLlist *pList, _TYPE curValue, _TYPE newValue)
         preNode->pNext = newNode;
         pList->size++;
     }
+
     return 1;
 }
 
@@ -573,9 +574,9 @@ int insertAfter(DLlist *pList, _TYPE curValue, _TYPE newValue)
     if (pList->head->value == curValue) // 头节点满足
     {
         DLNode *next = pList->head->pNext;
-        next->pPre   = newNode;
+        next->pPre = newNode;
         newNode->pNext = next;
-        newNode->pPre  = pList->head;
+        newNode->pPre = pList->head;
         pList->head->pNext = newNode;
         pList->size++;
         return 1;
@@ -591,15 +592,15 @@ int insertAfter(DLlist *pList, _TYPE curValue, _TYPE newValue)
     else // 其他
     {
         DLNode *p = pList->head->pNext;
-        while ( NULL == p )
+        while ( NULL != p )             //Fix logic bug
         {
             if (p->value == curValue)
             {
                 DLNode *next = p->pNext;
-                next->pPre = newNode;
+                next->pPre   = newNode;
                 newNode->pNext = next;
-                newNode->pPre = p;
-                p->pNext = newNode;
+                newNode->pPre  = p;
+                p->pNext       = newNode;
                 pList->size++;
                 return 1;
             }
@@ -610,9 +611,76 @@ int insertAfter(DLlist *pList, _TYPE curValue, _TYPE newValue)
     return 0;
 }
 
+// 删除第一个节点，并返回它
+DLNode *removeFirst(DLlist *pList)
+{
+    if (checkNull(pList))
+    {
+        return NULL;
+    }
+    if (isEmpty(pList))
+    {
+        printf("\nlog:空链表\n");
+        return NULL;
+    }
+
+    if (pList->head->pNext == NULL) // 只有head
+    {
+        DLNode *head = pList->head;
+        pList->head = NULL;
+        pList->size--;
+        return head;
+    }
+    else
+    {
+        DLNode *head = pList->head;
+        DLNode *next = head->pNext;
+        head->pNext = NULL;
+        next->pPre = NULL;
+        pList->head = next;
+        pList->size--;
+        return head;
+    }
+
+    return NULL;
+}
+
+// 删除最后一个节点，并返回它
+DLNode *removeLast(DLlist *pList)
+{
+    if (checkNull(pList))
+    {
+        return NULL;
+    }
+    if (isEmpty(pList))
+    {
+        printf("\nlog:空链表\n");
+        return NULL;
+    }
+
+    if (pList->back == pList->head)
+    {
+        return removeFirst(pList);
+    }
+    else
+    {
+        DLNode *back = pList->back;
+        DLNode *preNode = back->pPre;
+        back->pPre = NULL;
+        preNode->pNext = NULL;
+        pList->back = preNode;
+        pList->size--;
+        return back;
+    }
+
+    return NULL;
+}
+
 // 测试3：删除头尾、查找、插入
 int main(void)
 {
+    int ret;   // 函数保存返回值
+    
     DLlist *pList = (DLlist *)malloc(sizeof(DLlist));
     init(pList);
 
@@ -626,16 +694,16 @@ int main(void)
     printf("size=%ld\n", pList->size);
 
     //int ib = insertBefore(pList, 5, 66);
-    int ib = insertBefore2(pList, 5, 66); // 在5前面插入66
-    if (ib)
+    ret = insertBefore2(pList, 5, 66); // 在5前面插入66
+    if ( 0 != ret )
     {
         printf("\n前插成功\n");
         showAll(pList);
         printf("size=%ld\n", pList->size);
     }
 
-    int ia = insertAfter(pList, 3, 26); // 在3后面插入26
-    if (ia)
+    ret = insertAfter(pList, 3, 26); // 在3后面插入26
+    if ( 0 != ret )
     {
         printf("\n后插成功\n");
         showAll(pList);
@@ -643,13 +711,13 @@ int main(void)
     }
 
     DLNode *find = findByValue(pList, 6); // 查找6
-    if (find)
+    if ( NULL != find )                    //If find not NULL.
     {
-        printf("\nfind ,value=%d,depth=%d\n", find->value, getDepth(pList, find->value));
+        printf("\nfind, value=%d, depth=%d\n", find->value, getDepth(pList, find->value));
     }
 
     DLNode *first = removeFirst(pList); // 删除第一个节点并返回它
-    if (first)
+    if ( NULL != first )
     {
         printf("\nfirst value=%d\n", first->value);
         showAll(pList);
@@ -657,7 +725,7 @@ int main(void)
     }
 
     DLNode *last = removeLast(pList); // 删除最后一个节点并返回它
-    if (last)
+    if ( NULL != last )
     {
         printf("\nlast value=%d\n", last->value);
         showAll(pList);
