@@ -677,6 +677,7 @@ DLNode *removeLast(DLlist *pList)
 }
 
 // 测试3：删除头尾、查找、插入
+/***********
 int main(void)
 {
     int ret;   // 函数保存返回值
@@ -736,3 +737,27 @@ int main(void)
 
     return 0;
 }
+**********/
+
+// 测试4：使用可变参数创建链表，并向链表中添加一个链表
+int main( void )
+{
+    DLlist* pList    = _createListWithValues(5, 2, 3, 4, 5, 6);
+    DLlist* pnewList = _createListWithValues(5,11,22,33,44,55); 
+    showAll(pList);
+    showAll(pnewList);
+
+    if ( !checkNull(pList) && !checkNull(pnewList) )
+    {
+        addListToBack(pList, pnewList); // 将pnewList添加到pList尾部
+    }
+
+    showAll(pList);
+    printf("size=%ld\n", pList->size);
+
+    // system("pause");
+
+    return 0;
+}
+
+
