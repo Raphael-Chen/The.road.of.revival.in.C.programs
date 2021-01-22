@@ -1,6 +1,7 @@
 #include "apue.h"
 #include <sys/wait.h>
 
+// Figure 8.5. Print a description of the exit status
 void pr_exit(int status)
 {
     if (WIFEXITED(status))
