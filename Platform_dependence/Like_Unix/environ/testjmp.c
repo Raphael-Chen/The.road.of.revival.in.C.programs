@@ -51,7 +51,7 @@ int main(void)
     exit(0);
 }
 
-// Attention, f1 function first execute.
+// Attention, f1 function execute first.
 static void f1(int i, int j, int k, int l)  
 {
     printf("in f1():\n");
