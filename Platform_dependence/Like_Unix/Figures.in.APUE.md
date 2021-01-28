@@ -319,3 +319,65 @@ For now, we need to be aware that a process that calls wait or waitpid can
 - Block, if all of its children are still running.
 - Return immediately with the termination status of a child, if a child has terminated and is waiting for its termination status to be fetched
 - Return immediately with an error, if it doesn't have any child processes
+
+
+
+### Figure 8.7. The options constants for waitpid
+
+| Constant   | Description                                              |
+| ---------- | -------------------------------------------------------- |
+| WCONTINUED | If the implementation supports job control, the status of any child specified by pid that has been continued after being stopped, but whose status has not yet been reported, is returned (XSI extension to POSIX.1). WNOHANG The waitpid function will not block if a child specified by pid is not immediately available. In this case, the return value is 0. |
+| WUNTRACED  | If the implementation supports job control, the status of any child specified by pid that has stopped, and whose status has not been reported since it has stopped, is returned. The WIFSTOPPED macro determines whether the return value corresponds to a stopped child process. |
+
+
+
+The waitpid function provides three features that aren't provided by the wait function.
+1. The waitpid function lets us wait for one particular process, whereas the wait function returns the status of any terminated child. We'll return to this feature when we discuss the popen function.
+2. The waitpid function provides a nonblocking version of wait . There are times when we want to fetch a child's status, but we don't want to block.
+3. The waitpid function provides support for job control with the WUNtrACED and WCONTINUED options.
+
+### Figure 8.9. The idtype constants for waitid
+
+| **CONSTANT** | Description                                                  |
+| ------------ | ------------------------------------------------------------ |
+| P_PID        | Wait for a particular process: id contains the process ID of the child to wait for. |
+| P_PGID       | Wait for any child process in a particular process group: id contains the process group ID of the children to wait for. |
+| P_ALL        | Wait for any child process: id is ignored.                   |
+
+
+
+
+### Figure 8.10. The options constants for waitid
+
+| Constant   | Description                                                  |
+| ---------- | ------------------------------------------------------------ |
+| WCONTINUED | Wait for a process that has previously stopped and has been continued, and whose status has not yet been reported. |
+| WEXITED    | Wait for processes that have exited.                         |
+| WNOHANG    | Return immediately instead of blocking if there is no child exit status available. |
+| WNOWAIT    | Don't destroy the child exit status. The child's exit status can be retrieved by a subsequent call to wait ,waitid ,or waitpid . |
+| WSTOPPED   | Wait for a process that has stopped and whose status has not yet been reported. |
+
+
+
+
+
+Figure 8.11. Arguments supported by wait functions on various systems
+
+
+
+A process that wants to wait for a child to terminate must call one of the wait functions. If a process wants to wait for its parent to
+terminate, as in the program from Figure 8.8, a loop of the following form could be used:
+
+```c
+while (getppid() != 1)
+sleep(1);
+```
+The problem with this type of loop, called polling, is that it wastes CPU time, as the caller is awakened every second to test the condition.
+
+
+
+## 8.9. Race Conditions
+For our purposes, a race condition occurs when multiple processes are trying to do something with shared data and the final outcome depends on the order in which the processes run. The fork function is a lively breeding ground for race conditions, if any of the logic after the fork either explicitly or implicitly depends on whether the parent or child runs first after the fork . In general, we cannot predict which process runs first. Even if we knew which proce.
+
+## 8.10. exec Functions
+We mentioned in Section 8.3 that one use of the fork function is to create a new process (the child) that then causes another program to be executed by calling one of the exec functions. When a process calls one of the exec functions, that process is completely replaced by the new program, and the new program starts executing at its main function. The process ID does not change across an exec , because a new process is not created; exec merely replaces the current processits text, data, heap, and stack segmentswith a brand new program from disk.
