@@ -8,6 +8,7 @@ typedef int _TYPE; // 数据类型
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdarg.h>
 
 typedef struct DoubleLinkListNode
 {
@@ -39,7 +40,7 @@ DLlist *_createListWithArrayValues(_TYPE array[], int length);
 int addToHead(DLlist *pList, _TYPE value);
 
 // 插入到尾部,返回1插入成功
-int addToTail(DLlist *pList, _TYPE value);
+int addToTail(DLlist *pList, _TYPE value);  //rename addToBack
 
 // 将一维数组的值添加到链表头部,返回1插入成功
 int addToHeadWithArrayValues(DLlist *pList, _TYPE array[], int length);
