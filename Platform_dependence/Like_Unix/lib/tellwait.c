@@ -27,7 +27,7 @@ void TELL_WAIT(void)
 
 void TELL_PARENT(pid_t pid)
 {
-    kill(pid, SIGUSR2); /* tell parent we're done */
+    kill(pid, SIGUSR2);        /* tell parent we're done */
 }
 
 void WAIT_PARENT(void)
@@ -43,7 +43,7 @@ void WAIT_PARENT(void)
 
 void TELL_CHILD(pid_t pid)
 {
-    kill(pid, SIGUSR1); /* tell child we're done */
+    kill(pid, SIGUSR1);         /* tell child we're done */
 }
 
 void WAIT_CHILD(void)
