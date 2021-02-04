@@ -381,3 +381,76 @@ For our purposes, a race condition occurs when multiple processes are trying to 
 
 ## 8.10. exec Functions
 We mentioned in Section 8.3 that one use of the fork function is to create a new process (the child) that then causes another program to be executed by calling one of the exec functions. When a process calls one of the exec functions, that process is completely replaced by the new program, and the new program starts executing at its main function. The process ID does not change across an exec , because a new process is not created; exec merely replaces the current processits text, data, heap, and stack segmentswith a brand new program from disk.
+
+
+```shell
+grep getrlimit /usr/share/man/*/*
+```
+Figure 8.14. Differences among the six exec functions
+
+
+To get around the limitation in argument list size, we can use the xargs (1) command to break up long argument lists. To look for all the occurrences of geTRlimit in the man pages on our system, we could use
+
+```shell
+find /usr/share/man -type f -print | xargs grep getrlimit
+```
+
+If the man pages on our system are compressed, however, we could try
+find /usr/share/man -type f -print | xargs bzgrep getrlimit
+
+
+```c
+#include <unistd.h>
+int execl(const char * pathname , const char * arg0 ,
+... /* (char *)0 */ );
+int execv(const char * pathname , char *const argv []);
+int execle(const char * pathname , const char * arg0 , ...
+/* (char *)0, char *const envp [] */ );
+int execve(const char * pathname , char *const
+argv [], char *const envp []);
+int execlp(const char * filename , const char * arg0 ,
+... /* (char *)0 */ );
+int execvp(const char * filename , char *const argv []);
+
+			All six return: 1 on error, no return on success
+```
+
+
+The first difference in these functions is that the first four take a pathname argument, whereas the **last two take a filename argument**.
+
+When a filename argument is specified
+- If filename contains a slash, it is taken as a pathname.
+- Otherwise, the executable file is searched for in the directories specified by the PATH environment variable.
+The PATH variable contains a list of directories, called path prefixes, that are separated by colons. For example, the
+name=value
+
+
+
+We've mentioned that the process ID does not change after an exec , but the new program inherits additional properties from the calling process:
+
+- Process ID and parent process ID
+- Real user ID and real group ID
+- Supplementary group IDs
+- Process group ID
+- Session ID
+- Controlling terminal
+- Time left until alarm clock
+- Current working directoryRoot directory
+- File mode creation mask
+- File locks
+- Process signal mask
+- Pending signals
+- Resource limits
+- Values for tms_utime , tms_stime , tms_cutime , and tms_cstime
+
+### Figure 8.15. Relationship of the six exec functions（图）
+
+
+
+## 8.11. Changing User IDs and Group IDs
+In the UNIX System, privileges, such as being able to change the system's notion of the current date, and access control, such as being able to read or write a particular file, are based on user and group IDs. When our programs need additional privileges or need to gain access to resources that they currently aren't allowed to access, they need to change their user or group ID to an ID that has the appropriate privilege or access.
+
+### Figure 8.18. Ways to change the three user IDs（表格）
+
+
+
