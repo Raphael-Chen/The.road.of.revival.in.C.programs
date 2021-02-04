@@ -87,6 +87,7 @@ DLlist *_createList()
     DLlist *pList = (DLlist *)malloc(sizeof(DLlist));
     pList->head = pList->back = NULL;
     pList->size = 0;
+
     return pList;
 }
 
@@ -739,6 +740,41 @@ int main(void)
 }
 **********/
 
+// 使用可变参数来创建一个链表，需要声明头文件 #include <stdarg.h>
+DLlist* _createListWithValues(int length, ...)
+{
+    DLlist* pList = _createList();
+
+    va_list ap;                                  // 参数指针
+    va_start( ap, length );                      // 第一个元素
+    for (int i = 0; i < length; i++)
+    {
+        addToTail( pList, va_arg( ap, _TYPE ) ); // 返回对应类型的数据，并添加到链表
+    }
+    va_end(ap);
+
+    return pList;
+}
+
+// 将一个链表插入当前链表的尾部
+int addListToBack(DLlist *pList, DLlist *addingList)
+{
+    if (checkNull(pList) || checkNull(addingList) || isEmpty(addingList))
+    {
+        return 0;
+    }
+
+    DLNode *curNode = addingList->head;
+    while ( NULL != curNode )
+    {
+        addToTail( pList, curNode->value );       // 添加到尾部
+        curNode = curNode->pNext;
+    }
+
+    return 1;
+}
+
+
 // 测试4：使用可变参数创建链表，并向链表中添加一个链表
 int main( void )
 {
@@ -749,11 +785,11 @@ int main( void )
 
     if ( !checkNull(pList) && !checkNull(pnewList) )
     {
-        addListToBack(pList, pnewList); // 将pnewList添加到pList尾部
+        addListToBack(pList, pnewList);              // 将pnewList添加到pList尾部
     }
 
     showAll(pList);
-    printf("size=%ld\n", pList->size);
+    printf("size = %ld\n", pList->size);
 
     // system("pause");
 
