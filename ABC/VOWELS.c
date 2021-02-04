@@ -18,4 +18,6 @@ int main(void)
         };
 
     printf("The number of vowels is %d\n", vowel_count);
+
+    return 0;
 }
