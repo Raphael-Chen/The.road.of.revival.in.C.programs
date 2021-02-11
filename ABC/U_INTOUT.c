@@ -6,4 +6,6 @@ int main(void)
 
     printf("Displaying 42000 as unsigned %u\n", value);
     printf("Displaying 42000 as int %d\n", value);
+
+    return 0;
 }
