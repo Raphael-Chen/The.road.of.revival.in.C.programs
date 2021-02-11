@@ -5,3 +5,5 @@ BEGIN {
 		printf "ARGV[%d] = %s\n", i, ARGV[i]
 	exit
 }
+
+# Figure 8.21. An awk program as an interpreter file
