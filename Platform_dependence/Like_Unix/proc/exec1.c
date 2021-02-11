@@ -6,7 +6,7 @@ char *env_init[] = {"USER=unknown", "PATH=/tmp", NULL};
 
 
 // Remember to change your user name in the path.
-#define PATH "/home/YOU_USERNAME/The.road.of.revival.in.C.programs/Platform_dependence/Like_Unix/proc/echoall"
+#define PATH "/home/YOUR_USERNAME/The.road.of.revival.in.C.programs/Platform_dependence/Like_Unix/proc/echoall"
 
 int main(void)
 {
