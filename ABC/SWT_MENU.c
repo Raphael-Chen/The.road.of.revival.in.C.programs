@@ -19,15 +19,15 @@ int main(void)
 
         switch (letter)
         {
-        case 'A':
-            system("dir");
-            break;
-        // case 'B':
-        //     system("CHKDSK");
-        //     break;
-        case 'C':
-            system("date");
-            break;
+            case 'A':
+                system("dir");
+                break;
+            // case 'B':
+            //     system("CHKDSK");
+            //     break;
+            case 'C':
+                system("date");
+                break;
         };
     } while (letter != 'Q');
 
