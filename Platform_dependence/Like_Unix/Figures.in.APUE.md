@@ -175,8 +175,8 @@ appearing outside any function causes this variable to be stored in the uninitia
 
 - **Heap**, where dynamic memory allocation usually takes place. Historically, the heap has been located between the uninitialized data and the stack.
 
-Figure 7.6. Typical memory arrangement
-
+### Figure 7.6. Typical memory arrangement
+![7.6](../../images/figure_7.6.png)
 
 
 ## 7.7. Shared Libraries
@@ -242,6 +242,9 @@ $ size a.out
 
 
 ### Figure 7.10. Stack frames after cmd_add has been called
+![7.10](../../images/figure_7.10.png)
+
+
 
 
 
@@ -307,6 +310,49 @@ The vfork function creates the new process, just like fork , without copying the
 Another difference between the two functions is that vfork guarantees that the child runs first, until the child calls exec or exit . When the child calls either of these functions, the parent resumes.
 
 
+
+The differences between the parent and child are
+- The return value from fork
+- The process IDs are different
+- The two processes have different parent process IDs: the parent process ID of the child is the
+parent; the parent process ID of the parent doesn't change
+- The child's tms_utime , tms_stime , tms_cutime , and tms_cstime values are set to 0
+- File locks set by the parent are not inherited by the child
+Pending alarms are cleared for the child
+- The set of pending signals for the child is set to the empty set
+
+The two main reasons for fork to fail are (a) if too many processes are already in the system, which
+usually means that something else is wrong, or (b) if the total number of processes for this real user ID
+exceeds the system's limit. Recall from Figure 2.10 that CHILD_MAX specifies the maximum number of
+simultaneous processes per real user ID.
+
+
+
+There are two normal cases for handling the descriptors after a fork .
+1. The parent waits for the child to complete. In this case, the parent does not need to do anything
+with its descriptors. When the child terminates, any of the shared descriptors that the child read
+from or wrote to will have their file offsets updated accordingly.
+2. Both the parent and the child go their own ways. Here, after the fork, the parent closes the
+descriptors that it doesn't need, and the child does the same thing. This way, neither interferes
+with the other's open descriptors. This scenario is often the case with network servers.
+
+Besides the open files, there are numerous other properties of the parent that are inherited by the child:
+
+- Real user ID, real group ID, effective user ID, effective group ID  
+- Supplementary group IDs  
+- Process group ID
+- Session ID
+- Controlling terminal
+- The set-user-ID and set-group-ID flags
+- Current working directory
+- Root directory
+- File mode creation mask
+- Signal mask and dispositions
+- The close-on-exec flag for any open file descriptors
+- Environment
+- Attached shared memory segments
+- Memory mappings
+- Resource limits
 
 Figure 8.4. Macros to examine the termination status returned by wait and waitpid
 
@@ -386,6 +432,20 @@ We mentioned in Section 8.3 that one use of the fork function is to create a new
 ```shell
 grep getrlimit /usr/share/man/*/*
 ```
+## 8.12. Interpreter Files
+All contemporary UNIX systems support interpreter files. These files are text files that begin with a line of the form
+#! pathname [ optional-argument ]
+
+The space between the exclamation point and the pathname is optional. The most common of these interpreter files begin with the line
+#!/bin/sh
+
+## 8.13. system Function
+
+It is convenient to execute a command string from within a program. For example, assume that we want to put a time-and-date stamp into a certain file. We could use the functions we describe in Section 6.10 to do this: call time to get the current calendar time, then call localtime to convert it to a broken-down time, and then call strftime to format the result, and write the results to the file. It is much easier, however, to say
+system("date > file");
+
+
+
 Figure 8.14. Differences among the six exec functions
 
 
@@ -453,4 +513,71 @@ In the UNIX System, privileges, such as being able to change the system's notion
 ### Figure 8.18. Ways to change the three user IDs（表格）
 
 
+
+
+
+## 8.14. Process Accounting
+
+Most UNIX systems provide an option to do process accounting. When enabled, the kernel writes an accounting record each time a process terminates.
+
+Figure 8.26. Values for ac_flag from accounting record
+
+The structure of the accounting records is defined in the header <sys/acct.h> and looks something like
+```c
+typedef u_short comp_t; /* 3-bit base 8 exponent; 13-bit fraction */
+
+struct acct
+{
+    char ac_flag;     /* flag (see Figure 8.26) */
+    char ac_stat;     /* termination status (signal & core flag only) */
+    /* (Solaris only) */
+    uid_t ac_uid;     /* real user ID */
+    gid_t ac_gid;     /* real group ID */
+    dev_t ac_tty;     /* controlling terminal */
+    time_t ac_btime;  /* starting calendar time */
+    comp_t ac_utime;  /* user CPU time (clock ticks) */
+    comp_t ac_stime;  /* system CPU time (clock ticks) */
+    comp_t ac_etime;  /* elapsed time (clock ticks) */
+    comp_t ac_mem;    /* average memory usage */
+    comp_t ac_io;     /* bytes transferred (by read and write) */
+    /* "blocks" on BSD systems */
+    comp_t ac_rw;     /* blocks read or written */
+
+    /* (not present on BSD systems) */
+    char ac_comm[8]; /* command name: [8] for Solaris, */
+    /* [10] for Mac OS X, [16] for FreeBSD, and */
+    /* [17] for Linux */
+};
+```
+
+
+Figure 8.27. Process structure for accounting example(图)
+
+
+
+Figure 8.28. Program to generate accounting data
+
+
+
+## 8.15. User Identification
+
+
+## 8.16. Process Times
+In Section 1.10, we described three times that we can measure: wall clock time, user CPU time, and system CPU time. Any process can call the times function to obtain these values for itself and any terminated children.
+
+```
+NAME
+       getlogin, getlogin_r, cuserid - get username
+
+SYNOPSIS
+       #include <unistd.h>
+       char *getlogin(void);
+       int getlogin_r(char *buf, size_t bufsize);
+
+       #include <stdio.h>
+       char *cuserid(char *string);
+
+RETURN VALUE
+       getlogin()  returns  a  pointer to the username when successful, and NULL on failure, with errno set to indicate the cause of the error.  getlogin_r() returns 0 when successful, and nonzero on failure
+```
 
