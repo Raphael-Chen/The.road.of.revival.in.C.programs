@@ -123,18 +123,19 @@ int addToHead(DLlist *pList, _TYPE value)
     return 1;
 }
 
-// 插入到双链表的尾部,返回1插入成功
-int addToTail(DLlist *pList, _TYPE value)
+// 将某个值插入到双链表的尾部,返回true插入成功
+bool addToTail(DLlist *pList, _TYPE value)
 {
-    if (true == checkNull(pList))
+    if ( checkNull(pList) )
     {
-        return 0;
+        return false;
     }
     DLNode *newNode = (DLNode *)malloc(sizeof(DLNode));
-    if (true == checkNull(newNode))
+    if ( checkNull(newNode) )
     {
-        return 0; // 创建新节点失败,则返回
+        return false; // 创建新节点失败,则返回
     }
+
     newNode->pNext = newNode->pPre = NULL;
     newNode->value = value;
 
@@ -160,13 +161,13 @@ int addToTail(DLlist *pList, _TYPE value)
         pList->size++;
     }
 
-    return 1;
+    return true;
 }
 
 // 正向输出所有节点值
 void showAll(DLlist *pList)
 {
-    if (true == checkNull(pList))
+    if ( checkNull(pList) )
     {
         return;
     }
@@ -776,6 +777,7 @@ int addListToBack(DLlist *pList, DLlist *addingList)
 
 
 // 测试4：使用可变参数创建链表，并向链表中添加一个链表
+/****************
 int main( void )
 {
     DLlist* pList    = _createListWithValues(5, 2, 3, 4, 5, 6);
@@ -790,6 +792,51 @@ int main( void )
 
     showAll(pList);
     printf("size = %ld\n", pList->size);
+
+    // system("pause");
+
+    return 0;
+}****************/
+
+// 将一维数组的值添加到链表尾部, 返回1插入成功
+int addToBackWithArrayValues(DLlist *pList, _TYPE array[], int length)
+{
+    if (checkNull(pList) || checkNull(array) || length == 0)
+    {
+        return 0;
+    }
+
+    for (int i = 0; i < length; i++)
+    {
+        // if (!addToBack(pList, array[i]))
+        if ( !addToTail(pList, array[i]) )
+        {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+
+
+// 测试5：对链表元素进行排序
+int main( void )
+{
+//  DLlist* pList = _createListWithValues(5, 2 ,8 , 4, 9, 7); // 创建一个包还5个元素（2 ,8 , 4, 9, 7）的链表
+
+    int arr[5] = { 2 ,8 , 4, 9, 7 };
+    DLlist* pList = _createListWithArrayValues(arr, 5);
+
+    //showAllReverse(pList);
+    sort(pList, _DESC);  // 降序
+    showAll(pList);
+
+    sort(pList, _ASC);  // 升序
+    showAll(pList);
+
+    // addToBackWithArrayValues(pList, arr, 3);  // 将一个数组的值添加到链表尾部
+    //showAll(pList);
 
     // system("pause");
 
