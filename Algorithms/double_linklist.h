@@ -39,8 +39,8 @@ DLlist *_createListWithArrayValues(_TYPE array[], int length);
 // 插入到头部,返回1插入成功
 int addToHead(DLlist *pList, _TYPE value);
 
-// 插入到尾部,返回1插入成功
-int addToTail(DLlist *pList, _TYPE value);  //rename addToBack
+// 将某个值插入到双链表的尾部,返回true插入成功
+bool addToTail(DLlist *pList, _TYPE value);  //rename addToBack
 
 // 将一维数组的值添加到链表头部,返回1插入成功
 int addToHeadWithArrayValues(DLlist *pList, _TYPE array[], int length);
