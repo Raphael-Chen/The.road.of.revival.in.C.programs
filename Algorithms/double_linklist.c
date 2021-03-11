@@ -818,7 +818,27 @@ int addToBackWithArrayValues(DLlist *pList, _TYPE array[], int length)
     return 1;
 }
 
+// 使用数组的元素来创建一个链表，length表示要添加到链表的个数
+DLlist* _createListWithArrayValues(_TYPE* array, int length)
+{
+    if (checkNull(array) || 0 == length)
+    {
+        return NULL;
+    }
 
+    DLlist *pList = _createList();
+    if (checkNull(pList))
+    {
+        return NULL;
+    }
+
+    if (addToBackWithArrayValues(pList, array, length))
+    {
+        return pList;
+    }
+
+    return NULL;
+}
 
 // 测试5：对链表元素进行排序
 int main( void )
