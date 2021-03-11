@@ -3,6 +3,30 @@
 
 // Figure 8.30. Time and execute all command-line arguments
 
+// The program in Figure 8.30 executes each command-line argument as a shell 
+// command string, timing the command and printing the values from the tms structure.
+// If we run this program, we get
+
+// $ ./times1 "sleep 5" "date"
+//
+// command: sleep 5
+//   real:     5.02
+//   user:     0.00
+//   sys:      0.00
+//   child user:     0.00
+//   child sys:      0.00
+// normal termination, exit status = 0
+//
+// command: date
+// Wed Mar 10 16:25:30 CST 2021
+//   real:     0.01
+//   user:     0.00
+//   sys:      0.00
+//   child user:     0.00
+//   child sys:      0.00
+// normal termination, exit status = 0
+
+
 static void pr_times(clock_t, struct tms *, struct tms *);
 static void do_cmd(char *);
 
@@ -43,9 +67,11 @@ static void pr_times(clock_t real, struct tms *tmsstart, struct tms *tmsend)
 {
     static long clktck = 0;
 
-    if (clktck == 0) /* fetch clock ticks per second first time */
+    if (clktck == 0)               // fetch clock ticks per second first time 
         if ((clktck = sysconf(_SC_CLK_TCK)) < 0)
             err_sys("sysconf error");
+
+    printf( "clktck is %ld\n", clktck); // for debug
 
     printf("  real:  %7.2f\n", real / (double)clktck);
     printf("  user:  %7.2f\n",
@@ -58,6 +84,8 @@ static void pr_times(clock_t real, struct tms *tmsstart, struct tms *tmsend)
            (tmsend->tms_cstime - tmsstart->tms_cstime) / (double)clktck);
 }
 
+// In these two examples, all the CPU time appears in the child process, 
+// which is where the shell and the command execute.
 /* Structure describing CPU time used by a process and its children.  */
 // struct tms
 // {
