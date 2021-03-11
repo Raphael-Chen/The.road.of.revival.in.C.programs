@@ -581,3 +581,26 @@ RETURN VALUE
        getlogin()  returns  a  pointer to the username when successful, and NULL on failure, with errno set to indicate the cause of the error.  getlogin_r() returns 0 when successful, and nonzero on failure
 ```
 
+
+
+## 9 Process Relationships
+
+本章自修，全是图，没什么代码。
+
+We learned in the previous chapter that there are relationships between processes. First, every process has a parent process (the initial kernel-level process is usually its ownparent). The parent is notified when the child terminates, and the parent can obtain the child’s exit status. We also mentioned process groups when we described the waitpid function (Section 8.6) and explained how we can wait for any process in a process group to terminate.
+
+In this chapter, we’ll look at process groups in more detail and the concept of
+sessions that was introduced by POSIX.1. We’ll also look at the relationship between the login shell that is invoked for us when we log in and all the processes that we start from our login shell.  
+
+It is impossible to describe these relationships without talking about signals, and to talk about signals, we need many of the concepts in this chapter. If you are unfamiliar with the UNIX System signal mechanism, you may want to skim through Chapter 10 at this point.
+
+
+
+## 9.4 Process Groups
+In addition to having a process ID, each process belongs to a process group. We’ll
+encounter process groups again when we discuss signals in Chapter 10.
+
+
+
+## 9.5 Sessions
+A session is a collection of one or more process groups. For example, we could have the arrangement shown in Figure 9.6. Here we have three process groups in a single session.
