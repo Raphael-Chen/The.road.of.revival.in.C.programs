@@ -840,12 +840,49 @@ DLlist* _createListWithArrayValues(_TYPE* array, int length)
     return NULL;
 }
 
+// 使用选择排序法对链表值进行排序, asc为0则降序序排，否则升序。可以使用_ASC(升序) ， _DESC(降序)
+void sort(DLlist *pList, int asc)
+{
+    DLNode *pi, *pk, *pj;
+    _TYPE value;
+    if (checkNull(pList) || isEmpty(pList))
+    {
+        return;
+    }
+
+    for (pi = pList->head; pi->pNext != NULL; pi = pi->pNext)
+    {
+        pk = pi;
+        for (pj = pi->pNext; pj != NULL; pj = pj->pNext)
+        {
+            if (asc && pk->value > pj->value) // 排升序
+            {
+                pk = pj;
+            }
+            if (!asc && pk->value < pj->value) // 排降序
+            {
+                pk = pj;
+            }
+        }
+
+        if (pk != pi)
+        {
+            value = pk->value;
+            pk->value = pi->value;
+            pi->value = value;
+        }
+    }
+}
+
+
 // 测试5：对链表元素进行排序
 int main( void )
 {
-//  DLlist* pList = _createListWithValues(5, 2 ,8 , 4, 9, 7); // 创建一个包还5个元素（2 ,8 , 4, 9, 7）的链表
+//  DLlist* pList = _createListWithValues(5, 2 ,8 , 4, 9, 7); 
 
-    int arr[5] = { 2 ,8 , 4, 9, 7 };
+
+    // 创建一个包含5个元素（2 ,8 , 4, 9, 7）的链表
+    int arr[5] = { 2 ,8, 4, 9, 7 };
     DLlist* pList = _createListWithArrayValues(arr, 5);
 
     //showAllReverse(pList);

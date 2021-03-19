@@ -34,7 +34,7 @@ DLlist *_createList();
 DLlist *_createListWithValues(int length, ...);
 
 // 使用数组来创建一个链表
-DLlist *_createListWithArrayValues(_TYPE array[], int length);
+DLlist *_createListWithArrayValues(_TYPE* array, int length);
 
 // 插入到头部,返回1插入成功
 int addToHead(DLlist *pList, _TYPE value);
