@@ -739,3 +739,13 @@ This function looks like the sleep function, which we describe in Section 10.19,
 2. We have modified the disposition for SIGALRM. If we’re writing a function for others to call, we should save the disposition when our function is called and restore it when we’re done. We can correct this by saving the return value from signal and resetting the disposition before our function returns.
 
 3. There is a race condition between the first call to alarm and the call to pause. On a busy system, it’s possible for the alarm to go off and the signal handler to be called before we call pause. If that happens, the caller is suspended forever in the call to pause (assuming that some other signal isn’t caught).
+
+## 10.11 Signal Sets
+We need a data type to represent multiple signals—a signal set. We’ll use this data type with such functions as sigprocmask (in the next section) to tell the kernel not to allow any of the signals in the set to occur.
+
+
+
+
+
+
+
