@@ -1,4 +1,4 @@
-// EXAMPLE What day of the week is July 4, 2001?
+// EXAMPLE: What day of the week is July 4, 2001?
 
 #include <stdio.h>
 #include <time.h>
