@@ -20,7 +20,7 @@ int main(void)
     printf("The number of seconds between 7-4-94 and 1-1-70 is %ld\n",
            seconds);
            
-    returnt 0;
+    return 0;
 }
 
 /****************
