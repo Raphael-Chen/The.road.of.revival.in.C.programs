@@ -14,6 +14,8 @@ int main(void)
     if (mktime(&time_fields) == -1)
         printf("Error converting fields\n");
     else
-        printf("Julian date for July 4, 1994 is %d\n",
-               time_fields.tm_yday);   //tm_yday   The number of days since January 1, in the range 0 to 365.
+        //tm_yday   The number of days since January 1, in the range 0 to 365.
+        printf("Julian date for July 4, 1994 is %d\n", time_fields.tm_yday);   
+
+    return 0;
 }
