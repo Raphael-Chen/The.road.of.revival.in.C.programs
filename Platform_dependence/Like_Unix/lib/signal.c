@@ -1,5 +1,7 @@
 #include "apue.h"
 
+// Figure 10.18 An implementation of signal using sigaction
+
 /* Reliable version of signal(), using POSIX sigaction().  */
 Sigfunc *signal(int signo, Sigfunc *func)
 {
@@ -8,6 +10,7 @@ Sigfunc *signal(int signo, Sigfunc *func)
     act.sa_handler = func;
     sigemptyset(&act.sa_mask);
     act.sa_flags = 0;
+
     if (signo == SIGALRM)
     {
 #ifdef SA_INTERRUPT
@@ -18,7 +21,9 @@ Sigfunc *signal(int signo, Sigfunc *func)
     {
         act.sa_flags |= SA_RESTART;
     }
+    
     if (sigaction(signo, &act, &oact) < 0)
         return (SIG_ERR);
+
     return (oact.sa_handler);
 }
