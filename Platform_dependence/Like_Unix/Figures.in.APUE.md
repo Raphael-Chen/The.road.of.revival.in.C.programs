@@ -800,3 +800,33 @@ The sigpending function returns the set of signals that are blocked from deliver
 
 
 
+## 10.14 sigaction Function
+The sigaction function allows us to examine or modify (or both) the action associated with a particular signal. This function supersedes the signal function from earlier releases of the UNIX System.
+
+#include <signal.h>
+int sigaction(int signo, const struct sigaction *restrict act,
+struct sigaction *restrict oact);
+Returns: 0 if OK, −1 on error
+
+Figure 10.17 siginfo_t code values（表格）
+
+
+```shell
+$ ./mask &
+[1] 4603
+starting main:
+$ kill -USR1 4603
+starting sig_usr1:  SIGUSR1
+$ in sig_alrm:  SIGUSR1 SIGALRM
+finishing sig_usr1:  SIGUSR1
+ending main:
+# just press Enter
+[1]+  Done                    ./mask
+```
+
+10.16 sigsuspend Function
+We have seen how we can change the signal mask for a process to block and unblock selected signals.
+
+
+
+Figure 10.21 Timeline for example program handling two signals
