@@ -2,6 +2,14 @@
 #include <ctype.h>
 #include <stdlib.h>
 
+// 6.8.1 Labeled statements
+// Syntax
+//
+// labeled-statement:
+//     identifier : statement
+//     case constant-expression : statement
+//     default : statement
+
 int main(void)
 {
     char letter;
@@ -28,6 +36,8 @@ int main(void)
             case 'C':
                 system("date");
                 break;
+            default:                   // Don't forget it.
+                ;// do something  
         };
     } while (letter != 'Q');
 
