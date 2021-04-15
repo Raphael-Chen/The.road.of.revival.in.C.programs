@@ -11,11 +11,11 @@
         int sigprocmask(int how, const sigset_t *set, sigset_t *oldset);
 **/
 
-
+// Figure 10.14 Print the signal mask for the process
 void pr_mask(const char *str)
 {
     sigset_t sigset;
-    int errno_save;
+    int      errno_save;
 
     errno_save = errno; /* we can be called by signal handlers */
     if (sigprocmask(0, NULL, &sigset) < 0)
