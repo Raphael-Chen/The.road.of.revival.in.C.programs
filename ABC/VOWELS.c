@@ -15,6 +15,9 @@ int main(void)
             case 'O':
             case 'U':
                 vowel_count++;
+                break;
+            default:
+                ;
         };
 
     printf("The number of vowels is %d\n", vowel_count);
