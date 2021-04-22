@@ -1,5 +1,12 @@
 #include "apue.h"
 
+
+// Figure 10.24 Routines to allow a parent and child to synchronize
+
+// we show how signals can be used to synchronize a parent and child. Figure 10.24 
+// shows implementations of the five routines TELL_WAIT, TELL_PARENT, TELL_CHILD,
+//  WAIT_PARENT, and WAIT_CHILD from Section 8.9.
+
 static volatile sig_atomic_t sigflag; /* set nonzero by sig handler */
 static sigset_t newmask, oldmask, zeromask;
 
