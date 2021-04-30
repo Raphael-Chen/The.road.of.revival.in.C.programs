@@ -1,7 +1,11 @@
 #include "apue.h"
 
-static void
-sig_alrm(int signo)
+// Figure 10.29 Reliable implementation of sleep
+// Figure 10.29 shows an implementation of the POSIX.1 sleep function. This function is
+// a modification of Figure 10.7, which handles signals reliably, avoiding the race condition
+// in the earlier implementation. We still do not handle any interactions with previously
+// set alarms. (As we mentioned, these interactions are explicitly undefined by POSIX.1.)
+static void sig_alrm(int signo)
 {
     /* nothing to do, just returning wakes up sigsuspend() */
 }
@@ -41,5 +45,6 @@ unsigned int sleep(unsigned int seconds)
 
     /* reset signal mask, which unblocks SIGALRM */
     sigprocmask(SIG_SETMASK, &oldmask, NULL);
+
     return (unslept);
 }
