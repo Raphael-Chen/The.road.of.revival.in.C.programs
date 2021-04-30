@@ -830,3 +830,102 @@ We have seen how we can change the signal mask for a process to block and unbloc
 
 
 Figure 10.21 Timeline for example program handling two signals
+
+
+
+The nanosleep function is similar to the sleep function, but provides nanosecond-level granularity.
+```c
+#include <time.h>
+int nanosleep(const struct timespec *reqtp, struct timespec *remtp);
+// Returns: 0 if slept for requested time or −1 on error
+```
+
+With the introduction of multiple system clocks (recall Section 6.10), we need a way to suspend the calling thread using a delay time relative to a particular clock. The clock_nanosleep function provides us with this capability.
+```c
+#include <time.h>
+int clock_nanosleep(clockid_t clock_id, int flags,
+const struct timespec *reqtp, struct timespec *remtp);
+// Returns: 0 if slept for requested time or error number on failure
+```
+
+## 10.20 sigqueue Function
+In Section 10.8 we said that most UNIX systems don’t queue signals. With the real-time extensions to POSIX.1, some systems began adding support for queueing signals. With SUSv4, the queued signal functionality has moved from the real-time extensions to the base specification.
+
+To use queued signals we have to do the following:
+1. Specify the SA_SIGINFO flag when we install a signal handler using the sigaction function. If we don’t specify this flag, the signal will be posted, but it is left up to the implementation whether the signal is queued.
+2. Provide a signal handler in the sa_sigaction member of the sigaction structure instead of using the usual sa_handler field. Implementations might allow us to use the sa_handler field, but we won’t be able to obtain the extra information sent with the sigqueue function.
+3. Use the sigqueue function to send signals.  
+```c
+#include <signal.h>
+int sigqueue(pid_t pid, int signo, const union sigval value)
+Returns: 0 if OK, −1 on error
+```
+
+Figure 10.30 Behavior of queued signals on various platforms(表格)
+
+## 10.21 Job-Control Signals
+Of the signals shown in Figure 10.1, POSIX.1 considers six to be job-control signals:
+SIGCHLD Child process has stopped or terminated.
+SIGCONT Continue process, if stopped.
+SIGSTOP Stop signal (can’t be caught or ignored).
+SIGTSTP Interactive stop signal.
+SIGTTIN Read from controlling terminal by background process group member.
+SIGTTOU Write to controlling terminal by a background process group member.
+
+## 10.22 Signal Names and Numbers
+In this section, we describe how to map between signal numbers and names. Some systems provide the array
+extern char *sys_siglist[];
+The array index is the signal number, giving a pointer to the character string name of the signal.
+
+
+
+
+
+## Threads
+## 11.1 Introduction
+We discussed processes in earlier chapters. We learned about the environment of a UNIX process, the relationships between processes, and ways to control processes. We saw that a limited amount of sharing can occur between related processes.
+In this chapter, we’ll look inside a process further to see how we can use multiple threads of control (or simply threads) to perform multiple tasks within the environment of a single process. All threads within a single process have access to the same process components, such as file descriptors and memory.
+Anytime you try to share a single resource among multiple users, you have to deal with consistency. We’ll conclude this chapter with a look at the synchronization mechanisms available to prevent multiple threads from viewing inconsistencies in their shared resources. 
+
+## 11.2 Thread Concepts
+A typical UNIX process can be thought of as having a single thread of control: each process is doing only one thing at a time. With multiple threads of control, we can design our programs to do more than one thing at a time within a single process, with each thread handling a separate task. This approach can have several benefits.
+- We can simplify code that deals with asynchronous events by assigning a separate thread to handle each event type. Each thread can then handle its event using a synchronous programming model. A synchronous programming model
+is much simpler than an asynchronous one.
+- Multiple processes have to use complex mechanisms provided by the operating system to share memory and file descriptors, as we will see in Chapters 15 and 17. Threads, in contrast, automatically have access to the same memory address space and file descriptors.
+- Some problems can be partitioned so that overall program throughput can be improved. A single-threaded process with multiple tasks to perform implicitly serializes those tasks, because there is only one thread of control. With multiple
+threads of control, the processing of independent tasks can be interleaved by assigning a separate thread per task. Two tasks can be interleaved only if they don’t depend on the processing performed by each other.
+- Similarly, interactive programs can realize improved response time by using multiple threads to separate the portions of the program that deal with user input and output from the other parts of the program.
+
+
+
+## 11.3 Thread Identification
+Just as every process has a process ID, every thread has a thread ID. Unlike the process ID, which is unique in the system, the thread ID has significance only within the context of the process to which it belongs.
+Recall that a process ID, represented by the pid_t data type, is a non-negative integer. A thread ID is represented by the pthread_t data type. Implementations are allowed to use a structure to represent the pthread_t data type, so portable implementations can’t treat them as integers. Therefore, a function must be used to compare two thread IDs.
+```c
+#include <pthread.h>
+int pthread_equal(pthread_t tid1, pthread_t tid2);
+Returns: nonzero if equal, 0 otherwise
+```
+
+A thread can obtain its own thread ID by calling the pthread_self function.
+```c
+#include <pthread.h>
+pthread_t pthread_self(void);
+Returns: the thread ID of the calling thread
+```
+This function can be used with pthread_equal when a thread needs to identify data structures that are tagged with its thread ID.
+
+### Figure 11.1 Work queue example(图    )
+
+This example has two oddities, which are necessary to handle races between the main thread and the new thread. (We’ll learn better ways to deal with these conditions later in this chapter.) 
+
+- The first is the need to sleep in the main thread. If it doesn’t sleep, the main thread might exit, thereby terminating the entire process before the new thread gets a chance to run. This behavior is dependent on the operating system’s threads implementation and scheduling algorithms.
+
+## 11.5 Thread Termination
+If any thread within a process calls exit, _Exit, or _exit, then the entire process terminates.
+
+A single thread can exit in three ways, thereby stopping its flow of control, without terminating the entire process.
+1. The thread can simply return from the start routine. The return value is the thread’s exit code.
+2. The thread can be canceled by another thread in the same process.
+3. The thread can call pthread_exit.
+
