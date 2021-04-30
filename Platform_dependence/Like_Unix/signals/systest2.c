@@ -1,5 +1,7 @@
 #include "apue.h"
 
+// Figure 10.26 Using system to invoke the ed editor
+
 static void sig_int(int signo)
 {
     printf("caught SIGINT\n");
