@@ -929,3 +929,91 @@ A single thread can exit in three ways, thereby stopping its flow of control, wi
 2. The thread can be canceled by another thread in the same process.
 3. The thread can call pthread_exit.
 
+
+
+A single thread can exit in three ways, thereby stopping its flow of control, without terminating the entire process.
+1. The thread can simply return from the start routine. The return value is the thread’s exit code.
+2. The thread can be canceled by another thread in the same process.
+3. The thread can call pthread_exit.
+
+The program in Figure 11.4 shows the problem with using an automatic variablen(allocated on the stack) as the argument to pthread_exit.
+
+
+As we can see, the contents of the structure (allocated on the stack of thread tid1) have changed by the time the main thread can access the structure. Note how the stack of the second thread (tid2) has overwritten the first thread’s stack. To solve this problem, we can either use a global structure or allocate the structure using malloc.
+
+
+One thread can request that another in the same process be canceled by calling the pthread_cancel function.
+#include <pthread.h>
+int pthread_cancel(pthread_t tid);
+Returns: 0 if OK, error number on failure
+
+In the default circumstances, pthread_cancel will cause the thread specified by tid to behave as if it had called pthread_exit with an argument of PTHREAD_CANCELED.
+However, a thread can elect to ignore or otherwise control how it is canceled. We will discuss this in detail in Section 12.7. Note that pthread_cancel doesn’t wait for the thread to terminate; it merely makes the request.
+
+
+A thread can arrange for functions to be called when it exits, similar to the way that the atexit function (Section 7.3) can be used by a process to arrange that functions are to be called when the process exits. The functions are known as thread cleanup handlers.
+More than one cleanup handler can be established for a thread. The handlers are recorded in a stack, which means that they are executed in the reverse order from that with which they were registered.
+#include <pthread.h>
+void pthread_cleanup_push(void (*rtn)(void *), void *arg);
+void pthread_cleanup_pop(int execute);
+
+The pthread_cleanup_push function schedules the cleanup function, rtn, to be called with the single argument, arg, when the thread performs one of the following actions:
+- Makes a call to pthread_exit
+- Responds to a cancellation request
+- Makes a call to pthread_cleanup_pop with a nonzero execute argument
+
+
+
+Figure 11.5 shows how to use thread cleanup handlers. Although the example is somewhat contrived, it illustrates the mechanics involved. Note that although we never intend to pass zero as an argument to the thread start-up routines, we still need to match calls to pthread_cleanup_pop with the calls to pthread_cleanup_push; otherwise, the program might not compile.
+
+
+
+By now, you should begin to see similarities between the thread functions and the process functions. Figure 11.6 summarizes the similar functions.
+
+Figure 11.6 Comparison of process and thread primitives
+
+| Process primitive | Thread primitive     | Description                                                 |
+| ----------------- | -------------------- | ----------------------------------------------------------- |
+| fork              | pthread_create       | create a new flow of control                                |
+| exit              | pthread_exit         | exit from an existing flow of control                       |
+| waitpid           | pthread_join         | get exit status from flow of control                        |
+| atexit            | pthread_cleanup_push | register function to be called at exit from flow of control |
+| getpid            | pthread_self         | get ID for flow of control                                  |
+| abort             | pthread_cancel       | request abnormal termination of flow of control             |
+
+
+### 11.6.4 Reader–Writer Locks
+Reader–writer locks are similar to mutexes, except that they allow for higher degrees of parallelism. With a mutex, the state is either locked or unlocked, and only one thread can lock it at a time. Three states are possible with a reader–writer lock: locked in read mode, locked in write mode, and unlocked. Only one thread at a time can hold a reader–writer lock in write mode, but multiple threads can hold a reader–writer lock in read mode at the same time.
+
+
+As with mutexes, reader–writer locks must be initialized before use and destroyed before freeing their underlying memory.
+```c
+#include <pthread.h>
+int pthread_rwlock_init(pthread_rwlock_t *restrict rwlock,
+const pthread_rwlockattr_t *restrict attr);
+int pthread_rwlock_destroy(pthread_rwlock_t *rwlock);
+// Both return: 0 if OK, error number on failure
+```
+
+To lock a reader–writer lock in read mode, we call pthread_rwlock_rdlock. To write lock a reader–writer lock, we call pthread_rwlock_wrlock. Regardless of how we lock a reader–writer lock, we can unlock it by calling pthread_rwlock_unlock.
+```c
+#include <pthread.h>
+int pthread_rwlock_rdlock(pthread_rwlock_t *rwlock);
+int pthread_rwlock_wrlock(pthread_rwlock_t *rwlock);
+int pthread_rwlock_unlock(pthread_rwlock_t *rwlock);
+// All return: 0 if OK, error number on failure
+```
+
+### 11.6.5 Reader–Writer Locking with Timeouts
+Just as with mutexes, the Single UNIX Specification provides functions to lock reader–writer locks with a timeout to give applications a way to avoid blocking indefinitely while trying to acquire a reader–writer lock. These functions are pthread_rwlock_timedrdlock and pthread_rwlock_timedwrlock.
+```c
+#include <pthread.h>
+#include <time.h>
+int pthread_rwlock_timedrdlock(pthread_rwlock_t *restrict rwlock, const struct timespec *restrict tsptr);
+int pthread_rwlock_timedwrlock(pthread_rwlock_t *restrict rwlock, const struct timespec *restrict tsptr);
+// Both return: 0 if OK, error number on failure
+```
+
+### 11.6.6 Condition Variables
+Condition variables are another synchronization mechanism available to threads. These synchronization objects provide a place for threads to rendezvous. When used with mutexes, condition variables allow threads to wait in a race-free way for arbitrary conditions to occur.
+
