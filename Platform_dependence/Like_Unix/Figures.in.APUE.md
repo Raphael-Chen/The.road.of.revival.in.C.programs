@@ -1017,3 +1017,37 @@ int pthread_rwlock_timedwrlock(pthread_rwlock_t *restrict rwlock, const struct t
 ### 11.6.6 Condition Variables
 Condition variables are another synchronization mechanism available to threads. These synchronization objects provide a place for threads to rendezvous. When used with mutexes, condition variables allow threads to wait in a race-free way for arbitrary conditions to occur.
 
+
+
+### 11.6.3 pthread_mutex_timedlock Function
+One additional mutex primitive allows us to bound the time that a thread blocks when a mutex it is trying to acquire is already locked. The pthread_mutex_timedlock function is equivalent to pthread_mutex_lock, but if the timeout value is reached, pthread_mutex_timedlock will return the error code ETIMEDOUT without locking the mutex.
+```c
+#include <pthread.h>
+#include <time.h>
+int pthread_mutex_timedlock(pthread_mutex_t *restrict mutex,
+const struct timespec *restrict tsptr);
+// Returns: 0 if OK, error number on failure
+```
+
+### 11.6.4 Reader–Writer Locks
+Reader–writer locks are similar to mutexes, except that they allow for higher degrees of parallelism. With a mutex, the state is either locked or unlocked, and only one thread can lock it at a time. Three states are possible with a reader–writer lock: locked in read mode, locked in write mode, and unlocked. Only one thread at a time can hold a reader–writer lock in write mode, but multiple threads can hold a reader–writer lock in read mode at the same time.
+
+As with mutexes, reader–writer locks must be initialized before use and destroyed before freeing their underlying memory.
+```c
+#include <pthread.h>
+int pthread_rwlock_init(pthread_rwlock_t *restrict rwlock,
+const pthread_rwlockattr_t *restrict attr);
+
+int pthread_rwlock_destroy(pthread_rwlock_t *rwlock);
+// Both return: 0 if OK, error number on failure
+```
+
+### 11.6.7 Spin Locks
+A spin lock is like a mutex, except that instead of blocking a process by sleeping, the process is blocked by busy-waiting (spinning) until the lock can be acquired. A spin lock could be used in situations where locks are held for short periods of times and threads don’t want to incur the cost of being descheduled.
+
+### 11.6.8 Barriers
+Barriers are a synchronization mechanism that can be used to coordinate multiple threads working in parallel. A barrier allows each thread to wait until all cooperating threads have reached the same point, and then continue executing from there. We’ve already seen one form of barrier—the pthread_join function acts as a barrier to allow one thread to wait until another thread exits.
+
+## 11.7 Summary
+In this chapter, we introduced the concept of threads and discussed the POSIX.1 primitives available to create and destroy them. We also introduced the problem of thread synchronization.
+We discussed five fundamental synchronization mechanisms — mutexes, reader–writer locks, condition variables, spin locks, and barriers — and we saw how to use them to protect shared resources.
