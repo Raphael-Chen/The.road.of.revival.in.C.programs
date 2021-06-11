@@ -1051,3 +1051,99 @@ Barriers are a synchronization mechanism that can be used to coordinate multiple
 ## 11.7 Summary
 In this chapter, we introduced the concept of threads and discussed the POSIX.1 primitives available to create and destroy them. We also introduced the problem of thread synchronization.
 We discussed five fundamental synchronization mechanisms — mutexes, reader–writer locks, condition variables, spin locks, and barriers — and we saw how to use them to protect shared resources.
+
+
+
+## Thread Control
+### 12.1 Introduction
+
+In Chapter 11, we learned the basics about threads and thread synchronization. In this chapter, we will learn the details of controlling thread behavior. We will look at thread attributes and synchronization primitive attributes, which we ignored in the previous chapter in favor of the default  behavior.
+We will follow this with a look at how threads can keep data private from other threads in the same process. Then we will wrap up the chapter with a look at how some process-based system calls interact with threads.
+
+
+
+### 12.2 Thread Limits
+We discussed the sysconf function in Section 2.5.4. The Single UNIX Specification defines several limits associated with the operation of threads, which we didn’t show in Figure 2.11. As with other system limits, the thread limits can be queried using sysconf. Figure 12.1 summarizes these limits.
+
+As with the other limits reported by sysconf, use of these limits is intended to promote application portability among different operating system implementations. For example, if your application requires that you create four threads for every file you manage, you might have to limit the number of files you can manage concurrently if the system won’t let you create enough threads.
+
+We can manage the stack attributes using the pthread_attr_getstack and pthread_attr_setstack functions.
+```c
+#include <pthread.h>
+int pthread_attr_getstack(const pthread_attr_t *restrict attr,
+void **restrict stackaddr,
+size_t *restrict stacksize);
+int pthread_attr_setstack(pthread_attr_t *attr,
+					void *stackaddr, size_t stacksize);
+// Both return: 0 if OK, error number on failure
+```
+
+If we know that we don’t need the thread’s termination status at the time we create the thread, we can arrange for the thread to start out in the detached state by modifying the detachstate thread attribute in the pthread_attr_t structure. We can use the pthread_attr_setdetachstate function to set the detachstate thread attribute to one of two legal values: PTHREAD_CREATE_DETACHED to start the thread in the detached state or PTHREAD_CREATE_JOINABLE to start the thread normally, so its termination status can be retrieved by the application.
+```c
+#include <pthread.h>
+int pthread_attr_getdetachstate(const pthread_attr_t 						*restrict attr, int *detachstate);
+int pthread_attr_setdetachstate(pthread_attr_t *attr, int 									detachstate);
+// Both return: 0 if OK, error number on failure
+```
+
+#### 12.4.1 Mutex Attributes
+Mutex attributes are represented by a pthread_mutexattr_t structure. Whenever we initialized a mutex in Chapter 11, we accepted the default attributes by using the PTHREAD_MUTEX_INITIALIZER constant or by calling the pthread_mutex_init function with a null pointer for the argument that points to the mutex attribute structure.
+
+### 12.6 Thread-Specific Data
+Thread-specific data, also known as thread-private data, is a mechanism for storing and finding data associated with a particular thread. The reason we call the data thread-specific, or thread-private, is that we’d like each thread to access its own separate copy of the data, without worrying about synchronizing access with other threads.
+
+Before allocating thread-specific data, we need to create a key to associate with the data. The key will be used to gain access to the thread-specific data. We use
+pthread_key_create to create such a key.
+
+```c
+#include <pthread.h>
+int pthread_key_create(pthread_key_t *keyp, void (*destructor)(void *));
+Returns: 0 if OK, error number on failure
+
+
+// We can break the association of a key with the thread-specific data values for all threads by calling pthread_key_delete.
+
+#include <pthread.h>
+int pthread_key_delete(pthread_key_t key);
+// Returns: 0 if OK, error number on failure
+```
+The key created is stored in the memory location pointed to by keyp. The same key can be used by all threads in the process, but each thread will associate a different thread-specific data address with the key. When the key is created, the data address for each thread is set to a null value.
+
+
+
+#### Figure 12.2 Examples of thread configuration limits
+
+| Limit                         | FreeBSD 8.0 | Linux 3.2.0 | Mac OS X 10.6.8 | Solaris 10 |
+| ----------------------------- | ----------- | ----------- | --------------- | ---------- |
+| PTHREAD_DESTRUCTOR_ITERATIONS | 4           | 4           | 4               | no limit   |
+| PTHREAD_KEYS_MAX              | 256         | 1024        | 512             | no limit   |
+| PTHREAD_STACK_MIN             | 2048        | 16384       | 8192            | 8192       |
+| PTHREAD_THREADS_MAX           | no limit    | no limit    | no limit        | no limit   |
+
+
+
+#### Figure 12.9 Functions not guaranteed to be thread-safe by POSIX.1
+
+
+| ------------- | ---------------- | ----------- | ---------------- |
+| ------------- | ---------------- | ----------- | ---------------- |
+| basename      | getchar_unlocked | getservent  | putc_unlocked    |
+| catgets       | getdate          | getutxent   | putchar_unlocked |
+| crypt         | getenv           | getutxid    | putenv           |
+| dbm_clearerr  | getgrent         | getutxline  | pututxline       |
+| dbm_close     | getgrgid         | gmtime      | rand             |
+| dbm_delete    | getgrnam         | hcreate     | readdir          |
+| dbm_error     | gethostent       | hdestroy    | setenv           |
+| dbm_fetch     | getlogin         | hsearch     | setgrent         |
+| dbm_firstkey  | getnetbyaddr     | inet_ntoa   | setkey           |
+| dbm_nextkey   | getnetbyname     | l64a        | setpwent         |
+| dbm_open      | getnetent        | lgamma      | setutxent        |
+| dbm_store     | getopt           | lgammaf     | strerror         |
+| dirname       | getprotobyname   | lgammal     | strsignal        |
+| dlerror       | getprotobynumber | localeconv  | strtok           |
+| drand48       | getprotoent      | localtime   | system           |
+| encrypt       | getpwent         | lrand48     | ttyname          |
+| endgrent      | getpwnam         | mrand48     | unsetenv         |
+| endpwent      | getpwuid         | nftw        | wcstombs         |
+| endutxent     | getservbyname    | nl_langinfo | wctomb           |
+| getc_unlocked | getservbyport    | ptsname     |                  |
