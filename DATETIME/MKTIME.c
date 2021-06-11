@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <time.h>
+#include "comm_file.h"
 
 // Another example is what_day.c
 int main(void)
@@ -8,18 +9,25 @@ int main(void)
 
     struct tm time_fields;
 
+    time_fields.tm_year = 99;    //千年虫问题？
+    time_fields.tm_mon  = 7 - 1;
     time_fields.tm_mday = 4;
-    time_fields.tm_mon = 7;
-    time_fields.tm_year = 94;
-    time_fields.tm_hour = 0;
+
+
+    time_fields.tm_hour = 2 + 1;    // [Bug]before year 2000 need plus one hour!
     time_fields.tm_min = 0;
     time_fields.tm_sec = 0;
 
     seconds = mktime(&time_fields);
 
-    printf("The number of seconds between 7-4-94 and 1-1-70 is %ld\n",
+    // printf("The number of seconds between 7-4-94 and 1-1-70 is %ld\n",
+    //        seconds);
+
+    printf("The number of seconds between 94-07-04 and 1970-01-01 is %ld\n",
            seconds);
-           
+
+    printf("%ld The date and time is : %s", seconds, ctime( &seconds ));
+
     return 0;
 }
 
