@@ -858,7 +858,7 @@ To use queued signals we have to do the following:
 ```c
 #include <signal.h>
 int sigqueue(pid_t pid, int signo, const union sigval value)
-Returns: 0 if OK, −1 on error
+// Returns: 0 if OK, −1 on error
 ```
 
 Figure 10.30 Behavior of queued signals on various platforms(表格)
@@ -904,14 +904,14 @@ Recall that a process ID, represented by the pid_t data type, is a non-negative 
 ```c
 #include <pthread.h>
 int pthread_equal(pthread_t tid1, pthread_t tid2);
-Returns: nonzero if equal, 0 otherwise
+// Returns: nonzero if equal, 0 otherwise
 ```
 
 A thread can obtain its own thread ID by calling the pthread_self function.
 ```c
 #include <pthread.h>
 pthread_t pthread_self(void);
-Returns: the thread ID of the calling thread
+// Returns: the thread ID of the calling thread
 ```
 This function can be used with pthread_equal when a thread needs to identify data structures that are tagged with its thread ID.
 
@@ -931,11 +931,6 @@ A single thread can exit in three ways, thereby stopping its flow of control, wi
 
 
 
-A single thread can exit in three ways, thereby stopping its flow of control, without terminating the entire process.
-1. The thread can simply return from the start routine. The return value is the thread’s exit code.
-2. The thread can be canceled by another thread in the same process.
-3. The thread can call pthread_exit.
-
 The program in Figure 11.4 shows the problem with using an automatic variablen(allocated on the stack) as the argument to pthread_exit.
 
 
@@ -949,7 +944,6 @@ Returns: 0 if OK, error number on failure
 
 In the default circumstances, pthread_cancel will cause the thread specified by tid to behave as if it had called pthread_exit with an argument of PTHREAD_CANCELED.
 However, a thread can elect to ignore or otherwise control how it is canceled. We will discuss this in detail in Section 12.7. Note that pthread_cancel doesn’t wait for the thread to terminate; it merely makes the request.
-
 
 A thread can arrange for functions to be called when it exits, similar to the way that the atexit function (Section 7.3) can be used by a process to arrange that functions are to be called when the process exits. The functions are known as thread cleanup handlers.
 More than one cleanup handler can be established for a thread. The handlers are recorded in a stack, which means that they are executed in the reverse order from that with which they were registered.
@@ -1098,7 +1092,7 @@ pthread_key_create to create such a key.
 ```c
 #include <pthread.h>
 int pthread_key_create(pthread_key_t *keyp, void (*destructor)(void *));
-Returns: 0 if OK, error number on failure
+// Returns: 0 if OK, error number on failure
 
 
 // We can break the association of a key with the thread-specific data values for all threads by calling pthread_key_delete.
@@ -1147,3 +1141,64 @@ The key created is stored in the memory location pointed to by keyp. The same ke
 | endpwent      | getpwuid         | nftw        | wcstombs         |
 | endutxent     | getservbyname    | nl_langinfo | wctomb           |
 | getc_unlocked | getservbyport    | ptsname     |                  |
+
+
+
+
+
+
+
+We could have used a reader–writer lock to allow multiple concurrent calls to getenv_r, but the added concurrency probably wouldn’t improve the performance of our program by very much, for two reasons. First, the environment list usually isn’t very long, so we won’t hold the mutex for too long while we scan the list. Second, calls to getenv and putenv are infrequent, so if we improve their performance, we won’t affect the overall performance of the program very much.
+
+
+### 12.7 Cancel Options
+
+Two thread attributes that are not included in the pthread_attr_t structure are the cancelability state and the cancelability type. These attributes affect the behavior of a thread in response to a call to pthread_cancel (Section 11.5).
+The cancelability state attribute can be either PTHREAD_CANCEL_ENABLE or PTHREAD_CANCEL_DISABLE. A thread can change its cancelability state by calling pthread_setcancelstate.
+
+```c
+#include <pthread.h>
+int pthread_setcancelstate(int state, int *oldstate);
+// Returns: 0 if OK, error number on failure
+```
+
+
+
+Figure 12.14 Cancellation points defined by POSIX.1
+
+
+
+#### Figure 12.10 Alternative thread-safe functions
+
+getgrgid_r
+getgrnam_r
+getlogin_r
+getpwnam_r
+getpwuid_r
+gmtime_r
+localtime_r
+readdir_r
+strerror_r
+strtok_r
+ttyname_r
+
+
+
+Dealing with signals can be complicated even with a process-based paradigm. Introducing threads into the picture makes things even more complicated.
+Each thread has its own signal mask, but the signal disposition is shared by all threads in the process. As a consequence, individual threads can block signals, but when a thread modifies the action associated with a given signal, all threads share the action. Thus, if one thread chooses to ignore a given signal, another thread can undo that choice by restoring the default disposition or installing a signal handler for that signal.
+Signals are delivered to a single thread in the process. If the signal is related to a hardware fault, the signal is usually sent to the thread whose action caused the event. Other signals, on the other hand, are delivered to an arbitrary thread.
+
+
+For example, assume that module A calls functions from module B and that each module has its own set of locks. If the locking hierarchy is A before B, module B must install its fork handlers before module A. When the parent calls fork, the following steps are taken, assuming that the child process runs before the parent:
+1. The prepare fork handler from module A is called to acquire all of module A’s locks.
+2. The prepare fork handler from module B is called to acquire all of module B’s locks.
+3. A child process is created.
+4. The child fork handler from module B is called to release all of module B’s locks in the child process.
+5. The child fork handler from module A is called to release all of module A’s locks in the child process.
+6. The fork function returns to the child.
+7. The parent fork handler from module B is called to release all of module B’s locks in the parent process.
+8. The parent fork handler from module A is called to release all of module A’s locks in the parent process.
+9. The fork function returns to the parent.
+
+### 12.11 Summary
+Threads provide an alternative model for partitioning concurrent tasks in UNIX systems. They promote sharing among separate threads of control, but present unique synchronization problems. In this chapter, we looked at how we can fine-tune our threads and their synchronization primitives. We discussed reentrancy with threads. We also looked at how threads interact with some of the process-oriented system calls.
