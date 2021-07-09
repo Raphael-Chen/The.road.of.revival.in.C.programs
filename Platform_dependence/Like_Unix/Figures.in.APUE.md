@@ -1202,3 +1202,59 @@ For example, assume that module A calls functions from module B and that each mo
 
 ### 12.11 Summary
 Threads provide an alternative model for partitioning concurrent tasks in UNIX systems. They promote sharing among separate threads of control, but present unique synchronization problems. In this chapter, we looked at how we can fine-tune our threads and their synchronization primitives. We discussed reentrancy with threads. We also looked at how threads interact with some of the process-oriented system calls.
+
+
+
+13.1 Introduction
+
+Daemons are processes that live for a long time. They are often started when the system is bootstrapped and terminate only when the system is shut down. Because they don’t have a controlling terminal, we say that they run in the background. UNIX systems have numerous daemons that perform day-to-day activities.
+
+In this chapter, we look at the process structure of daemons and explore how to write a daemon. Since a daemon does not have a controlling terminal, we need to see how a daemon can report error conditions when something goes wrong.
+
+
+
+13.3  Coding Rules
+
+Some basic rules to coding a daemon prevent unwanted interactions from happening. We state these rules here and then show a function, daemonize, that implements them.
+
+1. **Call umask to set the file mode creation mask to a known value, usually 0**. The inherited file mode creation mask could be set to deny certain permissions. If the daemon process creates files, it may want to set specific permissions. For example, if it creates files with group-read and group-write enabled, a file mode creation mask that turns off either of these permissions would undo its efforts.On the other hand, if the daemon calls library functions that result in files being created, then it might make sense to set the file mode create mask to a more restrictive value (such as 007), since the library functions might not allow the caller to specify the permissions through an explicit argument.
+
+2. **Call fork and have the parent exit**. This does several things. First, if the daemon was started as a simple shell command, having the parent terminate makes the shell think that the command is done. Second, the child inherits the process group ID of the parent but gets a new process ID, so we’re guaranteed that the child is not a process group leader. This is a prerequisite for the call to setsid that is done next.
+3. **Call setsid to create a new session**. The three steps listed in Section 9.5 occur. The process (a) becomes the leader of a new session, (b) becomes the leader of a new process group, and (c) is disassociated from its controlling terminal.
+
+4. **Change the current working directory to the root directory**. The current working directory inherited from the parent could be on a mounted file system. Since daemons normally exist until the system is rebooted, if the daemon stays on a mounted file system, that file system cannot be unmounted. 
+Alternatively, some daemons might change the current working directory to a specific location where they will do all their work. For example, a line printer spooling daemon might change its working directory to its spool directory.
+
+5. Unneeded file descriptors should be closed. This prevents the daemon from holding open any descriptors that it may have inherited from its parent (which could be a shell or some other process). We can use our open_max function (Figure 2.17) or the getrlimit function (Section 7.11) to determine the highest descriptor and close all descriptors up to that value.
+
+6. Some daemons open file descriptors 0, 1, and 2 to /dev/null so that any library routines that try to read from standard input or write to standard output or standard error will have no effect. Since the daemon is not associated with a terminal device, there is nowhere for output to be displayed, nor is there anywhere to receive input from an interactive user. Even if the daemon was started from an interactive session, the daemon runs in the background, and the login session can terminate without affecting the daemon. If other users log in on the same terminal device, we wouldn’t want output from the daemon showing up on the terminal, and the users wouldn’t expect their input to be read by the daemon.
+
+
+Figure 13.2 The BSD syslog facility
+
+One problem a daemon has is how to handle error messages. It can’t simply write to standard error, since it shouldn’t have a controlling terminal. We don’t want all the daemons writing to the console device, because on many workstations the console device runs a windowing system. We also don’t want each daemon writing its own error messages into a separate file. It would be a headache for anyone administering the system to keep up with which daemon writes to which log file and to check these files on a regular basis. A central daemon error-logging facility is required.
+
+
+
+There are three ways to generate log messages:
+
+1. Kernel routines can call the log function. These messages can be read by any user process that opens and reads the /dev/klog device. We won’t describe this function any further, since we’re not interested in writing kernel routines.
+2. Most user processes (daemons) call the syslog(3) function to generate log messages. We describe its calling sequence later. This causes the message to be sent to the UNIX domain datagram socket /dev/log.
+3. A user process on this host, or on some other host that is connected to this host by a TCP/IP network, can send log messages to UDP port 514. Note that the syslog function never generates these UDP datagrams: they require explicit network programming by the process generating the log message.
+
+
+
+Our interface to this facility is through the syslog function.
+#include <syslog.h>
+void openlog(const char *ident, int option, int facility);
+void syslog(int priority, const char *format, ...);
+void closelog(void);
+int setlogmask(int maskpri);
+Returns: previous log priority mask value
+
+
+Figure 13.3 The option argument for openlog(表格)
+
+Figure 13.4 The facility argument for openlog（表格）
+
+Figure 13.5 The syslog levels (ordered)（表格）
