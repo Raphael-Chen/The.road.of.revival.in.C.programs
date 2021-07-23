@@ -1,5 +1,22 @@
 #include <stdio.h>
 
+
+// 6.5.7 Bitwise shift operators
+// Syntax
+
+//     shift-expression:
+//     additive-expression
+//     shift-expression << additive-expression
+//     shift-expression >> additive-expression
+
+// Constraints
+//     Each of the operands shall have integer type.
+
+// Semantics
+//     The integer promotions are performed on each of the operands. The type of the result is
+//     that of the promoted left operand. If the value of the right operand is negative or is
+//     greater than or equal to the width of the promoted left operand, the behavior is undefined.
+
 int main(void)
 {
     unsigned u_val = 1;
