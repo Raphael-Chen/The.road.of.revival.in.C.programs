@@ -1205,7 +1205,9 @@ Threads provide an alternative model for partitioning concurrent tasks in UNIX s
 
 
 
-13.1 Introduction
+## 13 Daemon Processes
+
+### 13.1 Introduction
 
 Daemons are processes that live for a long time. They are often started when the system is bootstrapped and terminate only when the system is shut down. Because they don’t have a controlling terminal, we say that they run in the background. UNIX systems have numerous daemons that perform day-to-day activities.
 
@@ -1213,7 +1215,7 @@ In this chapter, we look at the process structure of daemons and explore how to 
 
 
 
-13.3  Coding Rules
+### 13.3  Coding Rules
 
 Some basic rules to coding a daemon prevent unwanted interactions from happening. We state these rules here and then show a function, daemonize, that implements them.
 
@@ -1225,9 +1227,9 @@ Some basic rules to coding a daemon prevent unwanted interactions from happening
 4. **Change the current working directory to the root directory**. The current working directory inherited from the parent could be on a mounted file system. Since daemons normally exist until the system is rebooted, if the daemon stays on a mounted file system, that file system cannot be unmounted. 
 Alternatively, some daemons might change the current working directory to a specific location where they will do all their work. For example, a line printer spooling daemon might change its working directory to its spool directory.
 
-5. Unneeded file descriptors should be closed. This prevents the daemon from holding open any descriptors that it may have inherited from its parent (which could be a shell or some other process). We can use our open_max function (Figure 2.17) or the getrlimit function (Section 7.11) to determine the highest descriptor and close all descriptors up to that value.
+5. **Unneeded file descriptors should be closed**. This prevents the daemon from holding open any descriptors that it may have inherited from its parent (which could be a shell or some other process). We can use our open_max function (Figure 2.17) or the getrlimit function (Section 7.11) to determine the highest descriptor and close all descriptors up to that value.
 
-6. Some daemons open file descriptors 0, 1, and 2 to /dev/null so that any library routines that try to read from standard input or write to standard output or standard error will have no effect. Since the daemon is not associated with a terminal device, there is nowhere for output to be displayed, nor is there anywhere to receive input from an interactive user. Even if the daemon was started from an interactive session, the daemon runs in the background, and the login session can terminate without affecting the daemon. If other users log in on the same terminal device, we wouldn’t want output from the daemon showing up on the terminal, and the users wouldn’t expect their input to be read by the daemon.
+6. **Some daemons open file descriptors 0, 1, and 2 to /dev/null so that any library routines that try to read from standard input or write to standard output or standard error will have no effect.** Since the daemon is not associated with a terminal device, there is nowhere for output to be displayed, nor is there anywhere to receive input from an interactive user. Even if the daemon was started from an interactive session, the daemon runs in the background, and the login session can terminate without affecting the daemon. If other users log in on the same terminal device, we wouldn’t want output from the daemon showing up on the terminal, and the users wouldn’t expect their input to be read by the daemon.
 
 
 Figure 13.2 The BSD syslog facility
@@ -1245,16 +1247,50 @@ There are three ways to generate log messages:
 
 
 Our interface to this facility is through the syslog function.
+```c
 #include <syslog.h>
 void openlog(const char *ident, int option, int facility);
 void syslog(int priority, const char *format, ...);
 void closelog(void);
 int setlogmask(int maskpri);
-Returns: previous log priority mask value
-
+// Returns: previous log priority mask value
+```
 
 Figure 13.3 The option argument for openlog(表格)
 
 Figure 13.4 The facility argument for openlog（表格）
 
 Figure 13.5 The syslog levels (ordered)（表格）
+
+
+
+### 13.7 Client–Server Model
+A common use for a daemon process is as a server process. Indeed, in Figure 13.2, we can call the syslogd process a server that has messages sent to it by user processes (clients) using a UNIX domain datagram socket.
+In general, a server is a process that waits for a client to contact it, requesting some type of service. In Figure 13.2, the service being provided by the syslogd server is the logging of an error message.
+
+### 13.8 Summary
+Daemon processes are running all the time on most UNIX systems. Initializing our own process to run as a daemon takes some care and an understanding of the process relationships described in Chapter 9. In this chapter, we developed a function that can be called by a daemon process to initialize itself correctly.
+We also discussed the ways a daemon can log error messages, since a daemon normally doesn’t have a controlling terminal. We discussed several conventions that daemons follow on most UNIX systems and showed examples of how to implement some of these conventions.
+
+
+## 14 Advanced I/O
+
+### 14.1 Introduction
+This chapter covers numerous topics and functions that we lump under the term
+advanced I/O : nonblocking I/O, record locking, I/O multiplexing (the select and
+poll functions), asynchronous I/O, the readv and writev functions, and
+memory-mapped I/O (mmap). We need to cover these topics before describing
+interprocess communication in Chapter 15, Chapter 17, and many of the examples in later chapters.
+
+There are two ways to specify nonblocking I/O for a given descriptor.
+1. If we call open to get the descriptor, we can specify the O_NONBLOCK flag (Section 3.3).
+2. For a descriptor that is already open, we call fcntl to turn on the O_NONBLOCK file status flag (Section 3.14). Figure 3.12 shows a function that we can call to turn on any of the file status flags for a descriptor.
+
+
+Figure 14.2 Forms of record locking supported by various UNIX systems(表格)
+
+
+
+### 14.3 Record Locking
+
+What happens when two people edit the same file at the same time? In most UNIX systems, the final state of the file corresponds to the last process that wrote the file. In some applications, however, such as a database system, a process needs to be certain that it alone is writing to a file. To provide this capability for processes that need it, commercial UNIX systems provide record locking.
