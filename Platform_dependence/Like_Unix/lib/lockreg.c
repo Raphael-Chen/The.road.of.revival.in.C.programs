@@ -1,6 +1,8 @@
 #include "apue.h"
 #include <fcntl.h>
 
+// Figure 14.5 Function to lock or unlock a region of a file
+
 int lock_reg(int fd, int cmd, int type, off_t offset, int whence, off_t len)
 {
     struct flock lock;
