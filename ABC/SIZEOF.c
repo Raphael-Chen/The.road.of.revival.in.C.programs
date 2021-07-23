@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+// Size of data type.diffrent chipset, diffrent size.
+
 int main(void)
 {
     printf("Variables of type bool use %ld bytes\n", sizeof(_Bool)); // after C99
