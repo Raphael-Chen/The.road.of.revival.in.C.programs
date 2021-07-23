@@ -1,12 +1,14 @@
 // 实现去除字符串首尾空格
+// How to remove the spaces of string in head and tail.
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
+// Method 2: Without call any system function.
 char* trim2(char *strIn, char *strOut)
 {
-    char *start, *end, *temp; //定义去除空格后字符串的头尾指针和遍历指针
+    char *start, *end, *temp;          // 定义去除空格后字符串的头尾指针和遍历指针
 
     temp = strIn;
 
@@ -15,9 +17,9 @@ char* trim2(char *strIn, char *strOut)
         ++temp;
     }
 
-    start = temp; //求得头指针
+    start = temp;                      // 求得头指针
 
-    temp = strIn + strlen(strIn) - 1; // 得到原字符串最后一个字符的指针(不是'\0')
+    temp = strIn + strlen(strIn) - 1;  // 得到原字符串最后一个字符的指针(不是'\0')
 
     // printf("%c\n", *temp);
 
@@ -26,7 +28,7 @@ char* trim2(char *strIn, char *strOut)
         --temp;
     }
 
-    end = temp; //求得尾指针
+    end = temp;                         // 求得尾指针
 
     strIn = start;
     while (strIn <= end )
@@ -39,6 +41,7 @@ char* trim2(char *strIn, char *strOut)
     return strOut;
 }
 
+// Method 1
 char* trim(char *strIn, char *strOut)
 {
     int i = 0,
@@ -65,7 +68,7 @@ int main(void)
     char strOut[100] = {'\0'};
 
     trim2(strIn, strOut);
-    printf("*%s*\n", strOut);       //* 做字符串收尾参照用
+    printf("*%s*\n", strOut);       // 做字符串收尾参照用
 
     return 0;
 }
