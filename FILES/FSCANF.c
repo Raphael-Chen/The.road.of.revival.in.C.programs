@@ -6,16 +6,18 @@ int main(void)
 
     int age;
     float salary;
-    char name[64] = { '\0'};
+    char name[64] = { '\0' };
 
-    if ((fp = fopen("DATA.DAT", "w")) == NULL)
+    fp = fopen("DATA.DAT", "w");
+    if ( fp == NULL )
         printf("Error opening DATA.DAT for output\n");
     else
     {
         fprintf(fp, "33 35000.0 Kris");
         fclose(fp);
 
-        if ((fp = fopen("DATA.DAT", "r")) == NULL)
+        fp = fopen("DATA.DAT", "r");
+        if ( fp == NULL )
             printf("Error opening DATA.DAT for input\n");
         else
         {
