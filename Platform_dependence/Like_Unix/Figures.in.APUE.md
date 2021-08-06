@@ -1294,3 +1294,64 @@ Figure 14.2 Forms of record locking supported by various UNIX systems(表格)
 ### 14.3 Record Locking
 
 What happens when two people edit the same file at the same time? In most UNIX systems, the final state of the file corresponds to the last process that wrote the file. In some applications, however, such as a database system, a process needs to be certain that it alone is writing to a file. To provide this capability for processes that need it, commercial UNIX systems provide record locking.
+
+
+
+### 14.4 I/O Multiplexing
+
+#### 14.4.1 select and pselect Functions
+
+The select function lets us do I/O multiplexing under all POSIX-compatible platforms. The arguments we pass to select tell the kernel
+- Which descriptors we’re interested in.
+- Which conditions we’re interested in for each descriptor. (Do we want to read from a given descriptor? Do we want to write to a given descriptor? Are we interested in an exception condition for a given descriptor?)
+- How long we want to wait. (We can wait forever, wait a fixed amount of time, or not wait at all.)
+
+On the return from select, the kernel tells us
+- The total count of the number of descriptors that are ready
+- Which descriptors are ready for each of the three  conditions (read, write, or exception condition)
+
+### 14.5 Asynchronous I/O
+
+#### 14.5.1 System V Asynchronous I/O
+
+#### 14.5.2 BSD Asynchronous I/O
+14.5.3 POSIX Asynchronous I/O
+
+### 14.6 readv and writev Functions
+
+### 14.7 readn and writen Functions
+Pipes, FIFOs, and some devices—notably terminals and networks—have the following two properties.
+
+1. A read operation may return less than asked for, even though we have not encountered the end of file. This is not an error, and we should simply continue reading from the device.
+2. A write operation can return less than we specified. This may be caused by kernel output buffers becoming full, for example. Again, it’s not an error, and we should continue writing the remainder of the data. (Normally, this short
+return from a write occurs only with a nonblocking descriptor or if a signal is caught.)
+
+### 14.8 Memory-Mapped I/O
+Memory-mapped I/O lets us map a file on disk into a buffer in memory so that, when we fetch bytes from the buffer, the corresponding bytes of the file are read. Similarly, when we store data in the buffer, the corresponding bytes are automatically written to the file. This lets us perform I/O without using read or write.
+
+To use this feature, we have to tell the kernel to map a given file to a region in
+memory. This task is handled by the mmap function.
+
+```c
+#include <sys/mman.h>
+void *mmap(void *addr, size_t len, int prot, int flag, int fd, off_t off );
+// Returns: starting address of mapped region if OK, MAP_FAILED on error
+```
+
+Figure 14.25 Protection of memory-mapped region(表格)
+
+Figure 14.26 Example of a memory-mapped file(图)
+
+We can change the permissions on an existing mapping by calling mprotect.
+```c
+#include <sys/mman.h>
+int mprotect(void *addr, size_t len, int prot);
+// Returns: 0 if OK, −1 on error
+```
+
+Figure 14.8 The FreeBSD data structures for record locking(图)
+
+Figure 14.26 Example of a memory-mapped file
+
+Figure 14.11 Effect of mandatory locking on reads and writes by other processes（表格）
+
