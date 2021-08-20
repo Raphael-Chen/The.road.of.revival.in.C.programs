@@ -34,8 +34,8 @@ int main(int argc, char *argv[])
     {
         err_sys("fork error");
     }
-    else if (pid > 0)
-    { /* parent */
+    else if (pid > 0)   /* parent */
+    { 
         /* write lock entire file */
         if (write_lock(fd, 0, SEEK_SET, 0) < 0)
             err_sys("write_lock error");
@@ -45,8 +45,8 @@ int main(int argc, char *argv[])
         if (waitpid(pid, NULL, 0) < 0)
             err_sys("waitpid error");
     }
-    else
-    {                  /* child */
+    else                /* child */
+    {                  
         WAIT_PARENT(); /* wait for parent to set lock */
 
         set_fl(fd, O_NONBLOCK);
