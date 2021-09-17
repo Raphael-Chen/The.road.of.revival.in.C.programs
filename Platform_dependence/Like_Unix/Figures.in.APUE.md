@@ -1337,6 +1337,12 @@ memory. This task is handled by the mmap function.
 void *mmap(void *addr, size_t len, int prot, int flag, int fd, off_t off );
 // Returns: starting address of mapped region if OK, MAP_FAILED on error
 ```
+The addr argument lets us specify the address where we want the mapped region to start. We normally set this value to 0 to allow the system to choose the starting address. The return value of this function is the starting address of the mapped area.
+
+The fd argument is the file descriptor specifying the file that is to be mapped. We have to open this file before we can map it into the address space. The len argument is the number of bytes to map, and off is the starting offset in the file of the bytes to map. (Some restrictions on the value of off are described later.)
+
+The prot argument specifies the protection of the mapped region.
+
 
 Figure 14.25 Protection of memory-mapped region(表格)
 
@@ -1349,9 +1355,68 @@ int mprotect(void *addr, size_t len, int prot);
 // Returns: 0 if OK, −1 on error
 ```
 
+If the pages in a shared mapping have been modified, we can call msync to flush the changes to the file that backs the mapping. The msync function is similar to fsync (Section 3.13), but works on memory-mapped regions.
+```c
+#include <sys/mman.h>
+int msync(void *addr, size_t len, int flags);
+// Returns: 0 if OK, −1 on error
+```
+
 Figure 14.8 The FreeBSD data structures for record locking(图)
 
 Figure 14.26 Example of a memory-mapped file
 
 Figure 14.11 Effect of mandatory locking on reads and writes by other processes（表格）
 
+### 14.9 Summary
+In this chapter, we’ve described numerous advanced I/O functions, many of which are used in the examples in later chapters:
+• Nonblocking I/O—issuing an I/O operation without letting it block
+• Record locking (which we’ll look at in more detail through an example, the database library in Chapter 20)
+• I/O multiplexing—the select and poll functions (we’ll use these in many of the later examples)
+• Asynchronous I/O
+• The readv and writev functions (also used in many of the later examples)
+• Memory-mapped I/O (mmap)
+
+
+
+## 15 Inter process Communication
+
+### 15.1 Introduction
+
+In Chapter 8, we described the process control primitives and saw how to work with multiple processes. But the only way for these processes to exchange information is by passing open files across a fork or an exec or through the file system. We’ll now describe other techniques for processes to communicate with one another: interprocess communication (IPC).
+
+Figure 15.1 Summary of UNIX System IPC
+
+
+
+
+
+We have divided the discussion of IPC into three chapters. In this chapter, we examine classical IPC: pipes, FIFOs, message queues, semaphores, and shared memory. In the next chapter, we take a look at network IPC using the sockets mechanism. In Chapter 17, we take a look at some advanced features of IPC.
+
+
+
+15.2 Pipes
+Pipes are the oldest form of UNIX System IPC and are provided by all UNIX systems. Pipes have two limitations.
+1. Historically, they have been half duplex (i.e., data flows in only one direction). Some systems now provide full-duplex pipes, but for maximum portability, we should never assume that this is the case.
+
+2. Pipes can be used only between processes that have a common ancestor. Normally, a pipe is created by a process, that process calls fork, and the pipe is used between the parent and the child.
+
+A pipe is created by calling the pipe function.
+```c
+#include <unistd.h>
+int pipe(int fd[2]);
+// Returns: 0 if OK, −1 on error
+```
+Two file descriptors are returned through the fd argument: fd[0] is open for reading, and fd[1] is open for writing. The output of fd[1] is the input for fd[0].
+
+Figure 15.2 Two ways to view a half-duplex pipe
+
+Figure 15.3 Half-duplex pipe after a fork
+
+Figure 15.4 Pipe from parent to child
+
+For a pipe from the child to the parent, the parent closes fd[1], and the child closes fd[0]. When one end of a pipe is closed, two rules apply.
+1. If we read from a pipe whose write end has been closed, read returns 0 to indicate an end of file after all the data has been read. (Technically, we should say that this end of file is not generated until there are no more writers for the pipe. It’s possible to duplicate a pipe descriptor so that multiple processes have the pipe open for writing. Normally, however, there is a single reader and a single writer for a pipe. When we get to FIFOs in the next section, we’ll see that
+often there are multiple writers for a single FIFO.)
+
+2. If we write to a pipe whose read end has been closed, the signal SIGPIPE is generated. If we either ignore the signal or catch it and return from the signal handler, write returns −1 with errno set to EPIPE.
