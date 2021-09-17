@@ -3,7 +3,9 @@
 #include <sys/mman.h>
 
 // Figure 14.27 Copy a file using memory-mapped I/O
-#define COPYINCR (1024 * 1024 * 1024) /* 1 GB */
+// The program in Figure 14.27 copies a file (similar to the cp(1) command) using
+// memory-mapped I/O.
+#define COPYINCR (1024 * 1024 * 1024)             /* 1 GB */
 
 int main(int argc, char *argv[])
 {
@@ -23,10 +25,10 @@ int main(int argc, char *argv[])
                       FILE_MODE)) < 0)
         err_sys("can't creat %s for writing", argv[2]);
 
-    if (fstat(fdin, &sbuf) < 0) /* need size of input file */
+    if (fstat(fdin, &sbuf) < 0)                      /* need size of input file */
         err_sys("fstat error");
 
-    if (ftruncate(fdout, sbuf.st_size) < 0) /* set output file size */
+    if (ftruncate(fdout, sbuf.st_size) < 0)          /* set output file size */
         err_sys("ftruncate error");
 
     while (fsz < sbuf.st_size)
@@ -43,7 +45,7 @@ int main(int argc, char *argv[])
                         MAP_SHARED, fdout, fsz)) == MAP_FAILED)
             err_sys("mmap error for output");
 
-        memcpy(dst, src, copysz); /* does the file copy */
+        memcpy(dst, src, copysz);                  /* does the file copy */
         munmap(src, copysz);
         munmap(dst, copysz);
         fsz += copysz;
