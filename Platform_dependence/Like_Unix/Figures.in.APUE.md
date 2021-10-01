@@ -1418,5 +1418,44 @@ Figure 15.4 Pipe from parent to child
 For a pipe from the child to the parent, the parent closes fd[1], and the child closes fd[0]. When one end of a pipe is closed, two rules apply.
 1. If we read from a pipe whose write end has been closed, read returns 0 to indicate an end of file after all the data has been read. (Technically, we should say that this end of file is not generated until there are no more writers for the pipe. It’s possible to duplicate a pipe descriptor so that multiple processes have the pipe open for writing. Normally, however, there is a single reader and a single writer for a pipe. When we get to FIFOs in the next section, we’ll see that
 often there are multiple writers for a single FIFO.)
-
 2. If we write to a pipe whose read end has been closed, the signal SIGPIPE is generated. If we either ignore the signal or catch it and return from the signal handler, write returns −1 with errno set to EPIPE.
+
+
+
+Figure 15.13 Transforming input using popen
+Figure 15.16 Driving a coprocess by writing its standard input and reading its standard output
+
+Figure 15.17 Simple filter to add two numbers
+
+Figure 15.18 Program to drive the add2 filter
+
+
+
+### 15.4 Coprocesses
+
+A UNIX system filter is a program that reads from standard input and writes to standard output. Filters are normally connected linearly in shell pipelines. A filter becomes a coprocess when the same program generates the filter’s input and reads the filter ’s output.
+
+
+
+Figure 15.20 Procedure that processes a filtered input stream twice
+
+### 15.5 FIFOs
+
+FIFOs are sometimes called named pipes. Unnamed pipes can be used only between related processes when a common ancestor has created the pipe. With FIFOs, however, unrelated processes can exchange data.
+
+
+We saw in Chapter 4 that a FIFO is a type of file. One of the encodings of the st_mode member of the stat structure (Section 4.2) indicates that a file is a FIFO. We can test for this with the S_ISFIFO macro.
+Creating a FIFO is similar to creating a file. Indeed, the pathname for a FIFO exists in the file system.
+
+```c
+
+#include <sys/stat.h>
+int mkfifo(const char *path, mode_t mode);
+int mkfifoat(int fd, const char *path, mode_t mode);
+// Both return: 0 if OK, −1 on error
+```
+
+The mkfifoat function is similar to the mkfifo function, except that it can be used to create a FIFO in a location relative to the directory represented by the fd file descriptor argument. Like the other *at functions, there are three cases:
+1. If the path parameter specifies an absolute pathname, then the fd parameter is ignored and the mkfifoat function behaves like the mkfifo function.
+2. If the path parameter specifies a relative pathname and the fd parameter is a valid file descriptor for an open directory, the pathname is evaluated relative to this directory.
+3. If the path parameter specifies a relative pathname and the fd parameter has the special value AT_FDCWD, the pathname is evaluated starting in the current working directory, and mkfifoat behaves like mkfifo.
