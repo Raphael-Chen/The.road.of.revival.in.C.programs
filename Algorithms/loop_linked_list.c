@@ -7,191 +7,194 @@
 struct LNode
 {
     int data;
+    // ......
     struct LNode *next;
 };
 typedef struct LNode * Linklist;
 
 // 初始化链表
-void InitList(Linklist L) //改变尾指针
+void InitList(Linklist p_list) //改变尾指针
 {
-    L = (Linklist)malloc(sizeof(struct LNode)); //分配头结点
-    if (L == NULL)                              //分配失败
+    p_list = (Linklist)malloc(sizeof(struct LNode)); //分配头结点
+    if (p_list == NULL)                              //分配失败
         exit(0);
-    (L)->next = L; //指针域指向它本身
+    p_list ->next = p_list; //指针域指向它本身
 }
 
 // 保留头节点，释放其他节点空间，清除数据
-void ClearList(Linklist L) //改变尾指针
+void ClearList(Linklist p_list) //改变尾指针
 {
-    Linklist p, q;
-    L = (L)->next; //先令尾指针指向头结点，不然释放最后一个结点时尾指针，无法指向头结点
-    p = (L)->next; //p指向第一个结点
+    Linklist temp_p, q;
+    p_list = (p_list)->next; //先令尾指针指向头结点，不然释放最后一个结点时尾指针，无法指向头结点
+    temp_p = (p_list)->next; //p指向第一个结点
 
-    while (p != L) //p未到表头时
+    while (temp_p != p_list) //p未到表头时
     {
-        q = p->next;
-        free(p);
-        p = q;
+        q = temp_p->next;
+        free(temp_p);
+        temp_p = q;
     }
-    L->next = L; //头结点指针域指向其本身
+    p_list->next = p_list; //头结点指针域指向其本身
 }
 
 // 销毁整个列表，包括头节点
-void DestroyList(Linklist L)
+void DestroyList(Linklist p_list)
 {
-    ClearList(L);
+    ClearList(p_list);
 
-    free(L); //释放头结点
-    L = NULL;
+    free(p_list); //释放头结点
+    p_list = NULL;
 }
 
-int ListEmpty(Linklist L)
+int ListEmpty(Linklist p_list)
 {
-    if (L->next == L) //指针域指向它本身，肯定就是空了，该结点即为头结点
+    if (p_list->next == p_list) //指针域指向它本身，肯定就是空了，该结点即为头结点
         return 0;
     else
         return 1; //非空为1
 }
 
-int ListLength(Linklist L)
+int ListLength(Linklist p_list)
 {
-    Linklist p = L->next->next; //p指向第一个结点
-    int j = 0;
+    Linklist temp_p = p_list->next->next; //p指向第一个结点
+    int index = 0;
 
-    while (p != L->next) //p未到表头时
+    while (temp_p != p_list->next) //p未到表头时
     {
-        ++j;
-        p = p->next;
+        ++index;
+        temp_p = temp_p->next;
     }
-    return j;
+
+    return index;
 }
 
-void GetElem(Linklist L, int i, int *e)
+void GetElem(Linklist p_list, int i, int *e)
 {
-    Linklist p = L->next; //p指向头结点
-    int j = 0;
-    if (i < 1 || i > ListLength(L)) //位置不合理
+    Linklist temp_p = p_list->next; //p指向头结点
+    int index = 0;
+    if (i < 1 || i > ListLength(p_list)) //位置不合理
         exit(0);
 
-    while (j < i) //位置合理，找到第i个结点
+    while (index < i) //位置合理，找到第i个结点
     {
-        ++j;
-        p = p->next;
+        ++index;
+        temp_p = temp_p->next;
     }
-    *e = p->data;
+    *e = temp_p->data;
 }
 
-int LocateElem(Linklist L, int e)
+int LocateElem(Linklist p_list, int e)
 {
-    Linklist p = L->next->next; //p指向链表第一个元素
-    int j = 0;
+    Linklist temp_p = p_list->next->next; //p指向链表第一个元素
+    int index = 0;
 
-    while (p != L->next) //p未到表头时
+    while (temp_p != p_list->next) //p未到表头时
     {
-        ++j;
-        if (p->data == e)
-            return j;
-        p = p->next;
+        ++index;
+        if (temp_p->data == e)
+            return index;
+        temp_p = temp_p->next;
     }
     return -1; //未找到，返回-1
 }
 
-int PriorElem(Linklist L, int cur_e, int *pri_e)
+int PriorElem(Linklist p_list, int cur_e, int *pri_e)
 {
-    Linklist p = L->next->next; //p指向链表第一个元素
+    Linklist temp_p = p_list->next->next; //p指向链表第一个元素
     Linklist q;
 
-    while (p != L->next)
+    while (temp_p != p_list->next)
     {
-        q = p->next; //q指向p的后继
-        if (q != L->next && q->data == cur_e)
+        q = temp_p->next; //q指向p的后继
+        if (q != p_list->next && q->data == cur_e)
         {
-            *pri_e = p->data;
+            *pri_e = temp_p->data;
             return 0;
         }
-        p = q;
+        temp_p = q;
     }
     return 0;
 }
 
-int NextElem(Linklist L, int cur_e, int *Nex_e) //最后一个元素无后继
+int NextElem(Linklist p_list, int cur_e, int *Nex_e) //最后一个元素无后继
 {
-    Linklist p = L->next->next; //p指向第一个结点
+    Linklist temp_p = p_list->next->next; //p指向第一个结点
     Linklist q;
 
-    while (p != L->next)
+    while (temp_p != p_list->next)
     {
-        q = p->next;
-        if (q != L->next && p->data == cur_e)
+        q = temp_p->next;
+        if (q != p_list->next && temp_p->data == cur_e)
         {
             *Nex_e = q->data;
             return 0;
         }
-        p = q;
+        temp_p = q;
     }
     return 0;
 }
 
-int ListInsert(Linklist L, int i, int e) //在表尾插入改变尾指针
+int ListInsert(Linklist p_list, int i, int e) //在表尾插入改变尾指针
 {
-    Linklist p = (L)->next; //p指向表头
+    Linklist temp_p = (p_list)->next;          //p指向表头
     Linklist q, s;
-    int j = 0;
+    int index = 0;
 
-    if (i < 1 || i > ListLength(L) + 1) //插入位置不合理
+    if (i < 1 || i > ListLength(p_list) + 1) //插入位置不合理
         exit(0);
 
-    while (j < i - 1) //位置合理，找到第i-1个结点
+    while (index < i - 1)                   //位置合理，找到第i-1个结点
     {
-        ++j;
-        p = p->next;
+        ++index;
+        temp_p = temp_p->next;
     }
-    q = p->next; //q指向第i个结点
+    q = temp_p->next;                       //q指向第i个结点
     s = (Linklist)malloc(sizeof(struct LNode));
     s->data = e;
     s->next = q;
     q->next = s;
-    if (p == L)
-        L = s;
+    if (temp_p == p_list)
+        p_list = s;
 
     return 0;
 }
 
 // 删除第i个节点？
-int ListDeletei(Linklist *L, int i, int *e)
+int ListDeletei(Linklist *p_list, int i, int *e)
 {
-    Linklist p = (*L)->next;
+    Linklist temp_p = (*p_list)->next;
     Linklist q;
-    int j = 0;
-    if (i < 1 || i > ListLength(*L))
+    int index = 0;
+    if (i < 1 || i > ListLength(*p_list))
         exit(0);
 
-    while (j < i - 1)     //找到第i-1个结点
+    while (index < i - 1)     //找到第i-1个结点
     {
-        ++j;
-        p = p->next;
+        ++index;
+        temp_p = temp_p->next;
     }
-    q = p->next;          //q指向第i个结点
+    q = temp_p->next;          //q指向第i个结点
     *e = q->data;
-    p->next = q->next;
-    if (q == *L)          //删除的是表尾元素，表尾指针发生改变
-        *L = p;
+    temp_p->next = q->next;
+    
+    if (q == *p_list)          //删除的是表尾元素，表尾指针发生改变
+        *p_list = temp_p;
     free(q);
 
     return 0;
 }
 
 // 遍历整个列表
-void TravelList(Linklist L)
+void TravelList(Linklist p_list)
 {
-    Linklist p = L->next->next; //p指向第一个结点
-    int j = 0;
+    Linklist temp_p = p_list->next->next; //p指向第一个结点
+    int index = 0;
 
-    while (p != L->next) //p未到表头
+    while (temp_p != p_list->next)        //p未到表头
     {
-        ++j;
-        printf("第%d个元素为：%d\n", j, p->data);
-        p = p->next;
+        ++index;
+        printf("第%d个元素为：%d\n", index, temp_p->data);
+        temp_p = temp_p->next;
     }
 }
 
