@@ -1315,6 +1315,31 @@ On the return from select, the kernel tells us
 #### 14.5.1 System V Asynchronous I/O
 
 #### 14.5.2 BSD Asynchronous I/O
+
+14.5.3 POSIX Asynchronous I/O
+The POSIX asynchronous I/O interfaces give us a consistent way to perform asynchronous I/O, regardless of the type of file. These interfaces were adopted from the real-time draft standard, which themselves were an option in the Single UNIX Specification. In Version 4, the Single UNIX Specification moved these interfaces to the base, so they are now required to be supported by all platforms.
+
+The asynchronous I/O interfaces use AIO control blocks to describe I/O operations. The aiocb structure defines an AIO control block. It contains at least the fields shown in the following structure (implementations might include additional fields):
+struct aiocb {
+int aio_fildes;                      /*  file descriptor */     
+off_t aio_offset;      /* file offset for I/O */
+volatile void *aio_buf;      /* buffer for I/O */
+size_t aio_nbytes;      /* number of bytes to transfer */
+int aio_reqprio;      /* priority */
+struct sigevent aio_sigevent;      /* signal information */
+int aio_lio_opcode;      /* operation for list I/O */
+};
+
+
+
+
+
+
+
+Figure 14.26 Example of a memory-mapped file
+
+
+
 14.5.3 POSIX Asynchronous I/O
 
 ### 14.6 readv and writev Functions
@@ -1389,13 +1414,11 @@ Figure 15.1 Summary of UNIX System IPC
 
 
 
-
-
 We have divided the discussion of IPC into three chapters. In this chapter, we examine classical IPC: pipes, FIFOs, message queues, semaphores, and shared memory. In the next chapter, we take a look at network IPC using the sockets mechanism. In Chapter 17, we take a look at some advanced features of IPC.
 
 
 
-15.2 Pipes
+### 15.2 Pipes
 Pipes are the oldest form of UNIX System IPC and are provided by all UNIX systems. Pipes have two limitations.
 1. Historically, they have been half duplex (i.e., data flows in only one direction). Some systems now provide full-duplex pipes, but for maximum portability, we should never assume that this is the case.
 
@@ -1429,7 +1452,15 @@ Figure 15.17 Simple filter to add two numbers
 
 Figure 15.18 Program to drive the add2 filter
 
-
+### 15.3 popen and pclose Functions
+Since a common operation is to create a pipe to another process to either read its output or send it input, the standard I/O library has historically provided the popen and pclose functions. These two functions handle all the dirty work that we’ve been doing ourselves: creating a pipe, forking a child, closing the unused ends of the pipe, executing a shell to run the command, and waiting for the command to terminate.
+```c
+#include <stdio.h>
+FILE *popen(const char *cmdstring, const char *type);
+// Returns: file pointer if OK, NULL on error
+int pclose(FILE *fp);
+// Returns: termination status of cmdstring, or −1 on error
+```
 
 ### 15.4 Coprocesses
 
@@ -1459,3 +1490,108 @@ The mkfifoat function is similar to the mkfifo function, except that it can be u
 1. If the path parameter specifies an absolute pathname, then the fd parameter is ignored and the mkfifoat function behaves like the mkfifo function.
 2. If the path parameter specifies a relative pathname and the fd parameter is a valid file descriptor for an open directory, the pathname is evaluated relative to this directory.
 3. If the path parameter specifies a relative pathname and the fd parameter has the special value AT_FDCWD, the pathname is evaluated starting in the current working directory, and mkfifoat behaves like mkfifo.
+
+
+
+### 15.6 XSI IPC
+The three types of IPC that we call XSI IPC—**message queues, semaphores, and shared memory** — have many similarities. In this section, we cover these similar features; in the following sections, we look at the specific functions for each of the three IPC types
+
+
+Each IPC structure (message queue, semaphore, or shared memory segment) in the kernel is referred to by a non-negative integer identifier. To send a message to or fetch a message from a message queue, for example, all we need know is the identifier for the queue. Unlike file descriptors, IPC identifiers are not small integers. Indeed, when a given IPC structure is created and then removed, the identifier associated with that structure continually increases until it reaches the maximum positive value for an integer, and then wraps around to 0.
+
+
+There are various ways for a client and a server to rendezvous at the same IPC
+structure.
+1. The server can create a new IPC structure by specifying a key of IPC_PRIVATE and store the returned identifier somewhere (such as a file) for the client to obtain. The key IPC_PRIVATE guarantees that the server creates a new IPC
+structure. The disadvantage of this technique is that file system operations are required for the server to write the integer identifier to a file, and then for the clients to retrieve this identifier later. The IPC_PRIVATE key is also used in a parent–child relationship. The parent creates a new IPC structure specifying IPC_PRIVATE, and the resulting identifier is then available to the child after the fork. The child can pass the identifier to a new program as an argument to one of the exec functions.
+
+2. The client and the server can agree on a key by defining the key in a common header, for example. The server then creates a new IPC structure specifying this key. The problem with this approach is that it’s possible for the key to already be associated with an IPC structure, in which case the get function (msgget, semget, or shmget) returns an error. The server must handle  this error, deleting the existing IPC structure, and try to create it again.
+
+3. The client and the server can agree on a pathname and project ID (the project ID is a character value between 0 and 255) and call the function ftok to convert these two values into a key. This key is then used in step 2. The only service provided by ftok is a way of generating a key from a pathname and project ID.
+
+```c
+
+#include <sys/ipc.h>
+key_t ftok(const char *path, int id);
+// Returns: key if OK, (key_t)−1 on error
+```
+
+#### 15.6.2 Permission Structure
+XSI IPC associates an ipc_perm structure with each IPC structure. This structure
+defines the permissions and owner and includes at least the following members:
+```c
+struct ipc_perm {
+	uid_t uid; /* owner’s effective user ID */
+	gid_t gid; /* owner’s effective group ID */
+	uid_t cuid; /* creator’s effective user ID */
+	gid_t cgid; /* creator’s effective group ID */
+	mode_t mode; /* access modes */
+	.
+	.
+	.
+};
+```
+
+
+
+#### 15.6.3 Configuration Limits
+All three forms of XSI IPC have built-in limits that we may encounter. Most of these limits can be changed by reconfiguring the kernel. We describe the limits when we describe each of the three forms of IPC.
+
+Figure 15.25 Comparison of features of various forms of IPC
+
+
+linked list
+
+### 15.7 Message Queues
+A message queue is a **linked list** of messages stored within the kernel and identified by a message queue identifier. We’ll call the message queue just a queue and its identifier a queue ID.
+
+
+A new queue is created or an existing queue opened by msgget. New messages are added to the end of a queue by msgsnd. Every message has a positive long integer type field, a non-negative length, and the actual data bytes (corresponding to the length), all of which are specified to msgsnd when the message is added to a queue.
+Messages are fetched from a queue by msgrcv. We don’t have to fetch the messages in a first-in, first-out order. Instead, we can fetch messages based on their type field. Each queue has the following msqid_ds structure associated with it:
+```c
+struct msqid_ds {
+	struct ipc_perm  msg_perm;
+	msgqnum_t        msg_qnum;
+	msglen_t         msg_qbytes;
+	pid_t            msg_lspid;
+	pid_t            msg_lrpid;
+	time_t           msg_stime;
+	time_t           msg_rtime;
+	time_t           msg_ctime;
+	.
+	.
+	.
+};
+```
+
+Figure 15.32 Memory layout on an Intel-based Linux system
+
+Example — Memory Mapping of /dev/zero
+Shared memory can be used between unrelated processes. But if the processes are
+related, some implementations provide a different technique.
+
+The device /dev/zero is an infinite source of 0 bytes when read. This device also accepts any data that is written to it, ignoring the data. Our interest in this device for IPC arises from its special properties when it is memory mapped.
+
+- An unnamed memory region is created whose size is the second argument to mmap, rounded up to the nearest page size on the system.
+- The memory region is initialized to 0.
+- Multiple processes can share this region if a common ancestor specifies the MAP_SHARED flag to mmap.
+
+
+
+### 15.10 POSIX Semaphores
+The POSIX semaphore mechanism is one of three IPC mechanisms that originated with the real-time extensions to POSIX.1. The Single UNIX Specification placed the three mechanisms (message queues, semaphores, and shared memory) in option classes. Prior to SUSv4, the POSIX semaphore interfaces were included in the semaphores option. In SUSv4, these interfaces were moved to the base specification, but the message queue and shared memory interfaces remained optional.
+The POSIX semaphore interfaces were meant to address several deficiencies with the XSI semaphore interfaces:
+
+- The POSIX semaphore interfaces allow for higher-performance implementations compared to XSI semaphores.
+- The POSIX semaphore interfaces are simpler to use: there are no semaphore sets, and several of the interfaces are patterned after familiar file system operations. Although there is no requirement that they be implemented in the file system, some systems do take this approach.
+- The POSIX semaphores behave more gracefully when removed. Recall that when an XSI semaphore is removed, operations using the same semaphore identifier fail with errno set to EIDRM. With POSIX semaphores, operations continue to work normally until the last reference to the semaphore is released.
+
+POSIX semaphores are available in two flavors: **named and unnamed**. They differ in how they are created and destroyed, but otherwise work the same.
+
+Unnamed semaphores exist in memory only and require that processes have access to the memory to be able to use the semaphores. This means they can be used only by threads in the same process or threads in different processes that have mapped the same memory extent into their address spaces. Named semaphores, in contrast, are accessed by name and can be used by threads in any processes that know their names.
+To create a new named semaphore or use an existing one, we call the sem_open function.
+```c
+#include <semaphore.h>
+sem_t *sem_open(const char *name, int oflag, ... /* mode_t mode, unsigned int value */ );
+// Returns: Pointer to semaphore if OK, SEM_FAILED on error
+```
