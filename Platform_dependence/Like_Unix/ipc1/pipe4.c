@@ -74,8 +74,7 @@ int main( void )
     exit(0);
 }
 
-static void
-sig_pipe(int signo)
+static void sig_pipe(int signo)
 {
     printf("SIGPIPE caught\n");
     exit(1);
