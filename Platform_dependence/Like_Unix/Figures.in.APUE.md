@@ -1595,3 +1595,70 @@ To create a new named semaphore or use an existing one, we call the sem_open fun
 sem_t *sem_open(const char *name, int oflag, ... /* mode_t mode, unsigned int value */ );
 // Returns: Pointer to semaphore if OK, SEM_FAILED on error
 ```
+
+15.11 Client–Server Properties
+Let’s detail some of the properties of clients and servers that are affected by the various types of IPC used between them. The simplest type of relationship is to have the client fork and exec the desired server. Two half-duplex pipes can be created before the fork to allow data to be transferred in both directions. Figure 15.16 is an example of this arrangement. The server that is executed can be a set-user-ID program, giving it special privileges. Also, the server can determine the real identity of the client by looking at its real user ID. (Recall from Section 8.10 that the real user ID and real group ID don’t change across an exec.)
+
+
+
+## 16 Networ k IPC: Sockets
+
+### 16.1 Introduction
+In the previous chapter, we looked at pipes, FIFOs, message queues, semaphores, and shared memory—the classical methods of IPC provided by various UNIX systems.
+These mechanisms allow processes running on the same computer to communicate with one another. In this chapter, we look at the mechanisms that allow processes running on different computers (connected to a common network) to communicate with one another—network IPC.
+
+
+The socket API as specified by POSIX.1 is based on the 4.4BSD socket interface. Although minor changes have been made over the years, the current socket interface closely resembles the interface when it was originally introduced in 4.2BSD in the early 1980s.
+This chapter is only an overview of the socket API. Stevens, Fenner, and Rudoff[2004] discuss the socket interface in detail in the definitive text on network programming in the UNIX System.
+
+
+
+## 16.2 Network IPC: Sockets
+
+A socket is an abstraction of a communication endpoint. Just as they would use file descriptors to access files, applications use socket descriptors to access sockets. Socket descriptors are implemented as file descriptors in the UNIX System. Indeed, many of the functions that deal with file descriptors, such as read and write, will work with a socket descriptor.
+To create a socket, we call the socket function.
+
+```c
+#include <sys/socket.h>
+int socket(int domain, int type, int protocol);
+// Returns: file (socket) descriptor if OK, −1 on error
+```
+
+| Domain    | Description                                |
+| --------- | ------------------------------------------ |
+| AF_INET   | IPv4 Internet domain                       |
+| AF_INET6  | IPv6 Internet domain (optional in POSIX.1) |
+| AF_UNIX   | UNIX domain                                |
+| AF_UNSPEC | unspecified                                |
+
+Figure 16.1 Socket communication domains
+
+The type argument determines the type of the socket, which further determines the communication characteristics. The socket types defined by POSIX.1 are summarized in Figure 16.2, but implementations are free to add support for additional types.
+
+| Type           | Description                                                  |
+| -------------- | ------------------------------------------------------------ |
+| SOCK_DGRAM     | fixed-length, connectionless, unreliable messages            |
+| SOCK_RAW       | datagram interface to IP (optional in POSIX.1)               |
+| SOCK_SEQPACKET | fixed-length, sequenced, reliable, connection-oriented messages |
+| SOCK_STREAM    | sequenced, reliable, bidirectional, connection-oriented byte streams |
+
+
+
+
+The protocol argument is **usually zero**, to select the default protocol for the given domain and socket type.
+
+| Protocol     | Description                                   |
+| ------------ | --------------------------------------------- |
+| IPPROTO_IP   | IPv4 Internet Protocol                        |
+| IPPROTO_IPV6 | IPv6 Internet Protocol (optional in POSIX.1)  |
+| IPPROTO_ICMP | Internet Control Message Protocol             |
+| IPPROTO_RAW  | Raw IP packets protocol (optional in POSIX.1) |
+| IPPROTO_TCP  | Transmission Control Protocol                 |
+| IPPROTO_UDP  | User Datagram Protocol                        |
+
+
+
+Communication on a socket is bidirectional. We can disable I/O on a socket with the shutdown function.
+#include <sys/socket.h>
+int shutdown(int sockfd, int how);
+Returns: 0 if OK, −1 on error
