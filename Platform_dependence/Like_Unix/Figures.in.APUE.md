@@ -650,7 +650,7 @@ We can tell the kernel to do one of three things when a signal occurs. We call t
 The simplest interface to the signal features of the UNIX System is the signal function.
 #include <signal.h>
 void (*signal(int signo, void (*func)(int)))(int);
-Returns: previous disposition of signal (see following) if OK, SIG_ERR on error
+// Returns: previous disposition of signal (see following) if OK, SIG_ERR on error
 
 ```C
 NAME
@@ -806,7 +806,7 @@ The sigaction function allows us to examine or modify (or both) the action assoc
 #include <signal.h>
 int sigaction(int signo, const struct sigaction *restrict act,
 struct sigaction *restrict oact);
-Returns: 0 if OK, −1 on error
+// Returns: 0 if OK, −1 on error
 
 Figure 10.17 siginfo_t code values（表格）
 
@@ -940,7 +940,7 @@ As we can see, the contents of the structure (allocated on the stack of thread t
 One thread can request that another in the same process be canceled by calling the pthread_cancel function.
 #include <pthread.h>
 int pthread_cancel(pthread_t tid);
-Returns: 0 if OK, error number on failure
+// Returns: 0 if OK, error number on failure
 
 In the default circumstances, pthread_cancel will cause the thread specified by tid to behave as if it had called pthread_exit with an argument of PTHREAD_CANCELED.
 However, a thread can elect to ignore or otherwise control how it is canceled. We will discuss this in detail in Section 12.7. Note that pthread_cancel doesn’t wait for the thread to terminate; it merely makes the request.
@@ -1624,6 +1624,8 @@ int socket(int domain, int type, int protocol);
 // Returns: file (socket) descriptor if OK, −1 on error
 ```
 
+#### Figure 16.1 Socket communication domains
+
 | Domain    | Description                                |
 | --------- | ------------------------------------------ |
 | AF_INET   | IPv4 Internet domain                       |
@@ -1631,7 +1633,7 @@ int socket(int domain, int type, int protocol);
 | AF_UNIX   | UNIX domain                                |
 | AF_UNSPEC | unspecified                                |
 
-Figure 16.1 Socket communication domains
+
 
 The type argument determines the type of the socket, which further determines the communication characteristics. The socket types defined by POSIX.1 are summarized in Figure 16.2, but implementations are free to add support for additional types.
 
@@ -1659,6 +1661,165 @@ The protocol argument is **usually zero**, to select the default protocol for th
 
 
 Communication on a socket is bidirectional. We can disable I/O on a socket with the shutdown function.
+```c
 #include <sys/socket.h>
 int shutdown(int sockfd, int how);
-Returns: 0 if OK, −1 on error
+// Returns: 0 if OK, −1 on error
+```
+
+
+Given that we can close a socket, why is shutdown needed? There are several reasons. 
+First, close will deallocate the network endpoint only when the last active reference is closed. If we duplicate the socket (with dup, for example), the socket won’t be deallocated until we close the last file descriptor referring to it. The shutdown function allows us to deactivate a socket independently of the number of active file descriptors referencing it. 
+Second, it is sometimes convenient to shut a socket down in one direction only. For example, we can shut a socket down for writing if we want the process we are communicating with to be able to tell when we are done transmitting data, while still allowing us to use the socket to receive data sent to us by the process.
+
+
+### 16.3.1 Byte Ordering
+When communicating with processes running on the same computer, we generally don’t have to worry about byte ordering. The byte order is a characteristic of the processor architecture, dictating how bytes are ordered within larger data types, such as integers. Figure 16.5 shows how the bytes within a 32-bit integer are numbered.
+
+Figure 16.5 Byte order in a 32-bit integer
+
+
+
+
+Figure 16.6 Byte order for test platforms
+
+
+
+If the processor architecture supports big-endian byte order, then the highest byte address occurs in the least significant byte (LSB). Little-endian byte order is the opposite:
+the least significant byte contains the lowest byte address. Note that regardless of the byte ordering, the most significant byte (MSB) is always on the left, and the least significant byte is always on the right. Thus, if we were to assign a 32-bit integer the value 0x04030201, the most significant byte would contain 4, and the least significant byte would contain 1, regardless of the byte ordering. If we were then to cast a character pointer (cp) to the address of the integer, we would see a difference from the byte ordering. On a little-endian processor, cp[0] would refer to the least significant byte and contain 1; cp[3] would refer to the most significant byte and contain 4. Compare that to a big-endian processor, where cp[0] would contain 4, referring to the most significant byte, and cp[3] would contain 1, referring to the least significant byte. Figure 16.6 summarizes the byte ordering for the four platforms discussed in this text.
+
+
+Network protocols specify a byte ordering so that  heterogeneous computer systems can exchange protocol information without confusing the byte ordering.
+
+Four functions are provided to convert between the processor byte order and the
+network byte order for TCP/IP applications.
+```c
+#include <arpa/inet.h>
+uint32_t htonl(uint32_t hostint32);
+// Returns: 32-bit integer in network byte order
+uint16_t htons(uint16_t hostint16);
+// Returns: 16-bit integer in network byte order
+uint32_t ntohl(uint32_t netint32);
+// Returns: 32-bit integer in host byte order
+uint16_t ntohs(uint16_t netint16);
+// Returns: 16-bit integer in host byte order
+```
+
+### 16.3.2 Address Formats
+
+An address identifies a socket endpoint in a particular communication domain. The address format is specific to the particular domain. So that addresses with different formats can be passed to the socket functions, the addresses are cast to a generic sockaddr address structure:
+```c
+struct sockaddr {
+	sa_family_t sa_family;
+	char        sa_data[];
+	.
+	.
+	.
+};
+```
+
+It is sometimes necessary to print an address in a format that is understandable by a person instead of a computer. The BSD networking software included the inet_addr and inet_ntoa functions to convert between the binary address format and a string in dotted-decimal notation (a.b.c.d). These functions, however, work only with IPv4 addresses. Two new functions—inet_ntop and inet_pton—support similar functionality and work with both IPv4 and IPv6 addresses.
+```c
+#include <arpa/inet.h>
+const char *inet_ntop(int domain, const void *restrict addr,
+char *restrict str, socklen_t size);
+				// Returns: pointer to address string on success, NULL on error
+int inet_pton(int domain, const char *restrict str,
+void *restrict addr);
+						// Returns: 1 on success, 0 if the format is invalid, or −1 on error
+```
+
+The inet_ntop function converts a binary address in network byte order into a text string; inet_pton converts a text string into a binary address in network byte order. Only two domain values are supported: AF_INET and AF_INET6.
+
+### 16.3.3 Address Lookup
+Ideally, an application won’t have to be aware of the internal structure of a socket address.
+```c
+#include <netdb.h>
+struct hostent *gethostent(void);
+				// Returns: pointer if OK, NULL on error
+void sethostent(int stayopen);
+void endhostent(void);
+```
+
+The network configuration information returned by these functions can be kept in a number of places. This information can be kept in static files (e.g., /etc/hosts, /etc/services), or it can be managed by a name service, such as DNS (Domain Name System) or NIS (Network Information Service). Regardless of where the information is kept, the same functions can be used to access it.
+
+
+
+When gethostent returns, we get a pointer to a hostent structure, which might point to a static data buffer that is overwritten each time we call gethostent. The hostent structure is defined to have at least the following members:
+struct hostent {
+char *h_name;     
+char **h_aliases;
+int h_addrtype;
+int h_length;
+char **h_addr_list;
+.
+.
+.
+};
+/* name of host */
+/* pointer to alternate host name array */
+/* address type */
+/* length in bytes of address */
+/* pointer to array of network addresses */
+
+
+
+
+
+
+The addresses returned are in network byte order.
+
+Two additional functions—gethostbyname and gethostbyaddr—originally
+were included with the hostent functions, but are now considered to be obsolete.
+They were removed from Version 4 of the Single UNIX Specification. We’ll see
+replacements for them shortly.
+
+We can get network names and numbers with a similar set of interfaces.
+#include <netdb.h>
+struct netent *getnetbyaddr(uint32_t net, int type);
+struct netent *getnetbyname(const char *name);
+struct netent *getnetent(void);
+            // All return: pointer if OK, NULL on error
+void setnetent(int stayopen);
+void endnetent(void);
+
+The netent structure contains at least the following fields:
+struct netent {
+char *n_name;      
+char **n_aliases;    
+int  n_addrtype;   
+uint32_t n_net;    
+.
+.
+.
+};
+
+/* network name */ 
+/* alternate network name array pointer */
+/* address type */
+/* network number */
+
+
+
+
+The network number is returned in network byte order. The address type is one of the
+address family constants (AF_INET, for example).
+We can map between protocol names and numbers with the following functions.
+#include <netdb.h>
+struct protoent *getprotobyname(const char *name);
+struct protoent *getprotobynumber(int proto);
+struct protoent *getprotoent(void);
+All return: pointer if OK, NULL on error
+void setprotoent(int stayopen);
+void endprotoent(void);
+The protoent structure as defined by POSIX.1 has at least the following members:
+struct protoent {
+	char *p_name;            /* protocol name */
+	char **p_aliases;      /* pointer to alternate protocol name array */
+	int p_proto;              /* protocol number */
+	.
+	.
+	.
+};
+
+
