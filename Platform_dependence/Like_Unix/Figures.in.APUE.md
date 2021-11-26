@@ -1746,21 +1746,22 @@ The network configuration information returned by these functions can be kept in
 
 
 When gethostent returns, we get a pointer to a hostent structure, which might point to a static data buffer that is overwritten each time we call gethostent. The hostent structure is defined to have at least the following members:
+```c
 struct hostent {
-char *h_name;     
-char **h_aliases;
-int h_addrtype;
-int h_length;
-char **h_addr_list;
+	char *h_name;    /* name of host */  
+	char **h_aliases;  /* pointer to alternate host name array */  
+	int h_addrtype;  /* address type */ 
+	int h_length;    /* length in bytes of address */ 
+	char **h_addr_list;  /* pointer to array of network addresses */
 .
 .
 .
 };
-/* name of host */
-/* pointer to alternate host name array */
-/* address type */
-/* length in bytes of address */
-/* pointer to array of network addresses */
+```
+
+
+
+
 
 
 
@@ -1775,6 +1776,7 @@ They were removed from Version 4 of the Single UNIX Specification. We’ll see
 replacements for them shortly.
 
 We can get network names and numbers with a similar set of interfaces.
+```c
 #include <netdb.h>
 struct netent *getnetbyaddr(uint32_t net, int type);
 struct netent *getnetbyname(const char *name);
@@ -1782,44 +1784,155 @@ struct netent *getnetent(void);
             // All return: pointer if OK, NULL on error
 void setnetent(int stayopen);
 void endnetent(void);
+```
 
 The netent structure contains at least the following fields:
+```c
 struct netent {
-char *n_name;      
-char **n_aliases;    
-int  n_addrtype;   
-uint32_t n_net;    
+	char *n_name;    /* network name */   
+	char **n_aliases;  /* alternate network name array pointer */  
+	int  n_addrtype;  /* address type */ 
+	uint32_t n_net;  /* network number */  
 .
 .
 .
 };
-
-/* network name */ 
-/* alternate network name array pointer */
-/* address type */
-/* network number */
+```
 
 
 
 
-The network number is returned in network byte order. The address type is one of the
-address family constants (AF_INET, for example).
+**The network number is returned in network byte order**. The address type is one of theaddress family constants (AF_INET, for example).
 We can map between protocol names and numbers with the following functions.
+```c
 #include <netdb.h>
 struct protoent *getprotobyname(const char *name);
 struct protoent *getprotobynumber(int proto);
 struct protoent *getprotoent(void);
-All return: pointer if OK, NULL on error
+				// All return: pointer if OK, NULL on error
 void setprotoent(int stayopen);
 void endprotoent(void);
+```
+
 The protoent structure as defined by POSIX.1 has at least the following members:
+```c
 struct protoent {
-	char *p_name;            /* protocol name */
+	char *p_name;          /* protocol name */
 	char **p_aliases;      /* pointer to alternate protocol name array */
-	int p_proto;              /* protocol number */
+	int p_proto;           /* protocol number */
 	.
 	.
 	.
 };
+```
 
 
+
+The getaddrinfo function allows us to map a host name and a service name to an address.
+```c
+#include <sys/socket.h>
+#include <netdb.h>
+int getaddrinfo(const char *restrict host,
+const char *restrict service,
+const struct addrinfo *restrict hint,
+struct addrinfo **restrict res);
+		// Returns: 0 if OK, nonzero error code on error
+void freeaddrinfo(struct addrinfo *ai);
+```
+
+Services are represented by the port number portion of the address. Each service is offered on a unique, well-known port number. We can map a service name to a port number with getservbyname, map a port number to a service name with getservbyport, or scan the services database sequentially with getservent.
+
+#include <netdb.h>
+struct servent *getservbyname(const char *name, const char *proto);
+struct servent *getservbyport(int port, const char *proto);
+struct servent *getservent(void);
+	// All return: pointer if OK, NULL on error
+void setservent(int stayopen);
+void endservent(void);
+
+The servent structure is defined to have at least the following members:
+struct servent {
+char *s_name;
+char **s_aliases;
+int s_port;
+char *s_proto;
+.
+.
+.
+};
+
+/* service name */
+/* pointer to alternate service name array */
+/* port number */
+/* name of protocol */
+
+
+
+
+
+### 16.3.4 Associating Addresses with Sockets
+
+The address associated with a client’s socket is of little interest, and we can let the system choose a default address for us. For a server, however, we need to associate a well-known address with the server’s socket on which client requests will arrive.
+Clients need a way to discover the address to use to contact a server, and the simplest scheme is for a server to reserve an address and **register it in /etc/services or with a name service**.
+We use the bind function to associate an address with a socket.
+#include <sys/socket.h>
+int bind(int sockfd, const struct sockaddr *addr, socklen_t len);
+Returns: 0 if OK, −1 on error
+
+There are several restrictions on the address we can use:
+• The address we specify must be valid for the machine on which the process is running; we can’t specify an address belonging to some other machine.
+• The address must match the format supported by the address family we used to create the socket.
+• The port number in the address cannot be less than 1,024 unless the process has the appropriate privilege (i.e., is the superuser).
+• Usually, only one socket endpoint can be bound to a given address, although some protocols allow duplicate bindings.
+
+## 16.4 Connection Establishment
+
+If we’re dealing with a connection-oriented network service (SOCK_STREAM or SOCK_SEQPACKET), then before we can exchange data, we need to create a connection between the socket of the process requesting the service (the client) and the process providing the service (the server). We use the connect function to create a connection.
+
+#include <sys/socket.h>
+int connect(int sockfd, const struct sockaddr *addr, socklen_t len);
+Returns: 0 if OK, −1 on error
+
+The address we specify with connect is the address of the server with which we wish to communicate. If sockfd is not bound to an address, connect will bind a default address for the caller.
+
+A server announces that it is willing to accept connect requests by calling the
+listen function.
+#include <sys/socket.h>
+int listen(int sockfd, int backlog);
+Returns: 0 if OK, −1 on error
+
+The backlog argument provides a hint to the system regarding the number of
+outstanding connect requests that it should enqueue on behalf of the process. The actual value is determined by the system, but the upper limit is specified as SOMAXCONN
+in <sys/socket.h>.
+
+
+On Solaris, the SOMAXCONN value in <sys/socket.h> is ignored. The particular maximum depends on the implementation of each protocol. For TCP, the default is 128.
+
+
+Once the queue is full, the system will reject additional connect requests, so the backlog value must be chosen based on the expected load of the server and the amount of processing it must do to accept a connect request and start the service.
+Once a server has called listen, the socket used can receive connect requests. Weuse the accept function to retrieve a connect request and convert it into a connection.
+
+#include <sys/socket.h>
+int accept(int sockfd, struct sockaddr *restrict addr,
+socklen_t *restrict len);
+Returns: file (socket) descriptor if OK, −1 on error
+
+If no connect requests are pending, accept will block until one arrives. If sockfd is in nonblocking mode, accept will return −1 and set errno to either EAGAIN or EWOULDBLOCK.
+
+## 16.5 Data Transfer
+Since a socket endpoint is represented as a file descriptor, we can use read and write to communicate with a socket, as long as it is connected. Recall that a datagram socket can be ‘‘connected’’ if we set the default peer address using the connect function.
+Using read and write with socket descriptors is  significant, because it means that we can pass socket descriptors to functions that were originally designed to work with local files. We can also arrange to pass the socket descriptors to child processes that execute programs that know nothing about sockets.
+
+Three functions are available for sending data, and three are available for receiving data. First, we’ll look at the ones used to send data.
+The simplest one is send. It is similar to write, but allows us to specify flags to change how the data we want to transmit is treated.
+#include <sys/socket.h>
+ssize_t send(int sockfd, const void *buf, size_t nbytes, int flags);
+Returns: number of bytes sent if OK, −1 on error
+
+
+The sendto function is similar to send. The difference is that sendto allows us to specify a destination address to be used with  connectionless sockets.
+
+#include <sys/socket.h>
+ssize_t sendto(int sockfd, const void *buf, size_t nbytes, int flags,
+const struct sockaddr *destaddr, socklen_t destlen);
+Returns: number of bytes sent if OK, −1 on error
