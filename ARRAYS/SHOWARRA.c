@@ -1,5 +1,11 @@
 #include <stdio.h>
 
+// A.01 Output all the member of array on screen.
+
+// Declaring and initializing an array
+// The general syntax for declaring a one-dimensional array is
+// type arrName[size];
+
 int main(void)
 {
     int scores[5] = {80, 70, 90, 85, 80};
