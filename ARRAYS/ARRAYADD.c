@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+// Output the address in memory of arrays
+
 int main(void)
 {
     int count[10];
