@@ -1841,7 +1841,7 @@ void freeaddrinfo(struct addrinfo *ai);
 ```
 
 Services are represented by the port number portion of the address. Each service is offered on a unique, well-known port number. We can map a service name to a port number with getservbyname, map a port number to a service name with getservbyport, or scan the services database sequentially with getservent.
-
+```c
 #include <netdb.h>
 struct servent *getservbyname(const char *name, const char *proto);
 struct servent *getservbyport(int port, const char *proto);
@@ -1850,22 +1850,17 @@ struct servent *getservent(void);
 void setservent(int stayopen);
 void endservent(void);
 
-The servent structure is defined to have at least the following members:
+// The servent structure is defined to have at least the following members:
 struct servent {
-char *s_name;
-char **s_aliases;
-int s_port;
-char *s_proto;
-.
-.
-.
+    char *s_name;       /* service name */
+    char **s_aliases;   /* pointer to alternate service name array */
+    int s_port;         /* port number */
+    char *s_proto;      /* name of protocol */
+    .
+    .
+    .
 };
-
-/* service name */
-/* pointer to alternate service name array */
-/* port number */
-/* name of protocol */
-
+```
 
 
 
@@ -1875,9 +1870,11 @@ char *s_proto;
 The address associated with a client’s socket is of little interest, and we can let the system choose a default address for us. For a server, however, we need to associate a well-known address with the server’s socket on which client requests will arrive.
 Clients need a way to discover the address to use to contact a server, and the simplest scheme is for a server to reserve an address and **register it in /etc/services or with a name service**.
 We use the bind function to associate an address with a socket.
+```c
 #include <sys/socket.h>
 int bind(int sockfd, const struct sockaddr *addr, socklen_t len);
-Returns: 0 if OK, −1 on error
+						// Returns: 0 if OK, −1 on error
+```
 
 There are several restrictions on the address we can use:
 • The address we specify must be valid for the machine on which the process is running; we can’t specify an address belonging to some other machine.
@@ -1888,22 +1885,20 @@ There are several restrictions on the address we can use:
 ## 16.4 Connection Establishment
 
 If we’re dealing with a connection-oriented network service (SOCK_STREAM or SOCK_SEQPACKET), then before we can exchange data, we need to create a connection between the socket of the process requesting the service (the client) and the process providing the service (the server). We use the connect function to create a connection.
-
+```c
 #include <sys/socket.h>
 int connect(int sockfd, const struct sockaddr *addr, socklen_t len);
-Returns: 0 if OK, −1 on error
-
+			// Returns: 0 if OK, −1 on error
+```
 The address we specify with connect is the address of the server with which we wish to communicate. If sockfd is not bound to an address, connect will bind a default address for the caller.
 
-A server announces that it is willing to accept connect requests by calling the
-listen function.
+A server announces that it is willing to accept connect requests by calling the listen function.
+```c
 #include <sys/socket.h>
 int listen(int sockfd, int backlog);
-Returns: 0 if OK, −1 on error
-
-The backlog argument provides a hint to the system regarding the number of
-outstanding connect requests that it should enqueue on behalf of the process. The actual value is determined by the system, but the upper limit is specified as SOMAXCONN
-in <sys/socket.h>.
+						// Returns: 0 if OK, −1 on error
+```
+The backlog argument provides a hint to the system regarding the number of outstanding connect requests that it should enqueue on behalf of the process. The actual value is determined by the system, but the upper limit is specified as SOMAXCONN in <sys/socket.h>.
 
 
 On Solaris, the SOMAXCONN value in <sys/socket.h> is ignored. The particular maximum depends on the implementation of each protocol. For TCP, the default is 128.
@@ -1911,12 +1906,12 @@ On Solaris, the SOMAXCONN value in <sys/socket.h> is ignored. The particular max
 
 Once the queue is full, the system will reject additional connect requests, so the backlog value must be chosen based on the expected load of the server and the amount of processing it must do to accept a connect request and start the service.
 Once a server has called listen, the socket used can receive connect requests. Weuse the accept function to retrieve a connect request and convert it into a connection.
-
+```c
 #include <sys/socket.h>
 int accept(int sockfd, struct sockaddr *restrict addr,
 socklen_t *restrict len);
-Returns: file (socket) descriptor if OK, −1 on error
-
+		// Returns: file (socket) descriptor if OK, −1 on error
+```
 If no connect requests are pending, accept will block until one arrives. If sockfd is in nonblocking mode, accept will return −1 and set errno to either EAGAIN or EWOULDBLOCK.
 
 ## 16.5 Data Transfer
@@ -1925,14 +1920,26 @@ Using read and write with socket descriptors is  significant, because it means t
 
 Three functions are available for sending data, and three are available for receiving data. First, we’ll look at the ones used to send data.
 The simplest one is send. It is similar to write, but allows us to specify flags to change how the data we want to transmit is treated.
+```c
 #include <sys/socket.h>
 ssize_t send(int sockfd, const void *buf, size_t nbytes, int flags);
-Returns: number of bytes sent if OK, −1 on error
-
+			// Returns: number of bytes sent if OK, −1 on error
+```
 
 The sendto function is similar to send. The difference is that sendto allows us to specify a destination address to be used with  connectionless sockets.
-
+```c
 #include <sys/socket.h>
 ssize_t sendto(int sockfd, const void *buf, size_t nbytes, int flags,
 const struct sockaddr *destaddr, socklen_t destlen);
-Returns: number of bytes sent if OK, −1 on error
+					// Returns: number of bytes sent if OK, −1 on error
+```
+
+## 16.6 Socket Options
+The socket mechanism provides two socket-option interfaces for us to control the behavior of sockets. One interface is used to set an option, and another interface allows us to query the state of an option. We can get and set three kinds of options:
+1. Generic options that work with all socket types
+2. Options that are managed at the socket level, but depend on the underlying
+protocols for support
+3. Protocol-specific options unique to each individual protocol
+
+
+
