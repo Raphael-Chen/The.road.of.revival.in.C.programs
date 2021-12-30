@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+// Output the size of the arrays with sizeof operator.
+
 int main(void)
 {
     int scores[100];
