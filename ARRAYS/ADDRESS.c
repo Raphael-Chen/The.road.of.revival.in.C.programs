@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+//Output the address in memory of variles
+
 int main(void)
 {
     int count = 1;
