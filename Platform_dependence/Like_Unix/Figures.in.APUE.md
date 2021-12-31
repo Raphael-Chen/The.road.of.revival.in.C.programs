@@ -1613,7 +1613,7 @@ This chapter is only an overview of the socket API. Stevens, Fenner, and Rudoff[
 
 
 
-## 16.2 Network IPC: Sockets
+### 16.2 Network IPC: Sockets
 
 A socket is an abstraction of a communication endpoint. Just as they would use file descriptors to access files, applications use socket descriptors to access sockets. Socket descriptors are implemented as file descriptors in the UNIX System. Indeed, many of the functions that deal with file descriptors, such as read and write, will work with a socket descriptor.
 To create a socket, we call the socket function.
@@ -1882,12 +1882,12 @@ There are several restrictions on the address we can use:
 • The port number in the address cannot be less than 1,024 unless the process has the appropriate privilege (i.e., is the superuser).
 • Usually, only one socket endpoint can be bound to a given address, although some protocols allow duplicate bindings.
 
-## 16.4 Connection Establishment
+### 16.4 Connection Establishment
 
 If we’re dealing with a connection-oriented network service (SOCK_STREAM or SOCK_SEQPACKET), then before we can exchange data, we need to create a connection between the socket of the process requesting the service (the client) and the process providing the service (the server). We use the connect function to create a connection.
 ```c
 #include <sys/socket.h>
-int connect(int sockfd, const struct sockaddr *addr, socklen_t len);
+int connect(int sockfd, const struct sockaddr *addr, 		socklen_t len);
 			// Returns: 0 if OK, −1 on error
 ```
 The address we specify with connect is the address of the server with which we wish to communicate. If sockfd is not bound to an address, connect will bind a default address for the caller.
@@ -1909,12 +1909,12 @@ Once a server has called listen, the socket used can receive connect requests. W
 ```c
 #include <sys/socket.h>
 int accept(int sockfd, struct sockaddr *restrict addr,
-socklen_t *restrict len);
+			socklen_t *restrict len);
 		// Returns: file (socket) descriptor if OK, −1 on error
 ```
 If no connect requests are pending, accept will block until one arrives. If sockfd is in nonblocking mode, accept will return −1 and set errno to either EAGAIN or EWOULDBLOCK.
 
-## 16.5 Data Transfer
+### 16.5 Data Transfer
 Since a socket endpoint is represented as a file descriptor, we can use read and write to communicate with a socket, as long as it is connected. Recall that a datagram socket can be ‘‘connected’’ if we set the default peer address using the connect function.
 Using read and write with socket descriptors is  significant, because it means that we can pass socket descriptors to functions that were originally designed to work with local files. We can also arrange to pass the socket descriptors to child processes that execute programs that know nothing about sockets.
 
@@ -1934,7 +1934,7 @@ const struct sockaddr *destaddr, socklen_t destlen);
 					// Returns: number of bytes sent if OK, −1 on error
 ```
 
-## 16.6 Socket Options
+### 16.6 Socket Options
 The socket mechanism provides two socket-option interfaces for us to control the behavior of sockets. One interface is used to set an option, and another interface allows us to query the state of an option. We can get and set three kinds of options:
 1. Generic options that work with all socket types
 2. Options that are managed at the socket level, but depend on the underlying
@@ -1943,3 +1943,45 @@ protocols for support
 
 
 
+
+
+We can set a socket option with the setsockopt function.
+#include <sys/socket.h>
+int setsockopt(int sockfd, int level, int option, const void *val, socklen_t len);
+Returns: 0 if OK, −1 on error
+
+
+The level argument identifies the protocol to which the option applies. If the option is a generic socket-level option, then level is set to SOL_SOCKET. Otherwise, level is set to the number of the protocol that controls the option. Examples are IPPROTO_TCP for TCP options and IPPROTO_IP for IP options. Figure 16.21 summarizes the generic socket-level options defined by the Single UNIX Specification.
+
+
+Figure 16.21 Socket options
+
+We can find out the current value of an option with the  getsockopt function.
+#include <sys/socket.h>
+int getsockopt(int sockfd, int level, int option, void *restrict val, socklen_t *restrict lenp);
+Returns: 0 if OK, −1 on error
+
+
+
+### 16.7 Out-of-Band Data
+Out-of-band data is an optional feature supported by some communication protocols, allowing higher-priority delivery of data than normal. Out-of-band data is sent ahead of any data that is already queued for transmission. TCP supports out-of-band data, but UDP doesn’t.
+
+TCP refers to out-of-band data as ‘‘urgent’’ data. TCP supports only a single byte of urgent data, but allows urgent data to be delivered out of band from the normal data delivery mechanisms. To generate urgent data, we specify the MSG_OOB flag to any of the three send functions. If we send more than one byte with the MSG_OOB flag, the last byte will be treated as the urgent-data byte.
+
+When urgent data is received, we are sent the SIGURG signal if we have arranged for signal generation by the socket.
+
+
+fcntl(sockfd, F_SETOWN, pid);
+The F_GETOWN command can be used to retrieve the current socket ownership. As with the F_SETOWN command, a negative value represents a process group ID and a positive value represents a process ID. Thus, the call
+owner = fcntl(sockfd, F_GETOWN, 0);
+
+To help us identify when we have reached the urgent mark, we can use the sockatmark function.
+#include <sys/socket.h>
+int sockatmark(int sockfd);
+Returns: 1 if at mark, 0 if not at mark, −1 on error
+When the next byte to be read is at the urgent mark, sockatmark will return 1.
+
+### 16.9 Summary
+In this chapter, we looked at the IPC mechanisms that allow processes to communicate with other processes on different machines as well as within the same machine. We discussed how socket endpoints are named and how we can discover the addresses to use when contacting servers.
+We presented examples of clients and servers that use connectionless (i.e., datagram-based) sockets and connection-oriented sockets. We briefly discussed asynchronous and nonblocking socket I/O and the interfaces used to manage socket options.
+In the next chapter, we will look at some advanced IPC topics, including how we can use sockets to pass file descriptors between processes running on the same machine.
