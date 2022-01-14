@@ -1946,10 +1946,11 @@ protocols for support
 
 
 We can set a socket option with the setsockopt function.
+```c
 #include <sys/socket.h>
 int setsockopt(int sockfd, int level, int option, const void *val, socklen_t len);
-Returns: 0 if OK, −1 on error
-
+						// Returns: 0 if OK, −1 on error
+```
 
 The level argument identifies the protocol to which the option applies. If the option is a generic socket-level option, then level is set to SOL_SOCKET. Otherwise, level is set to the number of the protocol that controls the option. Examples are IPPROTO_TCP for TCP options and IPPROTO_IP for IP options. Figure 16.21 summarizes the generic socket-level options defined by the Single UNIX Specification.
 
@@ -1957,10 +1958,11 @@ The level argument identifies the protocol to which the option applies. If the o
 Figure 16.21 Socket options
 
 We can find out the current value of an option with the  getsockopt function.
+```c
 #include <sys/socket.h>
 int getsockopt(int sockfd, int level, int option, void *restrict val, socklen_t *restrict lenp);
-Returns: 0 if OK, −1 on error
-
+// Returns: 0 if OK, −1 on error
+```
 
 
 ### 16.7 Out-of-Band Data
@@ -1976,12 +1978,35 @@ The F_GETOWN command can be used to retrieve the current socket ownership. As wi
 owner = fcntl(sockfd, F_GETOWN, 0);
 
 To help us identify when we have reached the urgent mark, we can use the sockatmark function.
+```c
 #include <sys/socket.h>
 int sockatmark(int sockfd);
-Returns: 1 if at mark, 0 if not at mark, −1 on error
-When the next byte to be read is at the urgent mark, sockatmark will return 1.
+// Returns: 1 if at mark, 0 if not at mark, −1 on error
+// When the next byte to be read is at the urgent mark, sockatmark will return 1.
+```
 
 ### 16.9 Summary
 In this chapter, we looked at the IPC mechanisms that allow processes to communicate with other processes on different machines as well as within the same machine. We discussed how socket endpoints are named and how we can discover the addresses to use when contacting servers.
 We presented examples of clients and servers that use connectionless (i.e., datagram-based) sockets and connection-oriented sockets. We briefly discussed asynchronous and nonblocking socket I/O and the interfaces used to manage socket options.
 In the next chapter, we will look at some advanced IPC topics, including how we can use sockets to pass file descriptors between processes running on the same machine.
+
+
+
+## 17 Advanced IPC
+
+### 17.1 Introduction
+In the previous two chapters, we discussed various forms of IPC, including pipes and sockets. In this chapter, we look at an advanced form of IPC—the UNIX domain socket mechanism — and see what we can do with it. With this form of IPC, we can pass open file descriptors between processes running on the same computer system, server processes can associate names with their file descriptors, and client processes running on the same system can use these names to rendezvous with the servers. We’ll also see how the operating system provides a unique IPC channel per client.
+
+### 17.2 UNIX Domain Sockets
+
+You can use the network-oriented socket interfaces with them, or you can use the socketpair function to create a pair of unnamed, connected, UNIX domain sockets.
+```c
+#include <sys/socket.h>
+int socketpair(int domain, int type, int protocol, int sockfd[2]);
+							// Returns: 0 if OK, −1 on error
+```
+
+
+
+
+Figure 17.1 A socket pair
