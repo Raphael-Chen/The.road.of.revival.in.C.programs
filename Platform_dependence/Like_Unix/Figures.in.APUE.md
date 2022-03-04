@@ -2008,5 +2008,42 @@ int socketpair(int domain, int type, int protocol, int sockfd[2]);
 
 
 
-
 Figure 17.1 A socket pair
+
+
+#### 17.2.1 Naming UNIX Domain Sockets
+
+
+Although the socketpair function creates sockets that are connected to each other, the individual sockets don’t have names. This means that they can’t be addressed by unrelated processes.
+
+
+On Linux 3.2.0 and Solaris 10, the sockaddr_un structure is defined in the
+header <sys/un.h> as
+```C
+struct sockaddr_un {
+	sa_family_t sun_family;       /* AF_UNIX */ 
+	char        sun_path[108];    /* pathname */
+};
+```
+
+On FreeBSD 8.0 and Mac OS X 10.6.8, however, the sockaddr_un structure is defined as
+```C
+struct sockaddr_un {
+	unsigned char sun_len;        /* sockaddr length */
+	sa_family_t   sun_family;     /* AF_UNIX */ 
+	char          sun_path[104];  /* pathname */
+};
+```
+
+
+
+
+### 17.3 Unique Connections
+
+A server can arrange for unique UNIX domain connections to clients using the standard bind, listen, and accept functions. Clients use connect to contact the server; after the connect request is accepted by the server, a unique connection exists between the client and the server. This style of operation is the same that we illustrated with Internet domain sockets in Figures 16.16 and 16.17.
+
+两张图
+Figure 17.6 Client and server sockets before a connect
+Figure 17.7 Client and server sockets after a connect
+
+
