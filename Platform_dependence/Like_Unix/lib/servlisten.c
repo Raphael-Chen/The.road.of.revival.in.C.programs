@@ -5,6 +5,8 @@
 
 #define QLEN 10
 
+// Figure 17.8 The serv_listen function
+
 /*
  * Create a server endpoint of a connection.
  * Returns fd if all OK, <0 on error.
@@ -39,8 +41,9 @@ int serv_listen(const char *name)
         goto errout;
     }
 
-    if (listen(fd, QLEN) < 0)
-    { /* tell kernel we're a server */
+    /* tell kernel we're a server */
+    if (listen(fd, QLEN) < 0)  
+    { 
         rval = -4;
         goto errout;
     }
