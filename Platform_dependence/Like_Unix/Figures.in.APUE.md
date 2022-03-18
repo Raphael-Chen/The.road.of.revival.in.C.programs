@@ -2047,3 +2047,64 @@ Figure 17.6 Client and server sockets before a connect
 Figure 17.7 Client and server sockets after a connect
 
 
+
+### 17.4 Passing File Descriptors
+
+Passing an open file descriptor between processes is a powerful technique. It can lead to different ways of designing client–server applications. It allows one process (typically a server) to do everything that is required to open a file (involving such details as translating a network name to a network address, dialing a modem, and negotiating locks for the file) and simply pass back to the calling process a descriptor that can be used with all the I/O functions. All the details involved in opening the file or device are hidden from the client.
+
+```c
+#include "apue.h"
+int send_fd(int fd, int fd_to_send);
+int send_err(int fd, int status, const char *errmsg);
+					// Both return: 0 if OK, −1 on error
+int recv_fd(int fd, ssize_t (*userfunc)(int, const void *, size_t));
+					// Returns: file descriptor if OK, negative value on error
+```
+
+Figure 17.11 Passing an open file from the top process to the bottom process
+
+To exchange file descriptors using UNIX domain sockets, we call the sendmsg(2) and recvmsg(2) functions (Section 16.5). Both functions take a pointer to a msghdr structure that contains all the information on what to send or receive. The structure on your system might look similar to the following:
+```c
+struct msghdr {
+    void         *msg_name;      // optional address 
+    socklen_t    msg_namelen;    // address size in bytes 
+    struct iovec *msg_iov;       // array of I/O buffers 
+    int          msg_iovlen;      
+    void         *msg_control;     
+    socklen_t    msg_controllen;   
+    int          msg_flags;       
+};
+```
+// number of elements in array 
+// ancillary data 
+// number of ancillary bytes 
+// flags for received message 
+
+
+Two elements deal with the passing or receiving of control information. The msg_control field points to a cmsghdr (control message header) structure, and the msg_controllen field contains the number of bytes of control information.
+```c
+struct cmsghdr {
+    socklen_t cmsg_len;  /* data byte count, including header */
+    int cmsg_level;      /* originating protocol */
+    int cmsg_type;       /* protocol-specific type */
+/* followed by the actual control message data */
+};
+```
+To send a file descriptor, we set cmsg_len to the size of the cmsghdr structure, plus the size of an integer (the descriptor).
+
+
+Three macros are used to access the control data, and one macro is used to help calculate the value to be used for cmsg_len.
+
+```c
+#include <sys/socket.h>
+unsigned char *CMSG_DATA(struct cmsghdr *cp);
+					// Returns: pointer to data associated with cmsghdr structure
+struct cmsghdr *CMSG_FIRSTHDR(struct msghdr *mp);
+					// Returns: pointer to first cmsghdr structure associated with the msghdr structure, or NULL if none exists
+struct cmsghdr *CMSG_NXTHDR(struct msghdr *mp,
+struct cmsghdr *cp);
+					// Returns: pointer to next cmsghdr structure associated with the msghdr structure given the current cmsghdr structure, or NULL if we’re at the last one
+unsigned int CMSG_LEN(unsigned int nbytes);
+					// Returns: size to allocate for data object nbytes large
+```
+
