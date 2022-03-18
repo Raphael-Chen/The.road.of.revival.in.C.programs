@@ -4,7 +4,10 @@
 #include <errno.h>
 
 #define CLI_PATH "/var/tmp/"
-#define CLI_PERM S_IRWXU /* rwx for user only */
+#define CLI_PERM  S_IRWXU    /* rwx for user only */
+
+// Figure 17.10 The cli_conn function
+// The client initiates the connection to the server by calling the cli_conn function.
 
 /*
  * Create a client endpoint and connect to a server.
@@ -23,7 +26,8 @@ int cli_conn(const char *name)
     }
 
     /* create a UNIX domain stream socket */
-    if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)
+    fd = socket(AF_UNIX, SOCK_STREAM, 0);
+    if ( fd < 0)
         return (-1);
 
     /* fill socket address structure with our address */
@@ -39,6 +43,7 @@ int cli_conn(const char *name)
         rval = -2;
         goto errout;
     }
+
     if (chmod(un.sun_path, CLI_PERM) < 0)
     {
         rval = -3;
@@ -51,6 +56,7 @@ int cli_conn(const char *name)
     sun.sun_family = AF_UNIX;
     strcpy(sun.sun_path, name);
     len = offsetof(struct sockaddr_un, sun_path) + strlen(name);
+
     if (connect(fd, (struct sockaddr *)&sun, len) < 0)
     {
         rval = -4;
