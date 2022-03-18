@@ -5,6 +5,11 @@
  * but encountered an error instead.  We send the error back
  * using the send_fd()/recv_fd() protocol.
  */
+
+// Figure 17.12 The send_err function
+// The function send_err calls the send_fd function after writing the error message
+// to the socket.
+
 int send_err(int fd, int errcode, const char *msg)
 {
     int n;
