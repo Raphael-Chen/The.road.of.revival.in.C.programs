@@ -2108,3 +2108,16 @@ unsigned int CMSG_LEN(unsigned int nbytes);
 					// Returns: size to allocate for data object nbytes large
 ```
 
+
+
+17.5 An Open Server, Version 1
+
+Using file descriptor passing, we now develop an open server—a program that is executed by a process to open one or more files.
+
+
+
+There are several advantages in designing the server to be a separate executable program (either one that is executed by the client, as we develop in this section, or a daemon server, which we develop in the next section).
+- The server can easily be contacted by any client, similar to the client calling a library function. We are not hard-coding a particular service into the application, but designing a general facility that others can reuse.
+- If we need to change the server, only a single program is affected. Conversely, updating a library function can require that all programs that call the function be updated (i.e., relinked with the link editor). Shared libraries can simplify this updating (Section 7.7).
+- The server can be a set-user-ID program, providing it with additional permissions that the client does not have. Note that a library function (or shared library function) can’t provide this capability.
+
