@@ -9,8 +9,12 @@ int main(void)
                          {11.0, 12.0, 13.0, 14.0, 15.0}};
 
     for (row = 0; row < 3; row++)
+    {
         for (column = 0; column < 5; column++)
+        {
             printf("table[%d][%d] = %f\n", row, column, table[row][column]);
+        }
+    }
 
     return 0;
 }
