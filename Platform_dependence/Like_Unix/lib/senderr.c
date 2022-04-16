@@ -3,7 +3,7 @@
 /*
  * Used when we had planned to send an fd using send_fd(),
  * but encountered an error instead.  We send the error back
- * using the send_fd()/recv_fd() protocol.
+ * using the send_fd() / recv_fd() protocol.
  */
 
 // Figure 17.12 The send_err function
