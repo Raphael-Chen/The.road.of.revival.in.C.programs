@@ -9,3 +9,5 @@ extern char	*pathname;	/* of file to open() for client */
 
 int		 cli_args(int, char **);
 void	 handle_request(char *, int, int);
+
+// Figure 17.20 The opend.h header, version 1
