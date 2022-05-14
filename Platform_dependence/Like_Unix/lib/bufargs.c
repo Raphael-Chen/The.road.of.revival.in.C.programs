@@ -3,6 +3,8 @@
 #define MAXARGC 50    /* max number of arguments in buf */
 #define WHITE " \t\n" /* white space for tokenizing arguments */
 
+// Figure 17.23 The buf_args function
+
 /*
  * buf[] contains white-space-separated arguments.  We convert it to an
  * argv-style array of pointers, and call the user's function (optfunc)
@@ -17,7 +19,9 @@ int buf_args(char *buf, int (*optfunc)(int, char **))
 
     if (strtok(buf, WHITE) == NULL) /* an argv[0] is required */
         return (-1);
+
     argv[argc = 0] = buf;
+    
     while ((ptr = strtok(NULL, WHITE)) != NULL)
     {
         if (++argc >= MAXARGC - 1) /* -1 for room for NULL at end */
