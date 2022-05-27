@@ -2110,7 +2110,7 @@ unsigned int CMSG_LEN(unsigned int nbytes);
 
 
 
-17.5 An Open Server, Version 1
+### 17.5 An Open Server, Version 1
 
 Using file descriptor passing, we now develop an open server—a program that is executed by a process to open one or more files.
 
@@ -2120,4 +2120,26 @@ There are several advantages in designing the server to be a separate executable
 - The server can easily be contacted by any client, similar to the client calling a library function. We are not hard-coding a particular service into the application, but designing a general facility that others can reuse.
 - If we need to change the server, only a single program is affected. Conversely, updating a library function can require that all programs that call the function be updated (i.e., relinked with the link editor). Shared libraries can simplify this updating (Section 7.7).
 - The server can be a set-user-ID program, providing it with additional permissions that the client does not have. Note that a library function (or shared library function) can’t provide this capability.
+
+
+
+### 17.6 An Open Server, Version 2
+
+In the previous section, we developed an open server that was invoked by a fork andexec by the client, demonstrating how we can pass file descriptors from a child to aparent. In this section, we develop an open server as a daemon process. One serverhandles all clients.
+
+This version of the client is similar to the client from Section 17.5. Indeed, the filemain.c is identic
+
+The Single UNIX Specification includes a set of conventions and guidelines that promote consistent command-line syntax. They include such suggestions as "Restrict each command-line option to a single alphanumeric character" and "All options should be preceded by a − character."
+
+Luckily, the getopt function exists to help command developers process command-line options in a consistent manner.
+
+```c
+#include <unistd.h>
+int getopt(int argc, char * const argv[], const char *options);
+extern int optind, opterr, optopt;
+extern char *optarg;
+
+// Returns: the next option character, or −1 when all options have been processed
+```
+
 
