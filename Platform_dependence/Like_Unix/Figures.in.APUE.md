@@ -2069,21 +2069,20 @@ struct msghdr {
     void         *msg_name;      // optional address 
     socklen_t    msg_namelen;    // address size in bytes 
     struct iovec *msg_iov;       // array of I/O buffers 
-    int          msg_iovlen;      
-    void         *msg_control;     
-    socklen_t    msg_controllen;   
-    int          msg_flags;       
+    int          msg_iovlen;     // number of elements in array  
+    void         *msg_control;   // ancillary data   
+    socklen_t    msg_controllen; // number of ancillary bytes   
+    int          msg_flags;      // flags for received message 
 };
 ```
-// number of elements in array 
-// ancillary data 
-// number of ancillary bytes 
-// flags for received message 
+
+ 
 
 
 Two elements deal with the passing or receiving of control information. The msg_control field points to a cmsghdr (control message header) structure, and the msg_controllen field contains the number of bytes of control information.
 ```c
-struct cmsghdr {
+struct cmsghdr 
+{
     socklen_t cmsg_len;  /* data byte count, including header */
     int cmsg_level;      /* originating protocol */
     int cmsg_type;       /* protocol-specific type */
@@ -2143,3 +2142,8 @@ extern char *optarg;
 ```
 
 
+
+### 17.7 Summary
+The key points in this chapter are the ability to pass file descriptors between processes and the ability of a server to accept unique connections from clients.
+
+We presented two versions of an open server. One version was invoked directly by the client, using fork and exec. The second was a daemon server that handled all client requests. Both versions used the file descriptor passing and receiving functions.
