@@ -2285,5 +2285,12 @@ char *ttyname(int fd);
 
 
 
+### 18.10 Canonical Mode
 
+Canonical mode is simple: we issue a read, and the terminal driver returns when a line has been entered. Several conditions cause the read to return.
+
+- The read returns when the requested number of bytes have been read. We don’t have to read a complete line. If we read a partial line, no information is lost; the next read starts where the previous read stopped.
+- The read returns when a line delimiter is encountered. Recall from Section 18.3 that the following characters are interpreted as end of line in canonical mode: NL, EOL, EOL2, and EOF. Also, recall from Section 18.5 that if ICRNL is set and if IGNCR is not set, then the CR character also terminates a line, since it acts just like the NL character. 
+    Of these five line delimiters, one (EOF) is discarded by the terminal driver when it’s processed. The other four are returned to the caller as the last character of the line.
+- The read also returns if a signal is caught and if the function is not automatically restarted (Section 10.5).
 
