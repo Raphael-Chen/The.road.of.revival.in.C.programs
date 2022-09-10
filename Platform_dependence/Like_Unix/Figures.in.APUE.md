@@ -2294,3 +2294,11 @@ Canonical mode is simple: we issue a read, and the terminal driver returns when 
     Of these five line delimiters, one (EOF) is discarded by the terminal driver when it’s processed. The other four are returned to the caller as the last character of the line.
 - The read also returns if a signal is caught and if the function is not automatically restarted (Section 10.5).
 
+
+
+### 18.11 Noncanonical Mode
+
+Noncanonical mode is specified by turning off the ICANON flag in the c_lflag field of the termios structure. In noncanonical mode, the input data is not assembled into  lines. The following special characters (Section 18.3) are not processed: ERASE, KILL, EOF, NL, EOL, EOL2, CR, REPRINT, STATUS, and WERASE.
+
+The solution is to tell the system to return when either a specified amount of data has been read or after a given amount of time has passed. This technique uses two variables in the c_cc array in the termios structure: MIN and TIME. These two elements of the array are indexed by the names VMIN and VTIME.
+
