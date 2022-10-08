@@ -2302,3 +2302,52 @@ Noncanonical mode is specified by turning off the ICANON flag in the c_lflag fie
 
 The solution is to tell the system to return when either a specified amount of data has been read or after a given amount of time has passed. This technique uses two variables in the c_cc array in the termios structure: MIN and TIME. These two elements of the array are indexed by the names VMIN and VTIME.
 
+
+
+### 18.12 Terminal Window Size
+Most UNIX systems provide a way to keep track of the current terminal window size and to have the kernel notify the foreground process group when the size changes. The kernel maintains a winsize structure for every terminal and pseudo terminal:
+```c
+struct winsize {
+	unsigned short      ws_row;        /* rows, in characters */       
+	unsigned short      ws_col;        /* columns, in characters */ 
+	unsigned short      ws_xpixel;     /* horizontal size, pixels (unused) */
+	unsigned short      ws_ypixel;     /* vertical size, pixels (unused) */
+}
+```
+
+### 18.13 termcap, terminfo, and curses
+termcap stands for ‘‘terminal capability,’’ and it refers to the text file etc/termcap and a set of routines used to read this file. The termcap scheme was developed at Berkeley to support the vi editor. The termcap file contains descriptions of various terminals: which features the terminal supports (e.g., how many lines and rows, whether the terminal support backspace) and how to make the terminal perform certain operations (e.g., clear the screen, move the cursor to a given location). Taking this information out of the compiled program and placing it into a text file that can easily be edited allows the vi editor to run on many different terminals.
+
+
+
+Figure 18.19 Four cases for noncanonical input
+
+Figure 18.19 summarizes the four cases for noncanonical input. In this figure, nbytes is the third argument to read (the maximum number of bytes to return).
+
+
+
+Our definition of cbreak mode is the following:
+- Noncanonical mode. As we mentioned at the beginning of this section, this mode turns off some input character processing. It does not turn off signal handling, so the user can always type one of the characters that triggers a terminal-generated signal. Be aware that the caller should catch these signals; otherwise, there’s a chance that the signal will terminate the program, and the terminal will be left in cbreak mode.
+
+As a general rule, whenever we write a program that changes the terminal mode, we should catch most signals. This allows us to reset the terminal mode before terminating.
+
+- Echo off.
+- One byte at a time input. To do this, we set MIN to 1 and TIME to 0. This is case B from Figure 18.19. A read won’t return until at least one byte is available.
+We define raw mode as follows:
+- Noncanonical mode. We also turn off processing of the signal-enerating characters (ISIG) and the extended input character rocessing (IEXTEN).
+Additionally, we disable a BREAK character from generating a signal, by turning off BRKINT.
+- Echo off.
+- We disable the CR-to-NL mapping on input (ICRNL), input parity detection (INPCK), the stripping of the eighth bit on input (ISTRIP), and output flow control (IXON).
+- Eight-bit characters (CS8), and parity checking is disabled (PARENB).
+- All output processing is disabled (OPOST).
+- One byte at a time input (MIN = 1, TIME = 0).
+
+
+We define raw mode as follows:
+- Noncanonical mode. We also turn off processing of the signal-generating characters (ISIG) and the extended input character processing (IEXTEN). Additionally, we disable a BREAK character from generating a signal, by turning off BRKINT.
+- Echo off.
+- We disable the CR-to-NL mapping on input (ICRNL), input parity detection (INPCK), the stripping of the eighth bit on input (ISTRIP), and output flow control (IXON).
+- Eight-bit characters (CS8), and parity checking is disabled (PARENB).
+- All output processing is disabled (OPOST).
+- One byte at a time input (MIN = 1, TIME = 0).
+
