@@ -1,6 +1,8 @@
 #include "apue.h"
 #include <termios.h>
 
+// Figure 19.10 The pty_fork function
+
 pid_t pty_fork(int *ptrfdm, char *slave_name, int slave_namesz,
                const struct termios *slave_termios,
                const struct winsize *slave_winsize)
