@@ -2308,10 +2308,10 @@ The solution is to tell the system to return when either a specified amount of d
 Most UNIX systems provide a way to keep track of the current terminal window size and to have the kernel notify the foreground process group when the size changes. The kernel maintains a winsize structure for every terminal and pseudo terminal:
 ```c
 struct winsize {
-	unsigned short      ws_row;        /* rows, in characters */       
-	unsigned short      ws_col;        /* columns, in characters */ 
-	unsigned short      ws_xpixel;     /* horizontal size, pixels (unused) */
-	unsigned short      ws_ypixel;     /* vertical size, pixels (unused) */
+	unsigned short ws_row;      /* rows, in characters */       
+	unsigned short ws_col;      /* columns, in characters */ 
+	unsigned short ws_xpixel;   /* horizontal size, pixels (unused) */
+	unsigned short ws_ypixel;   /* vertical size, pixels (unused) */
 }
 ```
 
@@ -2350,4 +2350,50 @@ We define raw mode as follows:
 - Eight-bit characters (CS8), and parity checking is disabled (PARENB).
 - All output processing is disabled (OPOST).
 - One byte at a time input (MIN = 1, TIME = 0).
+
+
+
+
+
+## 19 Pseudo Terminals
+
+### 19.1 Introduction
+In Chapter 9, we saw that terminal logins come in through a terminal device, automatically providing terminal semantics. A terminal line discipline (Figure 18.2) exists between the terminal and the programs that we run, so we can set the terminal’s special characters (e.g., backspace, line erase, interrupt) and the like. 
+When a login arrives on a network connection, however, a terminal line discipline is not automatically provided between the incoming network connection and the login shell. Figure 9.5 showed that a pseudo terminal device driver is used to provide terminal semantics.
+
+### 19.2 Overview
+The term pseudo terminal implies that it looks like a terminal to an application program, but it’s not a real terminal. Figure 19.1 shows the typical arrangement of the processes involved when a pseudo terminal is being used. The key points in this figure are the following.
+
+Figure 19.1 Typical arrangement of processes using a pseudo terminal
+
+
+- Normally, a process opens the pseudo terminal master and then calls fork. The child establishes a new session, opens the corresponding pseudo terminal slave, duplicates the file descriptor to the standard input, standard output, and standard error, and then calls exec. The pseudo terminal slave becomes the controlling terminal for the child process.
+
+- It appears to the user process above the slave that its standard input, standard output, and standard error are a terminal device. The process can issue all the terminal I/O functions from Chapter 18 on these descriptors. But since the slave isn’t a real terminal device, functions that don’t make sense (e.g., change the baud rate, send a break character, set odd parity) are just ignored.
+
+- Anything written to the master appears as input to the slave, and vice versa. Indeed, all the input to the slave comes from the user process above the pseudo terminal master. This behaves like a bidirectional pipe, but with the terminal line discipline module above the slave, we have additional capabilities over a plain pipe.
+
+### 19.3 Opening Pseudo-Terminal Devices
+
+
+
+
+```c
+#include <stdlib.h>
+#include <fcntl.h>
+
+int posix_openpt(int oflag);
+							// Returns: file descriptor of next available PTY master if OK, −1 on error
+```
+
+
+Implementations commonly set the group ownership of the slave PTY device to group tty. Programs that need permission to write to all active terminals on the system are set-group-ID to the group tty. Examples of such programs are wall(1) and write(1). Because the group write permission is enabled on slave PTY devices, these programs can write to them.
+
+```c
+#include <stdlib.h>
+
+int grantpt(int fd);
+int unlockpt(int fd);
+					// Both return: 0 on success, −1 on error
+```
 
