@@ -5,6 +5,8 @@
 #include <stropts.h>
 #endif
 
+// Figure 19.9 Pseudo-terminal open functions
+
 int ptym_open(char *pts_name, int pts_namesz)
 {
     char *ptr;
