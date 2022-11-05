@@ -11,14 +11,16 @@ static void set_noecho(int);        /* at the end of this file */
 void        do_driver(char *);      /* in the file driver.c */
 void        loop(int, int);         /* in the file loop.c */
 
+// Figure 19.11 The main function for the pty program
+
 int main(int argc, char *argv[])
 {
-    int fdm, c, ignoreeof, interactive, noecho, verbose;
-    pid_t pid;
-    char *driver;
-    char slave_name[20];
-    struct termios orig_termios;
-    struct winsize size;
+    int     fdm, c, ignoreeof, interactive, noecho, verbose;
+    pid_t   pid;
+    char    *driver;
+    char    slave_name[20];
+    struct  termios orig_termios;
+    struct  winsize size;
 
     interactive = isatty(STDIN_FILENO);
     ignoreeof   = 0;
