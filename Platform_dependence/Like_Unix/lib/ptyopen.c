@@ -12,8 +12,10 @@ int ptym_open(char *pts_name, int pts_namesz)
     char *ptr;
     int fdm, err;
 
-    if ((fdm = posix_openpt(O_RDWR)) < 0)
+    fdm = posix_openpt(O_RDWR);
+    if (fdm < 0)
         return (-1);
+
     if (grantpt(fdm) < 0) /* grant access to slave */
         goto errout;
     if (unlockpt(fdm) < 0) /* clear slave's lock flag */
@@ -42,7 +44,8 @@ int ptys_open(char *pts_name)
     int err, setup;
 #endif
 
-    if ((fds = open(pts_name, O_RDWR)) < 0)
+    fds = open(pts_name, O_RDWR);
+    if (fds < 0)
         return (-1);
 
 #if defined(SOLARIS)
