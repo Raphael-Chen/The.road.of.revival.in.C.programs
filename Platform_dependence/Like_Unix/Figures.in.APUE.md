@@ -2373,6 +2373,25 @@ Figure 19.1 Typical arrangement of processes using a pseudo terminal
 
 - Anything written to the master appears as input to the slave, and vice versa. Indeed, all the input to the slave comes from the user process above the pseudo terminal master. This behaves like a bidirectional pipe, but with the terminal line discipline module above the slave, we have additional capabilities over a plain pipe.
 
+#### Windowing System Terminal Emulation
+
+Windowing systems typically provide a terminal emulator so that we can use a shell to run our programs from a familiar command-line environment. The terminal emulator acts as an intermediary between a shell and the window manager. Each shell executes in its own window. This arrangement (with two shells running in different windows) is shown in Figure 19.4.
+
+The shell runs with its standard input, standard output, and standard error attached to the slave side of the PTY. The terminal emulator program opens the master side of the PTY. Besides acting as an interface to the windowing subsystem, the terminal emulator is responsible for emulating a particular type of terminal, which means it needs to respond to the escape codes associated with the type of device it is emulating. These codes are listed in the termcap and terminfo databases.
+
+Figure 19.4 Arrangement of processes for windowing system
+
+Figure 19.5 The script program
+
+#### script Program
+
+The script(1) program that is supplied with most UNIX systems makes a copy in a file of everything that is input and output during a terminal session. The program does this by placing itself between the terminal and a new invocation of our login shell.
+Figure 19.5 details the interactions involved in the script program. Here, we specifically show that the script program is normally run from a login shell, which then waits for script to terminate.
+
+
+
+
+
 ### 19.3 Opening Pseudo-Terminal Devices
 
 
@@ -2397,3 +2416,22 @@ int unlockpt(int fd);
 					// Both return: 0 on success, −1 on error
 ```
 
+
+
+The ptsname function is used to find the pathname of the slave pseudo terminal
+device, given the file descriptor of the master. This allows applications to identify the slave independent of any particular conventions that might be followed by a given platform. Note that the name returned might be stored in static memory, so it can be overwritten on successive calls.
+```c
+#include <stdlib.h>
+char *ptsname(int fd);
+					// Returns: pointer to name of PTY slave if OK, NULL on error
+```
+
+
+The Single UNIX Specification has improved portability in this area, but differences remain. We provide two functions that handle all the details: ptym_open to open the next available PTY master device and ptys_open to open the corresponding slave device.
+```c
+#include "apue.h"
+int ptym_open(char *pts_name, int pts_namesz);
+					// Returns: file descriptor of PTY master if OK, −1 on error
+int ptys_open(char *pts_name);
+					// Returns: file descriptor of PTY slave if OK, −1 on error
+```
