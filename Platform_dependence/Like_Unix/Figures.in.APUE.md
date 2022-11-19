@@ -2435,3 +2435,26 @@ int ptym_open(char *pts_name, int pts_namesz);
 int ptys_open(char *pts_name);
 					// Returns: file descriptor of PTY slave if OK, −1 on error
 ```
+
+
+
+### 19.7 Advanced Features
+Pseudo terminals have some additional capabilities that we briefly mention here. These capabilities are further documented in Sun Microsystems [2005] and the BSD pts(4) manual page.
+
+#### Packet Mode
+Packet mode lets the PTY master learn of state changes in the PTY slave. On Solaris, this mode is enabled by pushing the STREAMS module pckt onto the PTY master side. We showed this optional module in Figure 19.2. On FreeBSD, Linux, and Mac OS X, this mode is enabled with the TIOCPKT ioctl command.
+
+The details of packet mode differ between Solaris and the other platforms. Under Solaris, the process reading the PTY master has to call getmsg to fetch the messages from the stream head, because the pckt module converts certain events into nondata STREAMS messages. With the other platforms, each read from the PTY master returns a status byte followed by optional data.
+Regardless of the implementation details, the purpose of packet mode is to inform the process reading the PTY master when the following events occur at the line discipline module above the PTY slave: when the read queue is flushed, when the write queue is flushed, when output is stopped (e.g., Control-S), when output is restarted, when XON/XOFF flow control is enabled after being disabled, and when XON/XOFF flow control is disabled after being enabled. These events are used, for example, by the rlogin client and the rlogind server.
+
+#### Remote Mode
+A PTY master can set the PTY slave to remote mode by issuing the TIOCREMOTE ioctl command. Although Mac OS X 10.6.8 and Solaris 10 use the same command to enable and disable this feature, under Solaris the third argument to ioctl is an integer, whereas with Mac OS X, it is a pointer to an integer. (FreeBSD 8.0 and Linux 3.2.0 don’t support this command.)
+
+When it sets this mode, the PTY master is telling the PTY slave’s line discipline not to perform any processing of the data that it receives from the PTY master, regardless of the canonical/noncanonical flag in the slave’s termios structure. Remote mode is intended for an application, such as a window manager, that does its own line editing.
+
+#### Window Size Changes
+The process above the PTY master can issue the TIOCSWINSZ ioctl command to set the window size of the slave. If the new size differs from the current size, a SIGWINCH signal is sent to the foreground process group of the PTY slave.
+
+#### Signal Generation
+The process reading and writing the PTY master can send signals to the process group of the PTY slave. Under Solaris 10, this is done using the TIOCSIGNAL ioctl command. With FreeBSD 8.0, Linux 3.2.0, and Mac OS X 10.6.8, the ioctl command is TIOCSIG. In both cases, the third argument is set to the signal number.
+
