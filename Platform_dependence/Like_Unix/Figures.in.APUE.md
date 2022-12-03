@@ -2458,3 +2458,25 @@ The process above the PTY master can issue the TIOCSWINSZ ioctl command to set t
 #### Signal Generation
 The process reading and writing the PTY master can send signals to the process group of the PTY slave. Under Solaris 10, this is done using the TIOCSIGNAL ioctl command. With FreeBSD 8.0, Linux 3.2.0, and Mac OS X 10.6.8, the ioctl command is TIOCSIG. In both cases, the third argument is set to the signal number.
 
+
+
+
+
+## 20 A Database Library
+
+### 20.1 Introduction
+During the early 1980s, the UNIX System was considered a hostile environment for running multiuser database systems. (See Stonebraker [1981] and Weinberger [1982].) Earlier systems, such as Version 7, did indeed present large obstacles, since they did not provide any form of IPC (other than half-duplex pipes) and did not provide any form of byte-range locking. Many of these deficiencies were remedied, however. By the late 1980s, the UNIX System had evolved to provide a suitable environment for running reliable, multiuser database systems. Since then, numerous commercial firms have offered these types of database systems.
+
+
+In this chapter, **we develop a simple, multiuser database library of C functions** that any program can call to fetch and store records in a database. (Such a database is often called a key–value store.) This library of C functions is usually only one part of a complete database system. We do not develop the other pieces, such as a query language, leaving these items to the many textbooks on database systems. Our interest is the parts of the UNIX System interface required by a database library, and how they relate to the topics we’ve already covered (such as record—byte-range — locking, in Section 14.3).
+
+
+Figure 20.1 summarizes the database libraries commonly found in the four operating systems described in this book. Note that on Linux, the gdbm library provides support for both dbm and ndbm functions.
+
+
+Figure 20.1 Support for database libraries on various platforms
+
+### 20.4 Implementation Overview
+Database access libraries often use two files to store the information: **an index file and a data file**.
+
+The index file contains the actual index value (the key) and a pointer to the corresponding data record in the data file.……We mentioned in the description of db_open that we create two files: one with a suffix of .idx and one with a suffix of .dat.
