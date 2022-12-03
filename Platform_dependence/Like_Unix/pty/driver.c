@@ -5,7 +5,7 @@
 void do_driver(char *driver)
 {
     pid_t child;
-    int pipe[2];
+    int   pipe[2];
 
     /*
 	 * Create a full-duplex pipe to communicate with the driver.
