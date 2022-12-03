@@ -106,7 +106,8 @@ int main(int argc, char *argv[])
             err_sys("atexit error");
     }
 
-    if (driver)
+    // if (driver)
+    if ( driver != NULL )
         do_driver(driver); /* changes our stdin/stdout */
 
     loop(fdm, ignoreeof); /* copies stdin -> ptym, ptym -> stdout */
