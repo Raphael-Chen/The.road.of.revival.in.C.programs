@@ -66,104 +66,109 @@ typedef struct
 /*
  * Internal functions.
  */
-static DB     *_db_alloc(int);
-static void    _db_dodelete(DB *);
-static int	    _db_find_and_lock(DB *, const char *, int);
-static int     _db_findfree(DB *, int, int);
-static void    _db_free(DB *);
-static DBHASH  _db_hash(DB *, const char *);
-static char   *_db_readdat(DB *);
-static off_t   _db_readidx(DB *, off_t);
-static off_t   _db_readptr(DB *, off_t);
-static void    _db_writedat(DB *, const char *, off_t, int);
-static void    _db_writeidx(DB *, const char *, off_t, int, off_t);
-static void    _db_writeptr(DB *, off_t, off_t);
+static DB        *_db_alloc(int);
+static void      _db_dodelete(DB *);
+static int       _db_find_and_lock(DB *, const char *, int);
+static int       _db_findfree(DB *, int, int);
+static void      _db_free(DB *);
+static DBHASH    _db_hash(DB *, const char *);
+static char      *_db_readdat(DB *);
+static off_t     _db_readidx(DB *, off_t);
+static off_t     _db_readptr(DB *, off_t);
+static void      _db_writedat(DB *, const char *, off_t, int);
+static void      _db_writeidx(DB *, const char *, off_t, int, off_t);
+static void      _db_writeptr(DB *, off_t, off_t);
 
 /*
  * Open or create a database.  Same arguments as open(2).
  */
-DBHANDLE
-db_open(const char *pathname, int oflag, ...)
+DBHANDLE db_open(const char *pathname, int oflag, ...)
 {
-	DB			*db;
-	int			len, mode;
-	size_t		i;
-	char		asciiptr[PTR_SZ + 1],
-				hash[(NHASH_DEF + 1) * PTR_SZ + 2];
-					/* +2 for newline and null */
-	struct stat	statbuff;
+    DB *db;
+    int len, mode;
+    size_t i;
+    char asciiptr[PTR_SZ + 1],
+        hash[(NHASH_DEF + 1) * PTR_SZ + 2];
+    /* +2 for newline and null */
+    struct stat statbuff;
 
-	/*
+    /*
 	 * Allocate a DB structure, and the buffers it needs.
 	 */
-	len = strlen(pathname);
-	if ((db = _db_alloc(len)) == NULL)
-		err_dump("db_open: _db_alloc error for DB");
+    len = strlen(pathname);
+    if ((db = _db_alloc(len)) == NULL)
+        err_dump("db_open: _db_alloc error for DB");
 
-	db->nhash   = NHASH_DEF;/* hash table size */
-	db->hashoff = HASH_OFF;	/* offset in index file of hash table */
-	strcpy(db->name, pathname);
-	strcat(db->name, ".idx");
+    db->nhash = NHASH_DEF;  /* hash table size */
+    db->hashoff = HASH_OFF; /* offset in index file of hash table */
+    strcpy(db->name, pathname);
+    strcat(db->name, ".idx");
 
-	if (oflag & O_CREAT) {
-		va_list ap;
+    if (oflag & O_CREAT)
+    {
+        va_list ap;
 
-		va_start(ap, oflag);
-		mode = va_arg(ap, int);
-		va_end(ap);
+        va_start(ap, oflag);
+        mode = va_arg(ap, int);
+        va_end(ap);
 
-		/*
+        /*
 		 * Open index file and data file.
 		 */
-		db->idxfd = open(db->name, oflag, mode);
-		strcpy(db->name + len, ".dat");
-		db->datfd = open(db->name, oflag, mode);
-	} else {
-		/*
+        db->idxfd = open(db->name, oflag, mode);
+        strcpy(db->name + len, ".dat");
+        db->datfd = open(db->name, oflag, mode);
+    }
+    else
+    {
+        /*
 		 * Open index file and data file.
 		 */
-		db->idxfd = open(db->name, oflag);
-		strcpy(db->name + len, ".dat");
-		db->datfd = open(db->name, oflag);
-	}
+        db->idxfd = open(db->name, oflag);
+        strcpy(db->name + len, ".dat");
+        db->datfd = open(db->name, oflag);
+    }
 
-	if (db->idxfd < 0 || db->datfd < 0) {
-		_db_free(db);
-		return(NULL);
-	}
+    if (db->idxfd < 0 || db->datfd < 0)
+    {
+        _db_free(db);
+        return (NULL);
+    }
 
-	if ((oflag & (O_CREAT | O_TRUNC)) == (O_CREAT | O_TRUNC)) {
-		/*
+    if ((oflag & (O_CREAT | O_TRUNC)) == (O_CREAT | O_TRUNC))
+    {
+        /*
 		 * If the database was created, we have to initialize
 		 * it.  Write lock the entire file so that we can stat
 		 * it, check its size, and initialize it, atomically.
 		 */
-		if (writew_lock(db->idxfd, 0, SEEK_SET, 0) < 0)
-			err_dump("db_open: writew_lock error");
+        if (writew_lock(db->idxfd, 0, SEEK_SET, 0) < 0)
+            err_dump("db_open: writew_lock error");
 
-		if (fstat(db->idxfd, &statbuff) < 0)
-			err_sys("db_open: fstat error");
+        if (fstat(db->idxfd, &statbuff) < 0)
+            err_sys("db_open: fstat error");
 
-		if (statbuff.st_size == 0) {
-			/*
+        if (statbuff.st_size == 0)
+        {
+            /*
 			 * We have to build a list of (NHASH_DEF + 1) chain
 			 * ptrs with a value of 0.  The +1 is for the free
 			 * list pointer that precedes the hash table.
 			 */
-			sprintf(asciiptr, "%*d", PTR_SZ, 0);
-			hash[0] = 0;
-			for (i = 0; i < NHASH_DEF + 1; i++)
-				strcat(hash, asciiptr);
-			strcat(hash, "\n");
-			i = strlen(hash);
-			if (write(db->idxfd, hash, i) != i)
-				err_dump("db_open: index file init write error");
-		}
-		if (un_lock(db->idxfd, 0, SEEK_SET, 0) < 0)
-			err_dump("db_open: un_lock error");
-	}
-	db_rewind(db);
-	return(db);
+            sprintf(asciiptr, "%*d", PTR_SZ, 0);
+            hash[0] = 0;
+            for (i = 0; i < NHASH_DEF + 1; i++)
+                strcat(hash, asciiptr);
+            strcat(hash, "\n");
+            i = strlen(hash);
+            if (write(db->idxfd, hash, i) != i)
+                err_dump("db_open: index file init write error");
+        }
+        if (un_lock(db->idxfd, 0, SEEK_SET, 0) < 0)
+            err_dump("db_open: un_lock error");
+    }
+    db_rewind(db);
+    return (db);
 }
 
 /*
