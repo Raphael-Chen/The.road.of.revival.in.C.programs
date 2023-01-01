@@ -2476,7 +2476,61 @@ Figure 20.1 summarizes the database libraries commonly found in the four operati
 
 Figure 20.1 Support for database libraries on various platforms
 
+
+
+### 20.3 The Library
+
+The library we develop in this chapter will be similar to the ndbm library, but we’ll add the concurrency control mechanisms to allow multiple processes to update the same database at the same time. We first describe the C interface to the database library, then in the next section describe the actual implementation.
+```c
+#include "apue_db.h"
+DBHANDLE db_open(const char *pathname, int oflag, ... /* int mode */);
+      // Returns: database handle if OK, NULL on error
+
+void db_close(DBHANDLE db);
+```
+
+If db_open is successful, two files are created: pathname.idx is the index file, and pathname.dat is the data file. The oflag argument is used as the second argument to open (Section 3.3) to specify how the files are to be opened (e.g., read-only, read–write, create file if it doesn’t exist). The mode argument is used as the third argument to open (the file access permissions) if the database files are created.
+
+```c
+#include "apue_db.h"
+int db_store(DBHANDLE db, const char *key, const char *data, int flag);
+
+                // Returns: 0 if OK, nonzero on error (see following)
+```
+
+The key and data arguments are null-terminated character strings. The only restriction on these two strings is that neither can contain null bytes. They may, for example, contain newlines.
+
+
+
+Figure 20.2 Arrangement of index file and data file
+
+
+
 ### 20.4 Implementation Overview
+
 Database access libraries often use two files to store the information: **an index file and a data file**.
 
 The index file contains the actual index value (the key) and a pointer to the corresponding data record in the data file.……We mentioned in the description of db_open that we create two files: one with a suffix of .idx and one with a suffix of .dat.
+
+
+
+### 20.5 Centralized or Decentralized?
+Given multiple processes accessing the same database, we can implement the functions in two ways:
+
+1. Centralized. Have a single process that is the database manager, and have it be the only process that accesses the database. The functions contact this central process using some form of IPC.
+2. Decentralized. Have each function apply the required concurrency controls (locking) and then issue its own I/O function calls.
+
+### 20.6 Concurrency
+We purposely chose a two-file implementation (an index file and a data file) because that is a common implementation technique (it simplifies space management in the files). It requires us to handle the locking interactions of both files. But there are numerous ways to handle the locking of these two files.
+
+### 20.7 Building the Library
+The database library consists of two files: a public C header file and a C source file. We can build a static library using the commands 
+
+```shell
+$ gcc -I../include -Wall -c db.c
+$ ar rsv libapue_db.a db.o
+```
+
+### 20.8 Source Code
+
+We start by showing the apue_db.h header. This header is included by the library source code and all applications that call the library.
