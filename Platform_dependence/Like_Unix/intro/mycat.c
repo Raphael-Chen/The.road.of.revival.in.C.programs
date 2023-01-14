@@ -2,10 +2,12 @@
 
 #define BUFFSIZE 4096
 
+// Figure 1.4 Copy standard input to standard output
+
 // read and write function
 int main(void)
 {
-    int n;
+    int  n;
     char buf[BUFFSIZE];
 
     // STDIN_FILENO	   0 /* Standard input.  */
