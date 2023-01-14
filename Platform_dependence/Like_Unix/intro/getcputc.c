@@ -1,5 +1,7 @@
 #include "apue.h"
 
+// Figure 1.5 Copy standard input to standard output, using standard I/O
+
 int main(void)
 {
     int c;
