@@ -174,88 +174,92 @@ DBHANDLE db_open(const char *pathname, int oflag, ...)
 /*
  * Allocate & initialize a DB structure and its buffers.
  */
-static DB *
-_db_alloc(int namelen)
+static DB *_db_alloc(int namelen)
 {
-	DB		*db;
+    DB *db;
 
-	/*
+    /*
 	 * Use calloc, to initialize the structure to zero.
 	 */
-	if ((db = calloc(1, sizeof(DB))) == NULL)
-		err_dump("_db_alloc: calloc error for DB");
-	db->idxfd = db->datfd = -1;				/* descriptors */
+    db = calloc( 1, sizeof(DB) );
+    if ( db == NULL )
+        err_dump("_db_alloc: calloc error for DB");
+    db->idxfd = db->datfd = -1; /* descriptors */
 
-	/*
+    /*
 	 * Allocate room for the name.
 	 * +5 for ".idx" or ".dat" plus null at end.
 	 */
-	if ((db->name = malloc(namelen + 5)) == NULL)
-		err_dump("_db_alloc: malloc error for name");
+    db->name = malloc(namelen + 5);
+    if ( db->name == NULL )
+        err_dump("_db_alloc: malloc error for name");
 
-	/*
+    /*
 	 * Allocate an index buffer and a data buffer.
 	 * +2 for newline and null at end.
 	 */
-	if ((db->idxbuf = malloc(IDXLEN_MAX + 2)) == NULL)
-		err_dump("_db_alloc: malloc error for index buffer");
-	if ((db->datbuf = malloc(DATLEN_MAX + 2)) == NULL)
-		err_dump("_db_alloc: malloc error for data buffer");
-	return(db);
+    if ((db->idxbuf = malloc(IDXLEN_MAX + 2)) == NULL)
+        err_dump("_db_alloc: malloc error for index buffer");
+    if ((db->datbuf = malloc(DATLEN_MAX + 2)) == NULL)
+        err_dump("_db_alloc: malloc error for data buffer");
+
+    return (db);
 }
 
 /*
  * Relinquish access to the database.
  */
-void
-db_close(DBHANDLE h)
+void db_close(DBHANDLE h)
 {
-	_db_free((DB *)h);	/* closes fds, free buffers & struct */
+    _db_free((DB *)h); /* closes fds, free buffers & struct */
 }
 
 /*
  * Free up a DB structure, and all the malloc'ed buffers it
  * may point to.  Also close the file descriptors if still open.
  */
-static void
-_db_free(DB *db)
+static void _db_free(DB *db)
 {
-	if (db->idxfd >= 0)
-		close(db->idxfd);
-	if (db->datfd >= 0)
-		close(db->datfd);
-	if (db->idxbuf != NULL)
-		free(db->idxbuf);
-	if (db->datbuf != NULL)
-		free(db->datbuf);
-	if (db->name != NULL)
-		free(db->name);
-	free(db);
+    if (db->idxfd >= 0)
+        close(db->idxfd);
+    if (db->datfd >= 0)
+        close(db->datfd);
+    if (db->idxbuf != NULL)
+        free(db->idxbuf);
+    if (db->datbuf != NULL)
+        free(db->datbuf);
+    if (db->name != NULL)
+        free(db->name);
+
+    free(db);
 }
 
 /*
  * Fetch a record.  Return a pointer to the null-terminated data.
  */
-char *
-db_fetch(DBHANDLE h, const char *key)
+char *db_fetch(DBHANDLE h, const char *key)
 {
-	DB      *db = h;
-	char	*ptr;
+    DB   *db = h;
+    char *ptr;
 
-	if (_db_find_and_lock(db, key, 0) < 0) {
-		ptr = NULL;				/* error, record not found */
-		db->cnt_fetcherr++;
-	} else {
-		ptr = _db_readdat(db);	/* return pointer to data */
-		db->cnt_fetchok++;
-	}
+    if (_db_find_and_lock(db, key, 0) < 0)
+    {
+        ptr = NULL; /* error, record not found */
+        db->cnt_fetcherr++;
+    }
+    else
+    {
+        ptr = _db_readdat(db); /* return pointer to data */
+        db->cnt_fetchok++;
+    }
 
-	/*
+    /*
 	 * Unlock the hash chain that _db_find_and_lock locked.
 	 */
-	if (un_lock(db->idxfd, db->chainoff, SEEK_SET, 1) < 0)
-		err_dump("db_fetch: un_lock error");
-	return(ptr);
+    if (un_lock(db->idxfd, db->chainoff, SEEK_SET, 1) < 0)
+        err_dump("db_fetch: un_lock error");
+
+    return (ptr);
 }
 
 /*
