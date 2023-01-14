@@ -1,10 +1,34 @@
 # Figures in APUE
 
+## Chapter 1. UNIX System Overview
+
+### 1.2 UNIX Architecture
+In a strict sense, an operating system can be defined as the software that controls the hardware resources of the computer and provides an environment under which programs can run. Generally, we call this software the kernel, since it is relatively small and resides at the core of the environment. Figure 1.1 shows a diagram of the UNIX System architecture.
 
 
 
+### 1.4 Files and Directories
+File System
+The UNIX file system is a hierarchical arrangement of directories and files. Everything starts in the directory called root, whose name is the single character /.
+A directory is a file that contains directory entries. Logically, we can think of each directory entry as containing a filename along with a structure of information describing the attributes of the file.
 
-### Figure 4.2. IPC type macros in <sys/stat.h>
+Filename
+The names in a directory are called filenames. The only two characters that cannot appear in a filename are the slash character (/) and the null character.
+Indeed, for portability, POSIX.1 recommends restricting filenames to consist of the following characters: letters (a-z, A-Z), numbers (0-9), period (.), dash (-), and underscore ( _ ).
+
+
+
+Working Directory
+Every process has a working directory, sometimes called the current working directory.
+This is the directory from which all relative pathnames are interpreted. A process can change its working directory with the chdir function.
+
+### 1.6 Programs and Processes
+Program
+A program is an executable file residing on disk in a directory. A program is read into memory and is executed by the kernel as a result of one of the seven exec functions. We’ll cover these functions in Section 8.10.
+
+## Chapter 4. Files and Directories
+
+#### Figure 4.2. IPC type macros in <sys/stat.h>
 Macro Type of object
 S_TYPEISMQ() message queue
 S_TYPEISSEM() semaphore
@@ -12,7 +36,7 @@ S_TYPEISSHM() shared memory object
 
 
 
-### Figure 4.6. The nine file access permission bits, from <sys/stat.h>
+#### Figure 4.6. The nine file access permission bits, from <sys/stat.h>
 
 | st_mode mask | Meaning       |
 | ------------ | ------------- |
@@ -28,7 +52,7 @@ S_TYPEISSHM() shared memory object
 
 
 
-### Figure 4.10. The umask file access permission bits
+#### Figure 4.10. The umask file access permission bits
 
 | Mask bit | Meaning       |
 | -------- | ------------- |
@@ -67,7 +91,7 @@ S_TYPEISSHM() shared memory object
 
 
 
-### Figure 4.17. Treatment of symbolic links by various functions
+#### Figure 4.17. Treatment of symbolic links by various functions
 
 | Function | Does not follow symbolic link | Follows symbolic link |
 | -------- | ----------------------------- | --------------------- |
@@ -101,7 +125,7 @@ Figure 6.5. Account implementation differences
 
 Figure 6.7. System identification name limits
 
-### Figure 6.6. Similar routines for accessing system data files
+#### Figure 6.6. Similar routines for accessing system data files
 
 | Description | Data file      | Header     | Structure | Additional keyed lookup functions |
 | ----------- | -------------- | ---------- | --------- | --------------------------------- |
@@ -115,7 +139,7 @@ Figure 6.7. System identification name limits
 
 
 
-### Figure 6.8 Relationship of the various time functions
+#### Figure 6.8 Relationship of the various time functions
 
 ![6.8](../../images/figure_6.8.png)
 
@@ -149,11 +173,11 @@ Abnormal termination occurs in three ways:
 
 
 
-### Figure 7.2. How a C program is started and how it terminates
+#### Figure 7.2. How a C program is started and how it terminates
 ![7.2](../../images/figure_7.2.png)
 
 
-### Figure 7.5. Environment consisting of five C character strings
+#### Figure 7.5. Environment consisting of five C character strings
 ![7.5](../../images/figure_7.5.png)
 
 
@@ -175,7 +199,7 @@ appearing outside any function causes this variable to be stored in the uninitia
 
 - **Heap**, where dynamic memory allocation usually takes place. Historically, the heap has been located between the uninitialized data and the stack.
 
-### Figure 7.6. Typical memory arrangement
+#### Figure 7.6. Typical memory arrangement
 ![7.6](../../images/figure_7.6.png)
 
 
@@ -207,7 +231,7 @@ $ size a.out
    1199     560       8    1767     6e7 a.out
 ```
 
-### Figure 7.7. Environment variables defined in the Single UNIX Specification
+#### Figure 7.7. Environment variables defined in the Single UNIX Specification
 
 | Variable    | POSIX.1 | FreeBSD 5.2.1 | Linux 2.4.22 | Mac OS X 10.3 | Solaris 9 | Description                                         |
 | ----------- | ------- | ------------- | ------------ | ------------- | --------- | --------------------------------------------------- |
@@ -237,11 +261,11 @@ $ size a.out
 
 
 
-### Figure 7.8. Support for various environment list functions
+#### Figure 7.8. Support for various environment list functions
 
 
 
-### Figure 7.10. Stack frames after cmd_add has been called
+#### Figure 7.10. Stack frames after cmd_add has been called
 ![7.10](../../images/figure_7.10.png)
 
 
@@ -382,7 +406,7 @@ The waitpid function provides three features that aren't provided by the wait fu
 2. The waitpid function provides a nonblocking version of wait . There are times when we want to fetch a child's status, but we don't want to block.
 3. The waitpid function provides support for job control with the WUNtrACED and WCONTINUED options.
 
-### Figure 8.9. The idtype constants for waitid
+#### Figure 8.9. The idtype constants for waitid
 
 | **CONSTANT** | Description                                                  |
 | ------------ | ------------------------------------------------------------ |
@@ -393,7 +417,7 @@ The waitpid function provides three features that aren't provided by the wait fu
 
 
 
-### Figure 8.10. The options constants for waitid
+#### Figure 8.10. The options constants for waitid
 
 | Constant   | Description                                                  |
 | ---------- | ------------------------------------------------------------ |
@@ -2534,3 +2558,36 @@ $ ar rsv libapue_db.a db.o
 ### 20.8 Source Code
 
 We start by showing the apue_db.h header. This header is included by the library source code and all applications that call the library.
+
+
+
+
+
+Coarse-Grained Locking
+The simplest form of locking is to use one of the two files as a lock for the entire database and to require the caller to obtain this lock before operating on the database. We call this coarse-grained locking. For example, we can say that the process with a read lock on byte 0 of the index file has read access to the entire database. A process with a write lock on byte 0 of the index file has write access to the entire database. We can use the normal UNIX System byte-range locking semantics to allow any number of readers at one time, but only one writer at a time.
+
+
+Fine-Grained Locking
+We enhance coarse-grained locking to allow more concurrency and call this fine-grained locking.
+
+Applicati
+
+ons that want to link with libapue_db.a will also need to link with libapue.a, since we use some of our common functions in the database library.
+If, on the other hand, we want to build a dynamic shared library version of the database library, we can use the following commands:
+
+```shell
+$ gcc -I../include -Wall -fPIC -c db.c
+$ gcc -shared -Wl,-soname,libapue_db.so.1 -o libapue_db.so.1 \ -L../lib -lapue -lc db.o
+```
+
+### 20.9 Performance
+We wrote a test program to test the database library and to obtain some timing measurements of the database access patterns of typical applications. This program takes two command-line arguments: the number of children to create and the number of database records (nrec) for each child to write to the database. The program then creates an empty database (by calling db_open), forks the number of child processes, and waits for all the children to terminate. Each child performs the following steps.
+
+1. Write nrec records to the database.
+2. Read the nrec records back by key value.
+3. Perform the following loop nrec × 5 times.
+a. Read a random record.
+b. Every 37 times through the loop, delete a random record.
+c. Every 11 times through the loop, insert a new record and read the record back.
+d. Every 17 times through the loop, replace a random record with a new record. Every other one of these replacements is a record with the same size data; the alternate is a record with a longer data portion.
+4. Delete all the records that this child wrote. Every time a record is deleted, ten random records are looked up.
