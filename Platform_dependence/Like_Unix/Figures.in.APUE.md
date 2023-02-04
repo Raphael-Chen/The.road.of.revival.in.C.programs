@@ -9,22 +9,57 @@ In a strict sense, an operating system can be defined as the software that contr
 
 ### 1.4 Files and Directories
 File System
-The UNIX file system is a hierarchical arrangement of directories and files. Everything starts in the directory called root, whose name is the single character /.
-A directory is a file that contains directory entries. Logically, we can think of each directory entry as containing a filename along with a structure of information describing the attributes of the file.
+The UNIX file system is a hierarchical arrangement of directories and files. Everything starts in the directory called root, whose name is the single character /. A directory is a file that contains directory entries. Logically, we can think of each directory entry as containing a filename along with a structure of information describing the attributes of the file.
 
 Filename
 The names in a directory are called filenames. The only two characters that cannot appear in a filename are the slash character (/) and the null character.
 Indeed, for portability, POSIX.1 recommends restricting filenames to consist of the following characters: letters (a-z, A-Z), numbers (0-9), period (.), dash (-), and underscore ( _ ).
 
-
-
 Working Directory
 Every process has a working directory, sometimes called the current working directory.
 This is the directory from which all relative pathnames are interpreted. A process can change its working directory with the chdir function.
 
+### 1.5 Input and Output
+File Descriptors
+File descriptors are normally **small non-negative integers** that the kernel uses to identify the files accessed by a process. Whenever it opens an existing file or creates a new file, the kernel returns a file descriptor that we use when we want to read or write the file.
+
+
+
 ### 1.6 Programs and Processes
 Program
 A program is an executable file residing on disk in a directory. A program is read into memory and is executed by the kernel as a result of one of the seven exec functions. We’ll cover these functions in Section 8.10.
+
+### 1.7 Error Handling
+When an error occurs in one of the UNIX System functions, a negative value is often returned, and the integer errno is usually set to a value that tells why. For example, the open function returns either a non-negative file  descriptor if all is OK or −1 if an error occurs. An error from open has about 15 possible errno values, such as file doesn’t exist, permission problem, and so on. Some functions use a convention other than returning a negative value. For example, most functions that return a pointer to an object return a null pointer to indicate an error.
+
+
+The perror function produces an error message on the standard error, based on the current value of errno, and returns.
+```c
+#include <stdio.h>
+void perror(const char *msg);
+```
+
+It outputs the string pointed to by msg, followed by a colon and a space, followed by the error message corresponding to the value of errno, followed by a newline.
+
+
+
+### 1.10  Time Values
+
+
+Historically, UNIX systems have maintained two different time values:
+
+1. Calendar time. This value counts the number of seconds since the Epoch: 00:00:00 January 1, 1970, Coordinated Universal Time (UTC). (Older manuals refer to UTC as Greenwich Mean Time.) These time values are used to record the time when a file was last modified, for example.
+The primitive system data type time_t holds these time values.
+
+2. Process time. This is also called CPU time and measures the central processor resources used by a process. Process time is measured in clock ticks, which have historically been 50, 60, or 100 ticks per second.
+The primitive system data type clock_t holds these time values. (We’ll show how to obtain the number of clock ticks per second with the sysconf function in Section 2.5.4.)
+
+When we measure the execution time of a process, as in Section 3.9, we’ll see that the UNIX System maintains three values for a process:
+- Clock time
+- User CPU time
+- System CPU time
+
+
 
 ## Chapter 4. Files and Directories
 
