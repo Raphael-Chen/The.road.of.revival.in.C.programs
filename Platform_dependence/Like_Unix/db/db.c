@@ -266,63 +266,66 @@ char *db_fetch(DBHANDLE h, const char *key)
  * Find the specified record.  Called by db_delete, db_fetch,
  * and db_store.  Returns with the hash chain locked.
  */
-static int
-_db_find_and_lock(DB *db, const char *key, int writelock)
+static int _db_find_and_lock(DB *db, const char *key, int writelock)
 {
-	off_t	offset, nextoffset;
+    off_t offset, nextoffset;
 
-	/*
+    /*
 	 * Calculate the hash value for this key, then calculate the
 	 * byte offset of corresponding chain ptr in hash table.
 	 * This is where our search starts.  First we calculate the
 	 * offset in the hash table for this key.
 	 */
-	db->chainoff = (_db_hash(db, key) * PTR_SZ) + db->hashoff;
-	db->ptroff = db->chainoff;
+    db->chainoff = (_db_hash(db, key) * PTR_SZ) + db->hashoff;
+    db->ptroff = db->chainoff;
 
-	/*
+    /*
 	 * We lock the hash chain here.  The caller must unlock it
 	 * when done.  Note we lock and unlock only the first byte.
 	 */
-	if (writelock) {
-		if (writew_lock(db->idxfd, db->chainoff, SEEK_SET, 1) < 0)
-			err_dump("_db_find_and_lock: writew_lock error");
-	} else {
-		if (readw_lock(db->idxfd, db->chainoff, SEEK_SET, 1) < 0)
-			err_dump("_db_find_and_lock: readw_lock error");
-	}
+    if (writelock)
+    {
+        if (writew_lock(db->idxfd, db->chainoff, SEEK_SET, 1) < 0)
+            err_dump("_db_find_and_lock: writew_lock error");
+    }
+    else
+    {
+        if (readw_lock(db->idxfd, db->chainoff, SEEK_SET, 1) < 0)
+            err_dump("_db_find_and_lock: readw_lock error");
+    }
 
-	/*
+    /*
 	 * Get the offset in the index file of first record
 	 * on the hash chain (can be 0).
 	 */
-	offset = _db_readptr(db, db->ptroff);
-	while (offset != 0) {
-		nextoffset = _db_readidx(db, offset);
-		if (strcmp(db->idxbuf, key) == 0)
-			break;       /* found a match */
-		db->ptroff = offset; /* offset of this (unequal) record */
-		offset = nextoffset; /* next one to compare */
-	}
-	/*
+    offset = _db_readptr(db, db->ptroff);
+    while (offset != 0)
+    {
+        nextoffset = _db_readidx(db, offset);
+        if (strcmp(db->idxbuf, key) == 0)
+            break;           /* found a match */
+        db->ptroff = offset; /* offset of this (unequal) record */
+        offset = nextoffset; /* next one to compare */
+    }
+    /*
 	 * offset == 0 on error (record not found).
 	 */
-	return(offset == 0 ? -1 : 0);
+    return (offset == 0 ? -1 : 0);
 }
 
 /*
  * Calculate the hash value for a key.
  */
-static DBHASH
-_db_hash(DB *db, const char *key)
+static DBHASH _db_hash(DB *db, const char *key)
 {
-	DBHASH		hval = 0;
-	char		c;
-	int			i;
+    DBHASH hval = 0;
+    char   c;
+    int    i;
 
-	for (i = 1; (c = *key++) != 0; i++)
-		hval += c * i;		/* ascii char times its 1-based index */
-	return(hval % db->nhash);
+    for (i = 1; (c = *key++) != 0; i++)
+        hval += c * i; /* ascii char times its 1-based index */
+        
+    return (hval % db->nhash);
 }
 
 /*
@@ -330,17 +333,17 @@ _db_hash(DB *db, const char *key)
  * the free list pointer, a hash table chain ptr, or an
  * index record chain ptr.
  */
-static off_t
-_db_readptr(DB *db, off_t offset)
+static off_t _db_readptr(DB *db, off_t offset)
 {
-	char	asciiptr[PTR_SZ + 1];
+    char asciiptr[PTR_SZ + 1];
 
-	if (lseek(db->idxfd, offset, SEEK_SET) == -1)
-		err_dump("_db_readptr: lseek error to ptr field");
-	if (read(db->idxfd, asciiptr, PTR_SZ) != PTR_SZ)
-		err_dump("_db_readptr: read error of ptr field");
-	asciiptr[PTR_SZ] = 0;		/* null terminate */
-	return(atol(asciiptr));
+    if (lseek(db->idxfd, offset, SEEK_SET) == -1)
+        err_dump("_db_readptr: lseek error to ptr field");
+    if (read(db->idxfd, asciiptr, PTR_SZ) != PTR_SZ)
+        err_dump("_db_readptr: read error of ptr field");
+    asciiptr[PTR_SZ] = 0; /* null terminate */
+
+    return (atol(asciiptr));
 }
 
 /*
@@ -350,98 +353,106 @@ _db_readptr(DB *db, off_t offset)
  * set db->datoff and db->datlen to the offset and length of the
  * corresponding data record in the data file.
  */
-static off_t
-_db_readidx(DB *db, off_t offset)
+static off_t _db_readidx(DB *db, off_t offset)
 {
-	ssize_t				i;
-	char			*ptr1, *ptr2;
-	char			asciiptr[PTR_SZ + 1], asciilen[IDXLEN_SZ + 1];
-	struct iovec	iov[2];
+    ssize_t i;
+    char *ptr1, *ptr2;
+    char asciiptr[PTR_SZ + 1], asciilen[IDXLEN_SZ + 1];
+    struct iovec iov[2];
 
-	/*
+    /*
 	 * Position index file and record the offset.  db_nextrec
 	 * calls us with offset==0, meaning read from current offset.
 	 * We still need to call lseek to record the current offset.
 	 */
-	if ((db->idxoff = lseek(db->idxfd, offset,
-	  offset == 0 ? SEEK_CUR : SEEK_SET)) == -1)
-		err_dump("_db_readidx: lseek error");
+    if ((db->idxoff = lseek(db->idxfd, offset,
+                            offset == 0 ? SEEK_CUR : SEEK_SET)) == -1)  //? 似乎永远不为真？
+        err_dump("_db_readidx: lseek error");
 
-	/*
+    /*
 	 * Read the ascii chain ptr and the ascii length at
 	 * the front of the index record.  This tells us the
 	 * remaining size of the index record.
 	 */
-	iov[0].iov_base = asciiptr;
-	iov[0].iov_len  = PTR_SZ;
-	iov[1].iov_base = asciilen;
-	iov[1].iov_len  = IDXLEN_SZ;
-	if ((i = readv(db->idxfd, &iov[0], 2)) != PTR_SZ + IDXLEN_SZ) {
-		if (i == 0 && offset == 0)
-			return(-1);		/* EOF for db_nextrec */
-		err_dump("_db_readidx: readv error of index record");
-	}
+    iov[0].iov_base = asciiptr;
+    iov[0].iov_len = PTR_SZ;
+    iov[1].iov_base = asciilen;
+    iov[1].iov_len = IDXLEN_SZ;
+    i = readv(db->idxfd, &iov[0], 2);
+    if ( i != PTR_SZ + IDXLEN_SZ)
+    {
+        if (i == 0 && offset == 0)
+            return (-1); /* EOF for db_nextrec */
+        err_dump("_db_readidx: readv error of index record");
+    }
 
-	/*
+    /*
 	 * This is our return value; always >= 0.
 	 */
-	asciiptr[PTR_SZ] = 0;        /* null terminate */
-	db->ptrval = atol(asciiptr); /* offset of next key in chain */
+    asciiptr[PTR_SZ] = 0;        /* null terminate */
+    db->ptrval = atol(asciiptr); /* offset of next key in chain */
 
-	asciilen[IDXLEN_SZ] = 0;     /* null terminate */
-	if ((db->idxlen = atoi(asciilen)) < IDXLEN_MIN ||
-	  db->idxlen > IDXLEN_MAX)
-		err_dump("_db_readidx: invalid length");
+    asciilen[IDXLEN_SZ] = 0; /* null terminate */
 
-	/*
+    db->idxlen = atoi(asciilen);
+    if ( db->idxlen < IDXLEN_MIN || db->idxlen > IDXLEN_MAX )
+        err_dump("_db_readidx: invalid length");
+
+    /*
 	 * Now read the actual index record.  We read it into the key
 	 * buffer that we malloced when we opened the database.
 	 */
-	if ((i = read(db->idxfd, db->idxbuf, db->idxlen)) != db->idxlen)
-		err_dump("_db_readidx: read error of index record");
-	if (db->idxbuf[db->idxlen-1] != NEWLINE)	/* sanity check */
-		err_dump("_db_readidx: missing newline");
-	db->idxbuf[db->idxlen-1] = 0;	 /* replace newline with null */
+    i = read(db->idxfd, db->idxbuf, db->idxlen);
+    if ( i != db->idxlen )
+        err_dump("_db_readidx: read error of index record");
 
-	/*
+    if (db->idxbuf[db->idxlen - 1] != NEWLINE) /* sanity check */
+        err_dump("_db_readidx: missing newline");
+    db->idxbuf[db->idxlen - 1] = 0; /* replace newline with null */
+
+    /*
 	 * Find the separators in the index record.
 	 */
-	if ((ptr1 = strchr(db->idxbuf, SEP)) == NULL)
-		err_dump("_db_readidx: missing first separator");
-	*ptr1++ = 0;				/* replace SEP with null */
+    ptr1 = strchr(db->idxbuf, SEP);
+    if ( ptr1 == NULL )
+        err_dump("_db_readidx: missing first separator");
+    *ptr1++ = 0; /* replace SEP with null */
 
-	if ((ptr2 = strchr(ptr1, SEP)) == NULL)
-		err_dump("_db_readidx: missing second separator");
-	*ptr2++ = 0;				/* replace SEP with null */
+    ptr2 = strchr(ptr1, SEP);
+    if ( ptr2 == NULL )
+        err_dump("_db_readidx: missing second separator");
+    *ptr2++ = 0; /* replace SEP with null */
 
-	if (strchr(ptr2, SEP) != NULL)
-		err_dump("_db_readidx: too many separators");
+    if (strchr(ptr2, SEP) != NULL)
+        err_dump("_db_readidx: too many separators");
 
-	/*
+    /*
 	 * Get the starting offset and length of the data record.
 	 */
-	if ((db->datoff = atol(ptr1)) < 0)
-		err_dump("_db_readidx: starting offset < 0");
-	if ((db->datlen = atol(ptr2)) <= 0 || db->datlen > DATLEN_MAX)
-		err_dump("_db_readidx: invalid length");
-	return(db->ptrval);		/* return offset of next key in chain */
+    if ((db->datoff = atol(ptr1)) < 0)
+        err_dump("_db_readidx: starting offset < 0");
+    if ((db->datlen = atol(ptr2)) <= 0 || db->datlen > DATLEN_MAX)
+        err_dump("_db_readidx: invalid length");
+
+    return (db->ptrval); /* return offset of next key in chain */
 }
 
 /*
  * Read the current data record into the data buffer.
  * Return a pointer to the null-terminated data buffer.
  */
-static char *
-_db_readdat(DB *db)
+static char * _db_readdat(DB *db)
 {
-	if (lseek(db->datfd, db->datoff, SEEK_SET) == -1)
-		err_dump("_db_readdat: lseek error");
-	if (read(db->datfd, db->datbuf, db->datlen) != db->datlen)
-		err_dump("_db_readdat: read error");
-	if (db->datbuf[db->datlen-1] != NEWLINE)	/* sanity check */
-		err_dump("_db_readdat: missing newline");
-	db->datbuf[db->datlen-1] = 0; /* replace newline with null */
-	return(db->datbuf);		/* return pointer to data record */
+    if (lseek(db->datfd, db->datoff, SEEK_SET) == -1)
+        err_dump("_db_readdat: lseek error");
+    if (read(db->datfd, db->datbuf, db->datlen) != db->datlen)
+        err_dump("_db_readdat: read error");
+    if (db->datbuf[db->datlen - 1] != NEWLINE) /* sanity check */
+        err_dump("_db_readdat: missing newline");
+
+    db->datbuf[db->datlen - 1] = 0; /* replace newline with null */
+
+    return (db->datbuf);            /* return pointer to data record */
 }
 
 /*
