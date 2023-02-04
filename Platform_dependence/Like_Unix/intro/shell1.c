@@ -1,17 +1,19 @@
 #include "apue.h"
 #include <sys/wait.h>
 
+// Figure 1.7 Read commands from standard input and execute them
+
 int main(void)
 {
-    char buf[MAXLINE]; /* from apue.h */
+    char  buf[MAXLINE]; /* from apue.h */
     pid_t pid;
-    int status;
+    int   status;
 
-    printf("%% "); /* print prompt (printf requires %% to print %) */
+    printf("%% ");                      /* print prompt (printf requires %% to print %) */
     while (fgets(buf, MAXLINE, stdin) != NULL)
     {
         if (buf[strlen(buf) - 1] == '\n')
-            buf[strlen(buf) - 1] = 0; /* replace newline with null */
+            buf[strlen(buf) - 1] = 0;   /* replace newline with null */
 
         if ((pid = fork()) < 0)
         {
