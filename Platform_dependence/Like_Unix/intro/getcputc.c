@@ -13,5 +13,5 @@ int main(void)
     if (ferror(stdin))
         err_sys("input error");
 
-    exit(0);
+    return 0;
 }
