@@ -458,22 +458,28 @@ static char * _db_readdat(DB *db)
 /*
  * Delete the specified record.
  */
-int
-db_delete(DBHANDLE h, const char *key)
+int db_delete(DBHANDLE h, const char *key)
 {
-	DB		*db = h;
-	int		rc = 0;			/* assume record will be found */
+    DB *db = h;
+    int rc = 0; /* assume record will be found */
+    int ret;
 
-	if (_db_find_and_lock(db, key, 1) == 0) {
-		_db_dodelete(db);
-		db->cnt_delok++;
-	} else {
-		rc = -1;			/* not found */
-		db->cnt_delerr++;
-	}
-	if (un_lock(db->idxfd, db->chainoff, SEEK_SET, 1) < 0)
-		err_dump("db_delete: un_lock error");
-	return(rc);
+    ret = _db_find_and_lock(db, key, 1);
+    if ( 0 == ret )
+    {
+        _db_dodelete(db);
+        db->cnt_delok++;
+    }
+    else  // ret != 0
+    {
+        rc = -1; /* not found */
+        db->cnt_delerr++;
+    }
+    ret = un_lock(db->idxfd, db->chainoff, SEEK_SET, 1);
+    if ( ret < 0 )
+        err_dump("db_delete: un_lock error");
+
+    return (rc);
 }
 
 /*
@@ -781,36 +787,39 @@ doreturn: /* unlock hash chain locked by _db_find_and_lock */
  * Try to find a free index record and accompanying data record
  * of the correct sizes.  We're only called by db_store.
  */
-static int
-_db_findfree(DB *db, int keylen, int datlen)
+static int _db_findfree(DB *db, int keylen, int datlen)
 {
-	int		rc;
-	off_t	offset, nextoffset, saveoffset;
+    int   rc;
+    off_t offset, nextoffset, saveoffset;
 
-	/*
+    /*
 	 * Lock the free list.
 	 */
-	if (writew_lock(db->idxfd, FREE_OFF, SEEK_SET, 1) < 0)
-		err_dump("_db_findfree: writew_lock error");
+    if (writew_lock(db->idxfd, FREE_OFF, SEEK_SET, 1) < 0)
+        err_dump("_db_findfree: writew_lock error");
 
-	/*
+    /*
 	 * Read the free list pointer.
 	 */
-	saveoffset = FREE_OFF;
-	offset = _db_readptr(db, saveoffset);
+    saveoffset = FREE_OFF;
+    offset = _db_readptr(db, saveoffset);
 
-	while (offset != 0) {
-		nextoffset = _db_readidx(db, offset);
-		if (strlen(db->idxbuf) == keylen && db->datlen == datlen)
-			break;		/* found a match */
-		saveoffset = offset;
-		offset = nextoffset;
-	}
+    while (offset != 0)
+    {
+        nextoffset = _db_readidx(db, offset);
+        if (strlen(db->idxbuf) == keylen && db->datlen == datlen)
+            break;           /* found a match */
+        saveoffset = offset;
+        offset = nextoffset;
+    }
 
-	if (offset == 0) {
-		rc = -1;	/* no match found */
-	} else {
-		/*
+    if (offset == 0)
+    {
+        rc = -1;            /* no match found */
+    }
+    else
+    {
+        /*
 		 * Found a free record with matching sizes.
 		 * The index record was read in by _db_readidx above,
 		 * which sets db->ptrval.  Also, saveoffset points to
@@ -818,22 +827,23 @@ _db_findfree(DB *db, int keylen, int datlen)
 		 * the free list.  We set this chain ptr to db->ptrval,
 		 * which removes the empty record from the free list.
 		 */
-		_db_writeptr(db, saveoffset, db->ptrval);
-		rc = 0;
+        _db_writeptr(db, saveoffset, db->ptrval);
+        rc = 0;
 
-		/*
+        /*
 		 * Notice also that _db_readidx set both db->idxoff
 		 * and db->datoff.  This is used by the caller, db_store,
 		 * to write the new index record and data record.
 		 */
-	}
+    }
 
-	/*
+    /*
 	 * Unlock the free list.
 	 */
-	if (un_lock(db->idxfd, FREE_OFF, SEEK_SET, 1) < 0)
-		err_dump("_db_findfree: un_lock error");
-	return(rc);
+    if (un_lock(db->idxfd, FREE_OFF, SEEK_SET, 1) < 0)
+        err_dump("_db_findfree: un_lock error");
+
+    return (rc);
 }
 
 /*
@@ -841,21 +851,21 @@ _db_findfree(DB *db, int keylen, int datlen)
  * Automatically called by db_open.
  * Must be called before first db_nextrec.
  */
-void
-db_rewind(DBHANDLE h)
+void db_rewind(DBHANDLE h)
 {
-	DB		*db = h;
-	off_t	offset;
+    DB   *db = h;
+    off_t offset;
 
-	offset = (db->nhash + 1) * PTR_SZ;	/* +1 for free list ptr */
+    offset = (db->nhash + 1) * PTR_SZ; /* +1 for free list ptr */
 
-	/*
+    /*
 	 * We're just setting the file offset for this process
 	 * to the start of the index records; no need to lock.
 	 * +1 below for newline at end of hash table.
 	 */
-	if ((db->idxoff = lseek(db->idxfd, offset+1, SEEK_SET)) == -1)
-		err_dump("db_rewind: lseek error");
+    db->idxoff = lseek(db->idxfd, offset + 1, SEEK_SET);
+    if ( db->idxoff == -1)
+        err_dump("db_rewind: lseek error");
 }
 
 /*
@@ -864,44 +874,45 @@ db_rewind(DBHANDLE h)
  * records.  db_rewind must be called before this function is
  * called the first time.
  */
-char *
-db_nextrec(DBHANDLE h, char *key)
+char *db_nextrec(DBHANDLE h, char *key)
 {
-	DB		*db = h;
-	char	c;
-	char	*ptr;
+    DB    *db = h;
+    char  c;
+    char  *ptr;
 
-	/*
+    /*
 	 * We read lock the free list so that we don't read
 	 * a record in the middle of its being deleted.
 	 */
-	if (readw_lock(db->idxfd, FREE_OFF, SEEK_SET, 1) < 0)
-		err_dump("db_nextrec: readw_lock error");
+    if (readw_lock(db->idxfd, FREE_OFF, SEEK_SET, 1) < 0)
+        err_dump("db_nextrec: readw_lock error");
 
-	do {
-		/*
+    do
+    {
+        /*
 		 * Read next sequential index record.
 		 */
-		if (_db_readidx(db, 0) < 0) {
-			ptr = NULL;		/* end of index file, EOF */
-			goto doreturn;
-		}
+        if (_db_readidx(db, 0) < 0)
+        {
+            ptr = NULL; /* end of index file, EOF */
+            goto doreturn;
+        }
 
-		/*
+        /*
 		 * Check if key is all blank (empty record).
 		 */
-		ptr = db->idxbuf;
-		while ((c = *ptr++) != 0  &&  c == SPACE)
-			;	/* skip until null byte or nonblank */
-	} while (c == 0);	/* loop until a nonblank key is found */
+        ptr = db->idxbuf;
+        while ((c = *ptr++) != 0 && c == SPACE)
+            ;         /* skip until null byte or nonblank */
+    } while (c == 0); /* loop until a nonblank key is found */
 
-	if (key != NULL)
-		strcpy(key, db->idxbuf);	/* return key */
-	ptr = _db_readdat(db);	/* return pointer to data buffer */
-	db->cnt_nextrec++;
+    if (key != NULL)
+        strcpy(key, db->idxbuf); /* return key */
+    ptr = _db_readdat(db);       /* return pointer to data buffer */
+    db->cnt_nextrec++;
 
 doreturn:
-	if (un_lock(db->idxfd, FREE_OFF, SEEK_SET, 1) < 0)
-		err_dump("db_nextrec: un_lock error");
-	return(ptr);
+    if (un_lock(db->idxfd, FREE_OFF, SEEK_SET, 1) < 0)
+        err_dump("db_nextrec: un_lock error");
+    return (ptr);
 }
