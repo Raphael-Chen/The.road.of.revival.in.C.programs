@@ -29,6 +29,19 @@ File descriptors are normally **small non-negative integers** that the kernel us
 Program
 A program is an executable file residing on disk in a directory. A program is read into memory and is executed by the kernel as a result of one of the seven exec functions. We’ll cover these functions in Section 8.10.
 
+Threads and Thread IDs
+Usually, a process has only one thread of control — one set of machine instructions executing at a time. Some problems are easier to solve when more than one thread of control can operate on different parts of the problem. Additionally, multiple threads of control can exploit the parallelism possible on multiprocessor systems.
+
+All threads within a process share the same address space, file descriptors, stacks, and process-related attributes. Each thread executes on its own stack, although any thread can access the stacks of other threads in the same process. Because they can access the same memory, the threads need to synchronize access to shared data among themselves to avoid inconsistencies.
+
+
+Processes and Process ID
+An executing instance of a program is called a process, a term used on almost every page of this text. Some operating systems use the term task to refer to a program that is being executed.
+The UNIX System guarantees that every process has a unique numeric identifier called the process ID. The process ID is always a non-negative integer.
+
+
+
+
 ### 1.7 Error Handling
 When an error occurs in one of the UNIX System functions, a negative value is often returned, and the integer errno is usually set to a value that tells why. For example, the open function returns either a non-negative file  descriptor if all is OK or −1 if an error occurs. An error from open has about 15 possible errno values, such as file doesn’t exist, permission problem, and so on. Some functions use a convention other than returning a negative value. For example, most functions that return a pointer to an object return a null pointer to indicate an error.
 
@@ -43,6 +56,15 @@ It outputs the string pointed to by msg, followed by a colon and a space, follow
 
 
 
+### 1.9 Signals
+Signals are a technique used to notify a process that some condition has occurred. For example, if a process divides by zero, the signal whose name is SIGFPE (floating-point exception) is sent to the process. **The process has three choices for dealing with the signal**.
+
+1. Ignore the signal. This option isn’t recommended for signals that denote a hardware exception, such as dividing by zero or referencing memory outside the address space of the process, as the results are undefined.
+2. Let the default action occur. For a divide-by-zero condition, the default is to terminate the process.
+3. Provide a function that is called when the signal occurs (this is called ‘‘catching’’ the signal). By providing a function of our own, we’ll know when the signal occurs and we can handle it as we wish.
+
+Many conditions generate signals. Two terminal keys, called the interrupt key—often the DELETE key or Control-C — and the quit key—often Control-backslash — are used to interrupt the currently running process. Another way to generate a signal is by calling the kill function. We can call this function from a process to send a signal to another process. Naturally, there are limitations: we have to be the owner of the other process (or the superuser) to be able to send it a signal.
+
 ### 1.10  Time Values
 
 
@@ -51,7 +73,7 @@ Historically, UNIX systems have maintained two different time values:
 1. Calendar time. This value counts the number of seconds since the Epoch: 00:00:00 January 1, 1970, Coordinated Universal Time (UTC). (Older manuals refer to UTC as Greenwich Mean Time.) These time values are used to record the time when a file was last modified, for example.
 The primitive system data type time_t holds these time values.
 
-2. Process time. This is also called CPU time and measures the central processor resources used by a process. Process time is measured in clock ticks, which have historically been 50, 60, or 100 ticks per second.
+2. Process time. This is also called CPU time and measures the central processor resources used by a process. **Process time is measured in clock ticks, which have historically been 50, 60, or 100 ticks per second.**
 The primitive system data type clock_t holds these time values. (We’ll show how to obtain the number of clock ticks per second with the sysconf function in Section 2.5.4.)
 
 When we measure the execution time of a process, as in Section 3.9, we’ll see that the UNIX System maintains three values for a process:
