@@ -81,6 +81,17 @@ When we measure the execution time of a process, as in Section 3.9, we’ll see 
 - User CPU time
 - System CPU time
 
+The clock time, sometimes called *wall clock time*, is the amount of time the process takes to run, and its value depends on the number of other processes being run on the system.
+
+The user CPU time is the CPU time attributed to user instructions. The system CPU time is the CPU time attributed to the kernel when it executes on behalf of the process.
+
+### 1.11 System Calls and Library Functions
+All operating systems provide service points through which programs request services from the kernel. All implementations of the UNIX System provide a well-defined, limited number of entry points directly into the kernel called system calls (recall Figure 1.1). Version 7 of the Research UNIX System provided about 50 system calls, 4.4BSD provided about 110, and SVR4 had around 120. The exact number of system calls varies depending on the operating system version. More recent systems have seen incredible growth in the number of supported system calls. Linux 3.2.0 has 380 system calls and FreeBSD 8.0 has over 450.
+
+
+
+
+
 
 
 ## Chapter 4. Files and Directories
@@ -2648,3 +2659,26 @@ b. Every 37 times through the loop, delete a random record.
 c. Every 11 times through the loop, insert a new record and read the record back.
 d. Every 17 times through the loop, replace a random record with a new record. Every other one of these replacements is a record with the same size data; the alternate is a record with a longer data portion.
 4. Delete all the records that this child wrote. Every time a record is deleted, ten random records are looked up.
+
+### 20.10 Summary
+This chapter has taken a long look at the design and implementation of a database library. Although we’ve kept the library small and simple for presentation purposes, it contains the record locking required to allow concurrent access by multiple processes.
+We’ve also looked at the performance of this library with various numbers of processes using no locking, advisory locking (fine-grained and coarse-grained), and mandatory locking. With a single process, we saw that advisory locking adds between 29% and 59% to the clock time over no locking and that mandatory locking adds about another 15% over advisory locking.
+
+
+
+## 21 Communica ting with a Network Printer
+
+### 21.1 Introduction
+We now develop a program that can communicate with a network printer. These printers are connected to multiple computers via Ethernet and often support PostScript files as well as plain text files. Applications generally use the Internet Printing Protocol (IPP) to communicate with these printers, although some support alternative communication protocols.
+
+
+We are about to describe two programs: a print spooler daemon that sends jobs to a printer and a command to submit print jobs to the spooler daemon.
+
+
+### 21.2 The Internet Printing Protocol
+IPP specifies the communication rules for building network-based printing systems. By embedding an IPP server inside a printer with an Ethernet card, the printer can service requests from many computer systems. These computer systems need not be located on the same physical network, however. IPP is built on top of standard Internet protocols, so any computer that can create a TCP/IP connection to the printer can submit a print job.
+Figure 21.1 Primary IPP documents
+Figure 21.2 Structure of an IPP message
+
+### 21.3 The Hyper text Transfer Protocol
+Version 1.1 of HTTP is specified in RFC 2616. HTTP is also a request–response protocol. A request message contains a start line, followed by header lines, a blank line, and an optional entity body. The entity body contains the IPP header and data in this case.
