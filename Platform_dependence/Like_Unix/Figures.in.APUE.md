@@ -2634,13 +2634,10 @@ We start by showing the apue_db.h header. This header is included by the library
 Coarse-Grained Locking
 The simplest form of locking is to use one of the two files as a lock for the entire database and to require the caller to obtain this lock before operating on the database. We call this coarse-grained locking. For example, we can say that the process with a read lock on byte 0 of the index file has read access to the entire database. A process with a write lock on byte 0 of the index file has write access to the entire database. We can use the normal UNIX System byte-range locking semantics to allow any number of readers at one time, but only one writer at a time.
 
-
 Fine-Grained Locking
 We enhance coarse-grained locking to allow more concurrency and call this fine-grained locking.
 
-Applicati
-
-ons that want to link with libapue_db.a will also need to link with libapue.a, since we use some of our common functions in the database library.
+Applications that want to link with libapue_db.a will also need to link with libapue.a, since we use some of our common functions in the database library.
 If, on the other hand, we want to build a dynamic shared library version of the database library, we can use the following commands:
 
 ```shell
@@ -2666,7 +2663,7 @@ We’ve also looked at the performance of this library with various numbers of p
 
 
 
-## 21 Communica ting with a Network Printer
+## 21 Communicating with a Network Printer
 
 ### 21.1 Introduction
 We now develop a program that can communicate with a network printer. These printers are connected to multiple computers via Ethernet and often support PostScript files as well as plain text files. Applications generally use the Internet Printing Protocol (IPP) to communicate with these printers, although some support alternative communication protocols.
@@ -2682,3 +2679,15 @@ Figure 21.2 Structure of an IPP message
 
 ### 21.3 The Hyper text Transfer Protocol
 Version 1.1 of HTTP is specified in RFC 2616. HTTP is also a request–response protocol. A request message contains a start line, followed by header lines, a blank line, and an optional entity body. The entity body contains the IPP header and data in this case.
+
+HTTP headers are ASCII, with each line terminated by a carriage return (\r) and a line feed (\n). The start line consists of a method that indicates which operation the client is requesting, a Uniform Resource Locator (URL) that describes the server and protocol, and a string indicating the HTTP version. The only method used by IPP is POST, which is used to send data to a server.
+
+The header lines specify attributes, such as the format and length of the entity body. A header line consists of an attribute name followed by a colon, optional white space, and the attribute value, and is terminated by a carriage return and a line feed. For example, to specify that the entity body contains an IPP message, we include the header line
+```
+Content-Type: application/ipp
+```
+
+### 21.4 Printer Spooling
+
+The programs that we develop in this chapter form the basis of a simple printer spooler. A simple user command sends a file to the printer spooler; the spooler saves it to disk, queues the request, and ultimately sends the file to the printer.
+
