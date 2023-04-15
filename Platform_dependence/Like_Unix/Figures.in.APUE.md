@@ -88,11 +88,12 @@ The user CPU time is the CPU time attributed to user instructions. The system CP
 ### 1.11 System Calls and Library Functions
 All operating systems provide service points through which programs request services from the kernel. All implementations of the UNIX System provide a well-defined, limited number of entry points directly into the kernel called system calls (recall Figure 1.1). Version 7 of the Research UNIX System provided about 50 system calls, 4.4BSD provided about 110, and SVR4 had around 120. The exact number of system calls varies depending on the operating system version. More recent systems have seen incredible growth in the number of supported system calls. Linux 3.2.0 has 380 system calls and FreeBSD 8.0 has over 450.
 
+### 1.12 Summary
 
+This chapter has provided a short tour of the UNIX System. We’ve described some of the fundamental terms that we’ll encounter over and over again. We’ve seen numerous small examples of UNIX programs to give us a feel for what the remainder of the text talks about.
+The next chapter is about standardization of the UNIX System and the effect of work in this area on current systems. Standards, particularly the ISO C standard and the POSIX.1 standard, will affect the rest of the text.
 
-
-
-
+​	
 
 ## Chapter 4. Files and Directories
 
@@ -2677,6 +2678,8 @@ IPP specifies the communication rules for building network-based printing system
 Figure 21.1 Primary IPP documents
 Figure 21.2 Structure of an IPP message
 
+IPP is a request–response protocol. A client sends a request message to a server, and the server answers with a response message. The IPP header contains a field that indicates the requested operation. Operations are defined to submit print jobs, cancel print jobs, get job attributes, get printer attributes, pause and restart the printer, place a job on hold, and release a held job.
+
 ### 21.3 The Hyper text Transfer Protocol
 Version 1.1 of HTTP is specified in RFC 2616. HTTP is also a request–response protocol. A request message contains a start line, followed by header lines, a blank line, and an optional entity body. The entity body contains the IPP header and data in this case.
 
@@ -2690,4 +2693,18 @@ Content-Type: application/ipp
 ### 21.4 Printer Spooling
 
 The programs that we develop in this chapter form the basis of a simple printer spooler. A simple user command sends a file to the printer spooler; the spooler saves it to disk, queues the request, and ultimately sends the file to the printer.
+
+
+
+### 21.5 Source Code
+
+The source code for this chapter comprises five files, not including **some of the common library routines we’ve used in earlier chapters**:
+
+- ipp.h  Header file containing IPP definitions
+print.h Header containing common constants, data structure      definitions, and utility routine declarations
+- util.c Utility routines used by the two programs
+- print.c The C source file for the command used to print a file
+- printd.c The C source file for the printer spooling daemon
+
+We will study each file in the order listed.
 
