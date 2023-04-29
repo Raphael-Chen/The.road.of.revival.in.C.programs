@@ -2,6 +2,8 @@
 #include <errno.h>
 #include <limits.h>
 
+// Figure 2.16 Dynamically allocate space for a pathname
+
 #ifdef PATH_MAX
 static long pathmax = PATH_MAX;
 #else
@@ -28,7 +30,8 @@ char *path_alloc(size_t *sizep) /* also return allocated size, if nonnull */
     if (pathmax == 0)
     { /* first time through */
         errno = 0;
-        if ((pathmax = pathconf("/", _PC_PATH_MAX)) < 0)
+        pathmax = pathconf("/", _PC_PATH_MAX);
+        if ( pathmax < 0)
         {
             if (errno == 0)
                 pathmax = PATH_MAX_GUESS; /* it's indeterminate */
@@ -50,7 +53,8 @@ char *path_alloc(size_t *sizep) /* also return allocated size, if nonnull */
     else
         size = pathmax;
 
-    if ((ptr = malloc(size)) == NULL)
+    ptr = malloc(size);
+    if ( ptr == NULL)
         err_sys("malloc error for pathname");
 
     if (sizep != NULL)
