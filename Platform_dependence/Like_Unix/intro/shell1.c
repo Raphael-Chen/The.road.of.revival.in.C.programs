@@ -31,5 +31,6 @@ int main(void)
             err_sys("waitpid error");
         printf("%% ");
     }
-    exit(0);
+
+    return 0;
 }

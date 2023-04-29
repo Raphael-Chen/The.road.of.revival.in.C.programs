@@ -20,7 +20,8 @@ int main(void)
         if (buf[strlen(buf) - 1] == '\n')
             buf[strlen(buf) - 1] = 0; /* replace newline with null */
 
-        if ((pid = fork()) < 0)
+        pid = fork();
+        if ( pid < 0 )
         {
             err_sys("fork error");
         }
@@ -32,12 +33,13 @@ int main(void)
         }
 
         /* parent */
-        if ((pid = waitpid(pid, &status, 0)) < 0)
+        pid = waitpid(pid, &status, 0);
+        if ( pid < 0 )
             err_sys("waitpid error");
         printf("%% ");
     }
     
-    exit(0);
+    return 0;
 }
 
 void sig_int(int signo)
