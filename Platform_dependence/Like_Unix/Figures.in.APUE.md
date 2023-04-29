@@ -95,6 +95,34 @@ The next chapter is about standardization of the UNIX System and the effect of w
 
 ​	
 
+## Chapter 2 UNIX Standardization and Implementations
+
+### 2.1 Introduction
+
+Much work has gone into standardizing the UNIX programming environment and the C programming language. Although applications have always been quite portable across different versions of the UNIX operating system, the proliferation of versions and differences during the 1980s led many large users, such as the U.S. government, to call for standardization.
+
+In this chapter we first look at the various standardization efforts that have been under way over the past two and a half decades. We then discuss the effects of these UNIX programming standards on the operating system implementations that are described in this book. An important part of all the standardization efforts is the specification of various limits that each implementation must define, so we look at these limits and the various ways to determine their values.
+
+### 2.2 UNIX Standardization
+#### 2.2.1 ISO C
+In late 1989, ANSI Standard X3.159-1989 for the C programming language was approved. This standard was also adopted as International Standard ISO/IEC 9899:1990.
+
+#### 2.2.2 IEEE POSIX
+POSIX is a family of standards initially developed by the IEEE (Institute of Electrical and Electronics Engineers). POSIX stands for Portable Operating System Interface. It originally referred only to the IEEE Standard 1003.1-1988 — the operating system interface — but was later extended to include many of the standards and draft standards with the 1003 designation, including the shell and utilities (1003.2).
+
+
+Figure 2.1 Headers defined by the ISO C standard
+
+Figure 2.2 Required headers defined by the POSIX standard
+
+
+After more than twenty years of work, the standards are mature and stable. The POSIX.1 standard is maintained by an open working group known as the Austin Group (http://www.opengroup.org/austin). To ensure that they are still relevant, the standards need to be either updated or reaffirmed every so often.
+
+#### 2.2.3 The Single UNIX Specification
+The Single UNIX Specification, a superset of the POSIX.1 standard, specifies additional interfaces that extend the functionality provided by the POSIX.1 specification. POSIX.1 is equivalent to the Base Specifications portion of the ingle UNIX Specification.
+
+
+
 ## Chapter 4. Files and Directories
 
 #### Figure 4.2. IPC type macros in <sys/stat.h>
