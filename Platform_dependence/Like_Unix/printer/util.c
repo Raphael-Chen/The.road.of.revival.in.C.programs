@@ -7,6 +7,8 @@
 #define MAXKWLEN   16
 #define MAXFMTLEN  16
 
+// Utility routines used by the two programs
+
 /*
  * Get the address list for the given host and service and
  * return through ailistpp.  Returns 0 on success or an error

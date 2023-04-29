@@ -4,6 +4,9 @@
 /*
  * Print server header file.
  */
+// Header containing common constants, data structure definitions, and
+// utility routine declarations
+
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netdb.h>
