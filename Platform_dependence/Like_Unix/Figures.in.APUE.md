@@ -95,7 +95,7 @@ The next chapter is about standardization of the UNIX System and the effect of w
 
 ​	
 
-## Chapter 2 UNIX Standardization and Implementations
+## Chapter 2. UNIX Standardization and Implementations
 
 ### 2.1 Introduction
 
@@ -118,8 +118,19 @@ Figure 2.2 Required headers defined by the POSIX standard
 
 After more than twenty years of work, the standards are mature and stable. The POSIX.1 standard is maintained by an open working group known as the Austin Group (http://www.opengroup.org/austin). To ensure that they are still relevant, the standards need to be either updated or reaffirmed every so often.
 
-#### 2.2.3 The Single UNIX Specification
+### 2.2.3 The Single UNIX Specification
 The Single UNIX Specification, a superset of the POSIX.1 standard, specifies additional interfaces that extend the functionality provided by the POSIX.1 specification. POSIX.1 is equivalent to the Base Specifications portion of the ingle UNIX Specification.
+
+### 2.4 Relationship of Standards and Implementations
+The standards that we’ve mentioned define a subset of any actual system. The focus of this book is on four real systems: FreeBSD 8.0, Linux 3.2.0, Mac OS X 10.6.8, and Solaris 10.
+
+### 2.5 Limits
+
+The implementations define many magic numbers and constants. Many of these have been hard coded into programs or were determined using ad hoc techniques. With the various standardization efforts that we’ve described, more portable methods are now provided to determine these magic numbers and implementation-defined limits, greatly improving the portability of software written for the UNIX environment.
+
+Two types of limits are needed:
+1. Compile-time limits (e.g., what’s the largest value of a short integer?)
+2. Runtime limits (e.g., how many bytes in a filename?)
 
 
 
