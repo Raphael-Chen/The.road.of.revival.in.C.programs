@@ -855,7 +855,8 @@ void *printer_thread(void *arg)
 
         while ((nr = read(fd, buf, IOBUFSZ)) > 0)
         {
-            if ((nw = writen(sockfd, buf, nr)) != nr)
+            nw = writen(sockfd, buf, nr);
+            if ( nw != nr )
             {
                 if (nw < 0)
                     log_ret("can't write to printer");
@@ -899,8 +900,7 @@ void *printer_thread(void *arg)
  *
  * LOCKING: none.
  */
-ssize_t
-readmore(int sockfd, char **bpp, int off, int *bszp)
+ssize_t readmore(int sockfd, char **bpp, int off, int *bszp)
 {
     ssize_t nr;
     char *bp = *bpp;
@@ -909,12 +909,16 @@ readmore(int sockfd, char **bpp, int off, int *bszp)
     if (off >= bsz)
     {
         bsz += IOBUFSZ;
-        if ((bp = realloc(*bpp, bsz)) == NULL)
+
+        bp = realloc(*bpp, bsz);
+        if ( bp == NULL )
             log_sys("readmore: can't allocate bigger read buffer");
         *bszp = bsz;
         *bpp = bp;
     }
-    if ((nr = tread(sockfd, &bp[off], bsz - off, 1)) > 0)
+
+    nr = tread(sockfd, &bp[off], bsz - off, 1);
+    if ( nr > 0)
         return (off + nr);
     else
         return (-1);
@@ -941,7 +945,8 @@ int printer_status(int sfd, struct job *jp)
 	 */
     success = 0;
     bufsz = IOBUFSZ;
-    if ((bp = malloc(IOBUFSZ)) == NULL)
+    bp = malloc(IOBUFSZ);
+    if ( bp == NULL )
         log_sys("printer_status: can't allocate read buffer");
 
     while ((nr = tread(sfd, bp, bufsz, 5)) > 0)
@@ -1024,7 +1029,8 @@ int printer_status(int sfd, struct job *jp)
             }
             if (i >= datsz)
             { /* get more header */
-                if ((nr = readmore(sfd, &bp, i, &bufsz)) < 0)
+                nr = readmore(sfd, &bp, i, &bufsz);
+                if ( nr < 0)
                 {
                     goto out;
                 }
@@ -1053,7 +1059,8 @@ int printer_status(int sfd, struct job *jp)
                 }
                 if (i >= datsz)
                 { /* get more header */
-                    if ((nr = readmore(sfd, &bp, i, &bufsz)) < 0)
+                    nr = readmore(sfd, &bp, i, &bufsz);
+                    if ( nr < 0 )
                     {
                         goto out;
                     }
@@ -1067,7 +1074,8 @@ int printer_status(int sfd, struct job *jp)
 
             if (datsz - i < len)
             { /* get more header */
-                if ((nr = readmore(sfd, &bp, i, &bufsz)) < 0)
+                nr = readmore(sfd, &bp, i, &bufsz);
+                if ( nr < 0)
                 {
                     goto out;
                 }

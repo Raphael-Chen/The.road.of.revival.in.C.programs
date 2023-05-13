@@ -19,11 +19,11 @@
 #define REQDIR         "reqs"
 
 #if defined(BSD)
-#define LPNAME			"daemon"
+#define LPNAME            "daemon"
 #elif defined(MACOS)
-#define LPNAME			"_lp"
+#define LPNAME            "_lp"
 #else
-#define LPNAME			"lp"
+#define LPNAME            "lp"
 #endif
 
 #define FILENMSZ        64
