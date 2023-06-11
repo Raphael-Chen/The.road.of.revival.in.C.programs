@@ -132,6 +132,31 @@ Two types of limits are needed:
 1. Compile-time limits (e.g., what’s the largest value of a short integer?)
 2. Runtime limits (e.g., how many bytes in a filename?)
 
+To solve these problems, three types of limits are provided:
+1. Compile-time limits (headers)
+2. Runtime limits not associated with a file or directory (the sysconf function)
+3. Runtime limits that are associated with a file or a directory (the pathconf and fpathconf functions)
+
+Figure 2.6 Sizes of integral values from <limits.h>
+
+#### 2.5.1 ISO C Limits
+All of the compile-time limits defined by ISO C are defined in the file <limits.h> (see Figure 2.6).
+
+Figure 2.7 ISO limits on various platforms
+
+#### 2.5.2 POSIX Limits
+POSIX.1 defines numerous constants that deal with implementation limits of the operating system. Unfortunately, this is one of the more confusing aspects of POSIX.1. Although POSIX.1 defines numerous limits and constants, we’ll concern ourselves with only the ones that affect the base POSIX.1 interfaces. These limits and constants are divided into the following seven categories:
+
+1. Numerical limits: LONG_BIT, SSIZE_MAX, and WORD_BIT
+2. Minimum values: the 25 constants in Figure 2.8
+3. Maximum value: _POSIX_CLOCKRES_MIN
+4. Runtime increasable values: CHARCLASS_NAME_MAX, COLL_WEIGHTS_MAX, LINE_MAX, NGROUPS_MAX, and RE_DUP_MAX
+5. Runtime invariant values, possibly indeterminate: the 17 constants in Figure 2.9 (plus an additional four constants introduced in Section 12.2 and three constants introduced in Section 14.5)
+6. Other invariant values:NL_ARGMAX,NL_MSGMAX,NL_SETMAX, and  NL_TEXTMAX.
+7. Pathname variable values: FILESIZEBITS, LINK_MAX, MAX_CANON, MAX_INPUT, NAME_MAX, PATH_MAX, PIPE_BUF, and SYMLINK_MAX
+
+
+
 
 
 ## Chapter 4. Files and Directories
