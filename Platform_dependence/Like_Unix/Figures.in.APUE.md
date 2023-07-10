@@ -157,6 +157,20 @@ POSIX.1 defines numerous constants that deal with implementation limits of the o
 
 
 
+## Chapter 3.  File I/O
+### 3.1 Introduction
+We’ll start our discussion of the UNIX System by describing the functions available for file I/O—open a file, read a file, write a file, and so on. Most file I/O on a UNIX system can be performed using only five functions: open, read, write, lseek, and close. We then examine the effect of various buffer sizes on the read and write functions.
+
+**The functions described in this chapter are often referred to as unbuffered I/O**, in contrast to the standard I/O routines, which we describe in Chapter 5. The term unbuffered means that each read or write invokes a system call in the kernel. **These unbuffered I/O functions are not part of ISO C**, but are part of POSIX.1 and the Single UNIX Specification.
+
+Whenever we describe the sharing of resources among multiple processes, the concept of an atomic operation becomes important. We examine this concept with regard to file I/O and the arguments to the open function. This leads to a discussion of how files are shared among multiple processes and which kernel data structures are involved. After describing these features, we describe the dup, fcntl, sync, fsync, and ioctl functions.
+
+### 3.2 File Descriptors
+
+To the kernel, all open files are referred to by file descriptors. **A file descriptor is a non-negative integer**. When we open an existing file or create a new file, the kernel returns a file descriptor to the process. When we want to read or write a file, we identify the file with the file descriptor that was returned by open or creat as an argument to either read or write.
+
+
+
 
 
 ## Chapter 4. Files and Directories
