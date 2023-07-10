@@ -2,6 +2,7 @@
 
 
 # Figure 2.13. Print all possible sysconf and pathconf values
+# Figure 2.13 Build C program to print all supported configuration limits
 
 BEGIN	{
 	printf("#include \"apue.h\"\n")
