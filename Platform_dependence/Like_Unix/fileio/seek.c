@@ -4,12 +4,14 @@
 
 int main(void)
 {
-    if (lseek(STDIN_FILENO, 0, SEEK_CUR) == -1)
+    off_t currpos = lseek(STDIN_FILENO, 0, SEEK_CUR);
+    if ( currpos == -1)
         printf("cannot seek\n");
     else
         printf("seek OK\n");
 
-    exit(0);
+    // exit(0);
+    return 0;
 }
 
 
