@@ -10,7 +10,8 @@ int main(void)
 {
     int fd;
 
-    if ((fd = creat("file.hole", FILE_MODE)) < 0)
+    fd = creat("file.hole", FILE_MODE);
+    if ( fd < 0 )
         err_sys("creat error");
 
     if (write(fd, buf1, 10) != 10)
@@ -25,7 +26,7 @@ int main(void)
         err_sys("buf2 write error");
     /* offset now = 16394 */
 
-    exit(0);
+    return 0;
 }
 
 /***
