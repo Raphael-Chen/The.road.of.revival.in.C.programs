@@ -169,6 +169,23 @@ Whenever we describe the sharing of resources among multiple processes, the conc
 
 To the kernel, all open files are referred to by file descriptors. **A file descriptor is a non-negative integer**. When we open an existing file or create a new file, the kernel returns a file descriptor to the process. When we want to read or write a file, we identify the file with the file descriptor that was returned by open or creat as an argument to either read or write.
 
+By convention, UNIX System shells associate **file descriptor 0 with the standard input of a process, file descriptor 1 with the standard output, and file descriptor 2 with the standard error**. This convention is used by the shells and many applications; it is not a feature of the UNIX kernel.
+
+Although their values are standardized by POSIX.1, the magic numbers 0, 1, and 2 should be replaced in POSIX-compliant applications with the symbolic constants **STDIN_FILENO, STDOUT_FILENO, and STDERR_FILENO** to improve readability. These constants are defined in the <unistd.h> header.
+
+**File descriptors range from 0 through OPEN_MAX−1**. (Recall Figure 2.11.) Early historical implementations of the UNIX System had an upper limit of 19, allowing a maximum of 20 open files per process, but many systems subsequently increased this limit to 63.
+
+### 3.3 open and openat Functions
+A file is opened or created by calling either the open function or the openat function.
+```c
+#include <fcntl.h>
+int open(const char *path, int oflag, ... /* mode_t mode */ );
+int openat(int fd, const char *path, int oflag, ... /* mode_t mode */ );
+      // Both return: file descriptor if OK, −1 on error
+```
+
+We show the last argument as ..., which is the ISO C way to specify that the number and types of the remaining arguments may vary. For these functions, the last argument is used only when a new file is being created, as we describe later. We show this argument as a comment in the prototype.
+
 
 
 
