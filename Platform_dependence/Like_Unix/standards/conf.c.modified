@@ -1,6 +1,7 @@
 #include "apue.h"
 #include <errno.h>
 #include <limits.h>
+// Figure 2.14 Print all possible sysconf and pathconf values
 
 static void	pr_sysconf(char *, int);
 static void	pr_pathconf(char *, char *, int);
