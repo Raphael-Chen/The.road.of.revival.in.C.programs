@@ -186,6 +186,29 @@ int openat(int fd, const char *path, int oflag, ... /* mode_t mode */ );
 
 We show the last argument as ..., which is the ISO C way to specify that the number and types of the remaining arguments may vary. For these functions, the last argument is used only when a new file is being created, as we describe later. We show this argument as a comment in the prototype.
 
+### 3.4 creat Function
+
+A new file can also be created by calling the creat function.
+
+```c
+#include <fcntl.h>
+int creat(const char *path, mode_t mode);
+    // Returns: file descriptor opened for write-only if OK, −1 on error
+```
+
+### 3.6 lseek Function
+Every open file has an associated ‘‘current file offset,’’ normally a non-negative integer that measures the number of bytes from the beginning of the file.
+Read and write operations normally start at the current file offset and cause the offset to be incremented by the number of bytes read or written. By default, this offset is initialized to 0 when a file is opened, unless the O_APPEND option is specified.
+
+```c
+#include <unistd.h>
+off_t lseek(int fd, off_t offset, int whence);
+// Returns: new file offset if OK, −1 on error
+```
+
+- If whence is SEEK_SET, the file’s offset is set to offset bytes from the beginning of the file.
+- If whence is SEEK_CUR, the file’s offset is set to its current value plus the offset. The offset can be positive or negative.
+- If whence is SEEK_END, the file’s offset is set to the size of the file plus the offset.The offset can be positive or negative.
 
 
 
