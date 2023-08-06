@@ -1,6 +1,6 @@
 #include "apue.h"
 
-// Figure 3.4. Copy standard input to standard output
+// Figure 3.5 Copy standard input to standard output
 #define BUFFSIZE 4096
 
 int main(void)
@@ -15,5 +15,6 @@ int main(void)
     if (n < 0)
         err_sys("read error");
 
-    exit(0);
+    // exit(0);
+    return 0;
 }
