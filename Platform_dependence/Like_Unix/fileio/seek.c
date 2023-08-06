@@ -10,12 +10,19 @@ int main(void)
     else
         printf("seek OK\n");
 
-    // exit(0);
     return 0;
 }
 
 
 /********
+ * If we invoke this program interactively, we get
+ *  $ ./a.out < /etc/passwd
+ *  seek OK
+ *  $ cat < /etc/passwd | ./a.out
+ *  cannot seek
+ *  $ ./a.out < /var/spool/cron/FIFO
+ *  cannot seek
+ * 
  * 
  * #include <unistd.h>
 
