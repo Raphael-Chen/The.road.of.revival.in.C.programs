@@ -195,20 +195,59 @@ A new file can also be created by calling the creat function.
 int creat(const char *path, mode_t mode);
     // Returns: file descriptor opened for write-only if OK, −1 on error
 ```
+Note that this function is equivalent to
+open(path, O_WRONLY | O_CREAT | O_TRUNC, mode);
+
+
+### 3.5 close Function
+An open file is closed by calling the close function.
+```c
+#include <unistd.h>
+int close(int fd);
+    // Returns: 0 if OK, −1 on error
+```
+
+Closing a file also releases any record locks that the process may have on the file. We’ll discuss this point further in Section 14.3.
+When a process terminates, all of its open files are closed automatically by the kernel. Many programs take advantage of this fact and don’t explicitly close open files. See the program in Figure 1.4, for example.
+
+
 
 ### 3.6 lseek Function
+
 Every open file has an associated ‘‘current file offset,’’ normally a non-negative integer that measures the number of bytes from the beginning of the file.
 Read and write operations normally start at the current file offset and cause the offset to be incremented by the number of bytes read or written. By default, this offset is initialized to 0 when a file is opened, unless the O_APPEND option is specified.
 
 ```c
 #include <unistd.h>
 off_t lseek(int fd, off_t offset, int whence);
-// Returns: new file offset if OK, −1 on error
+		// Returns: new file offset if OK, −1 on error
 ```
 
 - If whence is SEEK_SET, the file’s offset is set to offset bytes from the beginning of the file.
 - If whence is SEEK_CUR, the file’s offset is set to its current value plus the offset. The offset can be positive or negative.
 - If whence is SEEK_END, the file’s offset is set to the size of the file plus the offset.The offset can be positive or negative.
+
+
+
+### 3.7 read Function
+Data is read from an open file with the read function.
+```c
+#include <unistd.h>
+ssize_t read(int fd, void *buf, size_t nbytes);
+  // Returns: number of bytes read, 0 if end of file, −1 on error
+```
+
+If the read is successful, the number of bytes read is  returned. If the end of file is encountered, 0 is returned.
+There are several cases in which the number of bytes  actually read is less than the amount requested:
+
+- When reading from a regular file, if the end of file is reached before the requested number of bytes has been read. For example, if 30 bytes remain until the end of file and we try to read 100 bytes, read returns 30. The next time we call read, it will return 0 (end of file).
+- When reading from a terminal device. Normally, up to one line is read at a time. (We’ll see how to change this default in Chapter 18.)
+- When reading from a network. Buffering within the network may cause less than the requested amount to be returned.
+- When reading from a pipe or FIFO. If the pipe contains fewer bytes than requested, read will return only what is available.
+- When reading from a record-oriented device. Some record-oriented devices, such as magnetic tape, can return up to a single record at a time.
+- When interrupted by a signal and a partial amount of data has already been read. We discuss this further in Section 10.5.
+
+
 
 
 
