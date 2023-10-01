@@ -247,7 +247,21 @@ There are several cases in which the number of bytes  actually read is less than
 - When reading from a record-oriented device. Some record-oriented devices, such as magnetic tape, can return up to a single record at a time.
 - When interrupted by a signal and a partial amount of data has already been read. We discuss this further in Section 10.5.
 
+### 3.8 write Function
+Data is written to an open file with the write function.
 
+```c
+#include <unistd.h>
+ssize_t write(int fd, const void *buf, size_t nbytes);
+		// Returns: number of bytes written if OK, −1 on error
+```
+The return value is usually equal to the nbytes argument; otherwise, an error has occurred. A common cause for a write error is either filling up a disk or exceeding the file size limit for a given process (Section 7.11 and Exercise 10.11).
+
+
+
+### 3.10 File Sharing
+The UNIX System supports the sharing of open files among different processes. Before describing the dup function, we need to describe this sharing. To do this, we’ll examine the data structures used by the kernel for all I/O.
+The kernel uses **three data structures** to represent an open file, and the relationships among them determine the effect one process has on another with regard to file sharing.
 
 
 
