@@ -263,6 +263,20 @@ The return value is usually equal to the nbytes argument; otherwise, an error ha
 The UNIX System supports the sharing of open files among different processes. Before describing the dup function, we need to describe this sharing. To do this, we’ll examine the data structures used by the kernel for all I/O.
 The kernel uses **three data structures** to represent an open file, and the relationships among them determine the effect one process has on another with regard to file sharing.
 
+1. Every process has an entry in the process table. Within each process table entry is a table of open file descriptors, which we can think of as a vector, with one entry per descriptor. Associated with each file descriptor are
+(a) **The file descriptor flags** (close-on-exec; refer to Figure 3.7 and Section 3.14)
+(b) **A pointer** to a file table entry
+2. The kernel maintains a file table for all open files. Each file table entry contains
+(a) The file status flags for the file, such as read, write, append, sync, and nonblocking; more on these in Section 3.14
+(b) The current file offset
+(c) A pointer to the v-node table entry for the file
+3. Each open file (or device) has a **v-node structure** that contains information about the type of file and pointers to functions that operate on the file. For most files, the v-node also contains the **i-node** for the file. This information is read from disk when the file is opened, so that all the pertinent information about the file is readily available. For example, the i-node contains the owner of the file, the size of the file, pointers to where the actual data blocks for the file are located on disk, and so on. 
+    (We talk more about i-nodes in Section 4.14 when we describe the typical UNIX file system in more detail.)
+
+
+
+Figure 3.7 Kernel data structures for open files
+
 
 
 
