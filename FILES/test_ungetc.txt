@@ -1,0 +1,5 @@
+# test for example_for_ungetc.c
+
+this is a test
+!c standard library
+!library functions and macros
