@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-
+// Only for English text.
 #define MAX 50
 
 struct tnode
@@ -69,29 +69,30 @@ void treeprint(struct tnode *p)
         treeprint(p->right);
     }
 }
-#define READ_FILE "./count_words.txt" 
+#define FILE_TO_READ "./count_words.txt" 
 
 int main( void )
 {
     char word[MAX];
-    FILE *bfp;
-    FILE *out;
+    FILE *in_fp;
+    FILE *out_fp;
     char c;
     int i, k, n;
     struct tnode *root;
     root = NULL;
 
-    bfp = fopen( READ_FILE, "r");
-    if ( NULL == bfp )
+    in_fp = fopen( FILE_TO_READ, "r");
+    if ( NULL == in_fp )
     {
         perror( "File open " );
         exit(1);
     }
     
-    while ((c = fgetc(bfp)) != EOF)
+    // while ((c = fgetc(in_fp)) != EOF)
+    while ( 0 == feof(in_fp) ) 
     {
-        ungetc(c, bfp);
-        for (i = 0; (c = fgetc(bfp)) != ' ' && c != '\n' && c != EOF; i++)
+        ungetc(c, in_fp);
+        for (i = 0; (c = fgetc(in_fp)) != ' ' && c != '\n' && c != EOF; i++)
         {
             if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
             {
@@ -116,17 +117,17 @@ int main( void )
     qsort(list, n + 1, sizeof(list[0]), cmp);
 
 
-    out = fopen("wordfreq.txt", "w");
+    out_fp = fopen("wordfreq.txt", "w");
     for (k = 0; k < curr; k++)
     {
-        fprintf(out, "%s %d\n", list[k].w, list[k].num);
+        fprintf(out_fp, "%s %d\n", list[k].w, list[k].num);
     }
-    for (k = 0; k < 100; k++)                       //out put first 100 on screen
+    for (k = 0; k < 100; k++)                       //out_fp put first 100 on screen
     {
         printf("%s %d\n", list[k].w, list[k].num);
     }
-    fclose(bfp);
-    fclose(out);
+    fclose(in_fp);
+    fclose(out_fp);
 
     return 0;
 }
