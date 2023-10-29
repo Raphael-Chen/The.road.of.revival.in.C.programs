@@ -259,13 +259,18 @@ The return value is usually equal to the nbytes argument; otherwise, an error ha
 
 
 
+### 3.9 I/O Efficiency
+The program in Figure 3.5 copies a file, using only the read and write functions.
+
+
+
 ### 3.10 File Sharing
 The UNIX System supports the sharing of open files among different processes. Before describing the dup function, we need to describe this sharing. To do this, we’ll examine the data structures used by the kernel for all I/O.
 The kernel uses **three data structures** to represent an open file, and the relationships among them determine the effect one process has on another with regard to file sharing.
 
 1. Every process has an entry in the process table. Within each process table entry is a table of open file descriptors, which we can think of as a vector, with one entry per descriptor. Associated with each file descriptor are
-(a) **The file descriptor flags** (close-on-exec; refer to Figure 3.7 and Section 3.14)
-(b) **A pointer** to a file table entry
+(a)  **The file descriptor flags** (close-on-exec; refer to Figure 3.7 and Section 3.14)
+(b)  **A pointer** to a file table entry
 2. The kernel maintains a file table for all open files. Each file table entry contains
 (a) The file status flags for the file, such as read, write, append, sync, and nonblocking; more on these in Section 3.14
 (b) The current file offset
@@ -277,7 +282,35 @@ The kernel uses **three data structures** to represent an open file, and the rel
 
 Figure 3.7 Kernel data structures for open files
 
+### 3.11 Atomic Operations
 
+Appending to a File
+Consider a single process that wants to append to the end of a file. Older versions of the UNIX System didn’t support the O_APPEND option to open, so the program was coded as follows:
+
+```c
+if (lseek(fd, 0L, SEEK_END) < 0)
+err_sys("lseek error");
+if (write(fd, buf, 100) != 100)
+err_sys("write error");
+```
+This works fine for a single process, but problems arise if multiple processes use this technique to append to the same file. (This scenario can arise if multiple instances of the same program are appending messages to a log file, for example.)
+
+pread and pwrite Functions
+The Single UNIX Specification includes two functions that allow applications to seek and perform I/O atomically: pread and pwrite.
+
+```c
+#include <unistd.h>
+ssize_t pread(int fd, void *buf, size_t nbytes, off_t offset);
+        // Returns: number of bytes read, 0 if end of file, −1 on error
+ssize_t pwrite(int fd, const void *buf, size_t nbytes, off_t offset);
+        // Returns: number of bytes written if OK, −1 on error
+```
+
+Calling pread is equivalent to calling lseek followed by a call to read, with the following exceptions.
+- There is no way to interrupt the two operations that occur when we call pread.
+- The current file offset **is not updated**.
+
+Calling pwrite is equivalent to calling lseek followed by a call to write, with similar exceptions.
 
 
 ## Chapter 4. Files and Directories
