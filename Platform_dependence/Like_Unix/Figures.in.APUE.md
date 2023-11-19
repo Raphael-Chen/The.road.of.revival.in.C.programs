@@ -312,6 +312,50 @@ Calling pread is equivalent to calling lseek followed by a call to read, with th
 
 Calling pwrite is equivalent to calling lseek followed by a call to write, with similar exceptions.
 
+### 3.12 dup and dup2 Functions
+
+An existing file descriptor is duplicated by either of the following functions:
+
+```c
+#include <unistd.h>
+int dup(int fd);
+int dup2(int fd, int fd2);
+    // Both return: new file descriptor if OK, −1 on error
+```
+
+The new file descriptor returned by dup is guaranteed to be the lowest-numbered available file descriptor. With dup2, we specify the value of the new descriptor with the fd2 argument. If fd2 is already open, it is first closed. If fd equals fd2, then dup2 returns fd2 without closing it. Otherwise, the FD_CLOEXEC file descriptor flag is cleared for fd2, so that fd2 is left open if the process calls exec.
+The new file descriptor that is returned as the value of the functions shares the same file table entry as the fd argument. We show this in Figure 3.9.
+
+In this last case, the dup2 is not exactly the same as a close followed by an fcntl.
+The differences are as follows:
+
+1. **dup2 is an atomic operation**, whereas the alternate form involves two function calls. It is possible in the latter case to have a signal catcher called between the close and the fcntl that could modify the file descriptors. (We describe signals in Chapter 10.) The same problem could occur if a different thread changes the file descriptors. (We describe threads in Chapter 11.)
+2. There are some errno differences between dup2 and fcntl.
+
+
+
+### 3.13 sync, fsync, and fdatasync Functions
+Traditional implementations of the UNIX System have a buffer cache or page cache in the kernel through which most disk I/O passes. When we write data to a file, the data is normally copied by the kernel into one of its buffers and queued for writing to disk at some later time. This is called **delayed write**.
+
+The kernel eventually writes all the delayed-write blocks to disk, normally when it needs to reuse the buffer for some other disk block. To ensure consistency of the file system on disk with the contents of the buffer cache, the sync, fsync, and fdatasync functions are provided.
+```c
+#include <unistd.h>
+int fsync(int fd);
+int fdatasync(int fd);
+    // Returns: 0 if OK, −1 on error
+void sync(void);
+```
+
+The sync function simply queues all the modified block buffers for writing and returns; it does not wait for the disk writes to take place.
+The function sync is normally called periodically (usually every 30 seconds) from a system daemon, often called update. This guarantees regular flushing of the kernel’s block buffers. The command sync(1) also calls the sync function.
+
+The function fsync refers only to a single file, specified by the file descriptor fd, and waits for the disk writes to complete before returning. This function is used when an application, such as a database, needs to be sure that the modified blocks have been written to the disk.
+The fdatasync function is similar to fsync, but it affects only the data portions of a file. With fsync, the file’s attributes are also updated synchronously.
+
+
+
+
+
 
 ## Chapter 4. Files and Directories
 
