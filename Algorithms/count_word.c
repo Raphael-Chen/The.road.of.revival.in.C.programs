@@ -36,26 +36,26 @@ int cmp(const void *a, const void *b)
 // struct tnode *treewords(struct tnode *, char *);
 // void treeprint(struct tnode *);
 
-struct tnode *treewords(struct tnode *p, char *w)
+struct tnode *treewords(struct tnode *p, const char *string)
 {
-    int cond;
+    int cond;  // for what?
     if (p == NULL)
     {
         p = (struct tnode *)malloc(sizeof(struct tnode));
-        strcpy(p->word, w);
+        strncpy( p->word, string, strlen( string ) );
         p->count = 1;
         p->left = p->right = NULL;
     }
-    else if ((cond = strcmp(w, p->word)) == 0)
+    else if ((cond = strcmp(string, p->word)) == 0) // if the word exist already.
     {
         p->count++;
     }
     else if (cond < 0)
     {
-        p->left = treewords(p->left, w);
+        p->left = treewords(p->left, string);
     }
     else
-        p->right = treewords(p->right, w);
+        p->right = treewords(p->right, string);
 
     return (p);
 }
