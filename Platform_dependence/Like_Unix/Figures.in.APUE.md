@@ -354,6 +354,25 @@ The fdatasync function is similar to fsync, but it affects only the data portion
 
 
 
+### 3.14 fcntl Function
+
+The fcntl function can change the properties of a file that is already open.
+```c
+#include <fcntl.h>
+int fcntl(int fd, int cmd, ... /* int arg */ );
+    // Returns: depends on cmd if OK (see following), −1 on error
+```
+In the examples in this section, the third argument is always an integer, corresponding to the comment in the function prototype just shown. When we describe record locking in Section 14.3, however, the third argument becomes a pointer to a structure.
+
+
+
+| -               | -                                                            |
+| --------------- | ------------------------------------------------------------ |
+| F_DUPFD         | Duplicate the file descriptor fd. The new file descriptor is returned as the value of the function. It is the lowest-numbered descriptor that is not already open, and that is greater than or equal to the third argument (taken as an integer). The new descriptor shares the same file table entry as fd. (Refer to Figure 3.9.) But the new descriptor has its own set of file descriptor flags, and its FD_CLOEXEC file descriptor flag is cleared. (This means that the descriptor is left open across an exec, which we discuss in Chapter 8.) |
+| F_DUPFD_CLOEXEC | Duplicate the file descriptor and set the FD_CLOEXEC file descriptor flag associated with the new descriptor. Returns the new file descriptor. |
+| F_GETFD         | Return the file descriptor flags for fd as the value of the function. Currently, only one file descriptor flag is defined: the FD_CLOEXEC flag. |
+| F_SETFD         | Set the file descriptor flags for fd. The new flag value is set from the third argument (taken as an integer). |
+
 
 
 
