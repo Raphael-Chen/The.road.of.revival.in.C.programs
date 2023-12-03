@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-// Only for English text.
+// Only for English text, and the result Ignore case.
 #define MAX 50
 
 struct tnode
@@ -91,7 +91,7 @@ int main( void )
     // while ((c = fgetc(in_fp)) != EOF)
     while ( 0 == feof(in_fp) ) 
     {
-        ungetc(c, in_fp);
+        // ungetc(c, in_fp);  //Debug: What a fucking function!
         for (i = 0; (c = fgetc(in_fp)) != ' ' && c != '\n' && c != EOF; i++)
         {
             if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
