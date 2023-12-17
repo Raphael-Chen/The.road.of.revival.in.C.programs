@@ -1,7 +1,7 @@
 #include "apue.h"
 #include <fcntl.h>
 
-// Figure 3.11. Turn on one or more of the file status flags for a descriptor
+// Figure 3.12 Turn on one or more of the file status flags for a descriptor
 
 /* flags are file status flags to turn on */
 void set_fl(int fd, int flags) 
