@@ -362,7 +362,24 @@ The fcntl function can change the properties of a file that is already open.
 int fcntl(int fd, int cmd, ... /* int arg */ );
     // Returns: depends on cmd if OK (see following), −1 on error
 ```
-In the examples in this section, the third argument is always an integer, corresponding to the comment in the function prototype just shown. When we describe record locking in Section 14.3, however, the third argument becomes a pointer to a structure.
+
+In the examples in this section, the third argument is **always an integer**, corresponding to the comment in the function prototype just shown. When we describe record locking in Section 14.3, however, the third argument becomes a pointer to a structure.
+
+The fcntl function is used for five different purposes.
+
+1. Duplicate an existing descriptor (cmd = F_DUPFD or F_DUPFD_CLOEXEC)
+2. Get/set file descriptor flags (cmd = F_GETFD or F_SETFD)
+3. Get/set file status flags (cmd = F_GETFL or F_SETFL)
+4. Get/set asynchronous I/O ownership (cmd = F_GETOWN or F_SETOWN)
+5. Get/set record locks (cmd = F_GETLK, F_SETLK, or F_SETLKW)
+
+We’ll now describe the first 8 of these 11 cmd values. (We’ll wait until Section 14.3 to describe the last 3, which deal with record locking.) Refer to Figure 3.7, as we’ll discuss both the file descriptor flags associated with each file descriptor in the process table entry and the file status flags associated with each file table entry.
+
+
+
+
+
+
 
 
 
@@ -372,6 +389,17 @@ In the examples in this section, the third argument is always an integer, corres
 | F_DUPFD_CLOEXEC | Duplicate the file descriptor and set the FD_CLOEXEC file descriptor flag associated with the new descriptor. Returns the new file descriptor. |
 | F_GETFD         | Return the file descriptor flags for fd as the value of the function. Currently, only one file descriptor flag is defined: the FD_CLOEXEC flag. |
 | F_SETFD         | Set the file descriptor flags for fd. The new flag value is set from the third argument (taken as an integer). |
+
+
+
+
+
+
+
+
+
+
+
 
 
 
