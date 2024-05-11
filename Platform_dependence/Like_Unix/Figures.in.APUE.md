@@ -377,12 +377,6 @@ We’ll now describe the first 8 of these 11 cmd values. (We’ll wait until Sec
 
 
 
-
-
-
-
-
-
 | -               | -                                                            |
 | --------------- | ------------------------------------------------------------ |
 | F_DUPFD         | Duplicate the file descriptor fd. The new file descriptor is returned as the value of the function. It is the lowest-numbered descriptor that is not already open, and that is greater than or equal to the third argument (taken as an integer). The new descriptor shares the same file table entry as fd. (Refer to Figure 3.9.) But the new descriptor has its own set of file descriptor flags, and its FD_CLOEXEC file descriptor flag is cleared. (This means that the descriptor is left open across an exec, which we discuss in Chapter 8.) |
@@ -392,13 +386,36 @@ We’ll now describe the first 8 of these 11 cmd values. (We’ll wait until Sec
 
 
 
+### 3.15 ioctl Function
+The ioctl function has always been the catchall for I/O operations. Anything that couldn’t be expressed using one of the other functions in this chapter usually ended up being specified with an ioctl. Terminal I/O was the biggest user of this function.
+(When we get to Chapter 18, we’ll see that POSIX.1 has replaced the terminal I/O operations with separate functions.)
 
+```c
+#include <unistd.h>
+#include <sys/ioctl.h>
+/* System V */
+/* BSD and Linux */
+int ioctl(int fd, int request, ...);
+        // Returns: −1 on error, something else if OK
+```
 
+Each device driver can define its own set of ioctl commands.
 
+The prototype that we show corresponds to POSIX.1. FreeBSD 8.0 and Mac OS X 10.6.8 declare the second argument as **an unsigned long**. This detail doesn’t matter, since the second argument is always a **#defined name from a header**.
 
+In this prototype, we show only the headers required for the function itself. Normally, additional device-specific headers are required. For example, the ioctl commands for terminal I/O, beyond the basic operations specified by POSIX.1, **all require the <termios.h> header**.
 
+Each device driver can define its own set of ioctl commands. The system, however, provides generic ioctl commands for different classes of devices. Examples of some of the categories for these generic ioctl commands supported in FreeBSD are summarized in Figure 3.15.
 
+| Category     | Constant names | Header            | Number of ioctls |
+| ------------ | -------------- | ----------------- | ---------------- |
+| disk labels  | DIOxxx         | <sys/disklabel.h> | 4                |
+| file I/O     | FIOxxx         | <sys/filio.h>     | 14               |
+| mag tape I/O | MTIOxxx        | <sys/mtio.h>      | 11               |
+| socket I/O   | SIOxxx         | <sys/sockio.h>    | 73               |
+| terminal I/O | TIOxxx         | <sys/ttycom.h>    | 43               |
 
+#### Figure 3.15 Common FreeBSD ioctl operations
 
 
 
